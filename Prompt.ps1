@@ -9,7 +9,7 @@ function Test-Elevation {
     [Security.Principal.WindowsIdentity]::GetCurrent().Owner.IsWellKnown("BuiltInAdministratorsSid")
 }
 
-function prompt {
+function Prompt {
     <#
     .Synopsis
         Set a custom prompt that shows elevated status, username, history ID, and current path, 
@@ -22,13 +22,11 @@ function prompt {
 
     Write-Host
 
-    if (Test-Elevation) {  # Use different username if elevated
-        Write-Host "ELEVATED " -NoNewline -ForegroundColor Yellow
-	$Host.UI.RawUI.WindowTitle = "ELEVATED: $($env:USERNAME) @ $($env:COMPUTERNAME)"
+    if (Test-Elevation) {
+      Write-Host "ELEVATED " -NoNewline -ForegroundColor Yellow
     }
 
     Write-Host "$ENV:USERNAME " -NoNewline -ForegroundColor White
-    $Host.UI.RawUI.WindowTitle = "$($env:USERNAME) @ $($env:COMPUTERNAME)"
     #Write-Host "$ENV:COMPUTERNAME" -NoNewline -ForegroundColor Yellow
 
     $HistoryId = $MyInvocation.HistoryId
@@ -42,3 +40,15 @@ function prompt {
 
     return "> "
 }
+
+function Title {
+  if (Test-Elevation) { 
+    $Host.UI.RawUI.WindowTitle = "ELEVATED PowerShell: $($env:USERNAME) @ $($env:COMPUTERNAME)" 
+  }
+  if (!(Test-Elevation)) { 
+    $Host.UI.RawUI.WindowTitle = "PowerShell: $($env:USERNAME) @ $($env:COMPUTERNAME)"
+  }
+}
+
+Prompt
+Title
