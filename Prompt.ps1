@@ -24,9 +24,11 @@ function prompt {
 
     if (Test-Elevation) {  # Use different username if elevated
         Write-Host "ELEVATED " -NoNewline -ForegroundColor Yellow
+	$Host.UI.RawUI.WindowTitle = "ELEVATED: $($env:USERNAME) @ $($env:COMPUTERNAME)"
     }
 
     Write-Host "$ENV:USERNAME " -NoNewline -ForegroundColor White
+    $Host.UI.RawUI.WindowTitle = "$($env:USERNAME) @ $($env:COMPUTERNAME)"
     #Write-Host "$ENV:COMPUTERNAME" -NoNewline -ForegroundColor Yellow
 
     $HistoryId = $MyInvocation.HistoryId
