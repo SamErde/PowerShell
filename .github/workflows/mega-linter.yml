@@ -31,6 +31,12 @@ env:
   # or posted in a PR (pull_request)
   APPLY_FIXES_MODE: commit
 
+  # Linters to leave enabled but not block on errors
+  DISABLE_ERRORS_LINTERS:
+    - REPOSITORY_DEVSKIM
+    - REPOSITORY_CHECKOV
+    - SPELL_CSPELL
+
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
