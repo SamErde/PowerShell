@@ -31,12 +31,6 @@ env:
   # or posted in a PR (pull_request)
   APPLY_FIXES_MODE: commit
 
-  # Linters to leave enabled but not block on errors
-  DISABLE_ERRORS_LINTERS:
-    - REPOSITORY_DEVSKIM
-    - REPOSITORY_CHECKOV
-    - SPELL_CSPELL
-
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -70,7 +64,7 @@ jobs:
 
         # You can override MegaLinter flavor used to have faster performances
         # More info at https://megalinter.io/flavors/
-        uses: oxsecurity/megalinter@v7
+        uses: oxsecurity/megalinter@v7.3.0
 
         id: ml
 
@@ -90,6 +84,12 @@ jobs:
           #     github.event_name == 'push' &&
           #     contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
           #   }}
+            # Linters to leave enabled but not block on errors
+          DISABLE_ERRORS_LINTERS: >-
+            - REPOSITORY_DEVSKIM
+            - REPOSITORY_CHECKOV
+            - SPELL_CSPELL
+
           VALIDATE_ALL_CODEBASE: >-
             ${{
               github.event_name == 'push' &&
