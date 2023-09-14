@@ -17,13 +17,16 @@
     ]
 
     "patterns": [
-        "name": "ALL-CAPS-WORDS"
-        "pattern": "/\b[A-Z0-9]+\b/g",
+        {
+          "name": "ALL-CAPS-WORDS",
+          "pattern": "/\b[A-Z0-9]+\b/g",
+          "description": "Any word in ALL CAPS."
+        }
     ]
 
     "ignoreRegExpList": [
-        ALL-CAPS-WORDS,
-        Email,
+        "ALL-CAPS-WORDS",
+        "Email",
         "github.com/",
         "@"
     ]
