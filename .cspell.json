@@ -1,8 +1,7 @@
 {
     "version": "0.2",
     "language": "en",
-    "analyze_file_names": "false",
-
+    
     "words": [
         "RSAT"
     ],
