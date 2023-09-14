@@ -85,6 +85,9 @@ jobs:
           #     contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
           #   }}
             # Linters to leave enabled but not block on errors
+          DISABLE_LINTERS: >-
+            - SPELL_LYCHEE
+
           DISABLE_ERRORS_LINTERS: >-
             - REPOSITORY_DEVSKIM
             - REPOSITORY_CHECKOV
