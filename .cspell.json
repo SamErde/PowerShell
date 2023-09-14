@@ -3,29 +3,24 @@
     "language": "en",
     "analyze_file_names": "false"
 
-    // list of words to be always considered correct
     "words": [
         "RSAT"
     ],
 
-    // list of words to always ignore
     "ignoreWords": [
         "stefanzweifel",
         "diffy"
     ]
     
-    // list of words to be always considered incorrect
     "flagWords": [
         "yeet"
     ]
 
-    // define regex patterns to be referenced in RegExpLists
     "patterns": [
         "name": "ALL-CAPS-WORDS"
         "pattern": "/\b[A-Z0-9]+\b/g",
     ]
 
-    // ignoreRegExpList - list of patterns to be ignored
     "ignoreRegExpList": [
         ALL-CAPS-WORDS,
         Email,
