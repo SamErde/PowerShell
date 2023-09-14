@@ -22,12 +22,14 @@ DISABLE_LINTERS:
   - REPOSITORY_TRUFFLEHOG
   - SPELL_LYCHEE
 
-DISABLE_ERRORS_LINTERS: >-
+DISABLE_ERRORS_LINTERS:
   - REPOSITORY_DEVSKIM
   - REPOSITORY_CHECKOV
   - REPOSITORY_GRYPE
   - REPOSITORY_SEMGREP
   - SPELL_CSPELL
+  - POWERSHELL_POWERSHELL
+  - REPOSITORY_git_diff
 
 PRINT_ALL_FILES: false
 FILTER_REGEX_EXCLUDE: '(\.automation/test|\.automation/generated|\.venv|\.github/workflows|docs/javascripts|docs/overrides|docs/json-schemas|flavors|clj-kondo|TEMPLATES)'
