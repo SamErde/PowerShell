@@ -1,7 +1,7 @@
 {
     "version": "0.2",
     "language": "en",
-    "analyze_file_names": "false"
+    "analyze_file_names": "false",
 
     "words": [
         "RSAT"
@@ -10,11 +10,11 @@
     "ignoreWords": [
         "stefanzweifel",
         "diffy"
-    ]
+    ],
     
     "flagWords": [
         "yeet"
-    ]
+    ],
 
     "patterns": [
         {
@@ -22,7 +22,7 @@
           "pattern": "/\b[A-Z0-9]+\b/g",
           "description": "Any word in ALL CAPS."
         }
-    ]
+    ],
 
     "ignoreRegExpList": [
         "ALL-CAPS-WORDS",
