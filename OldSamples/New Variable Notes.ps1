@@ -1,6 +1,6 @@
 
 # Use it to create a variable in a different scope. The -Scope parameter can be clearer than using $global:foo = 1
-New-Variable -Scope Global
+New-Variable -Scope Global -Name VariableName
 
 # Use it to create a constant variable or a read-only variable
 New-Variable -Name pi -Value $([math]::Pi) -Option constant
@@ -43,7 +43,4 @@ Get-Clipboard -OutVariable ClipboardContents
 
  - Use it to create variables in loops. Example: Loop through a list of vCenter servers to connect to and create 
    a different varable for each server.
-
-
-
 #>
