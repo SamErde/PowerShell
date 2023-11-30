@@ -20,7 +20,7 @@ Function Get-ScriptPath {
         ElseIf ($MyInvocation.PSScriptRoot) { $MyInvocation.PSScriptRoot } # Windows PowerShell 3.0+
         ElseIf ($MyInvocation.MyCommand.Path) { Split-Path -Path $MyInvocation.MyCommand.Path -Parent } # Windows PowerShell
         Else {
-            Write-Host -Object "Unable to resolve script's file path!" -ForegroundColor Red
+            Write-Error "Unable to resolve script's file path."
             Exit 1
         }
     }
@@ -46,7 +46,7 @@ Function Get-ScriptName {
         ElseIf ($psISE) { $psISE.CurrentFile.DisplayName.Trim("*") } # Windows PowerShell ISE
         ElseIf ($MyInvocation.MyCommand.Name) { $MyInvocation.MyCommand.Name } # Windows PowerShell
         Else {
-            Write-Host -Object "Uanble to resolve script's file name!" -ForegroundColor Red
+            Write-Error "Uanble to resolve script's file name."
             Exit 1
         }
     }
