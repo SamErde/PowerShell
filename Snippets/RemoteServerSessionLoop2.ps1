@@ -18,11 +18,11 @@ foreach ($server in $servers) {
     $session = New-PSSession -ComputerName $server -Name $server -Credential $creds
 
     Try { 
-        Write-Host -ForegroundColor Green "Connecting to $server... " -NoNewline
+        Write-Information "Connecting to $server... " -InformationAction Continue
         Enter-PSSession $session 
     } 
     Catch { 
-        Write-Host -ForegroundColor DarkYellow "Failed to enter the PSSession for $server. Skipping."
+        Write-Warning "Failed to enter the PSSession for $server. Skipping." -WarningAction Continue
         Continue 
     }
     Write-Output $session.State
@@ -30,10 +30,10 @@ foreach ($server in $servers) {
     <#
         Code to be run on each remote server go here.
     #>
-    Write-Host -ForegroundColor DarkGreen "Inner code."
+    Write-Information "Inner code." -InformationAction Continue
 
     #Cleanup and then show the current PSSession state.
     Exit-PSSession
     Remove-PSSession $session
-    Write-Host -ForegroundColor DarkYellow $session.ComputerName $session.State `n`n -NoNewline
+    Write-Information "$session.ComputerName $session.State `n`n" -InformationAction Continue
 }
