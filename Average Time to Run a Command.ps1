@@ -40,7 +40,7 @@ function Get-AverageExecutionTime {
             $StartTime = Get-Date
 
             # Execute the command
-            $Scriptblock | Invoke-Expression
+            $Scriptblock.Invoke()
 
             # Get the current time after execution
             $EndTime = Get-Date
