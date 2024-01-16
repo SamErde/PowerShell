@@ -3,8 +3,7 @@
 ---
 name: MegaLinter
 
-# Trigger mega-linter at every push. Action will also be visible from Pull
-# Requests to main
+# Trigger mega-linter at every push. Action will also be visible from Pull Requests to main
 on:
   # Comment this line to trigger action only on pull-requests
   # (not recommended if you don't pay for GH Actions)
@@ -13,7 +12,9 @@ on:
   pull_request:
     branches:
       - main
-      - master
+      - testing
+      - dev
+      - experimental
 
 # Comment env block if you do not want to apply fixes
 env:
@@ -64,6 +65,7 @@ jobs:
 
         # You can override MegaLinter flavor used to have faster performances
         # More info at https://megalinter.io/flavors/
+        # The dotnet flavor includes PowerShell, MD, YAML, JSON, spelling, and more.
         uses: oxsecurity/megalinter/flavors/dotnet@v7.7.0
 
         id: ml
@@ -84,11 +86,10 @@ jobs:
           #     github.event_name == 'push' &&
           #     contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
           #   }}
-            # Linters to leave enabled but not block on errors
-
           VALIDATE_ALL_CODEBASE: true
 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # EMAIL_REPORTER_SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
 
           # ADD YOUR CUSTOM ENV VARIABLES HERE OR DEFINE THEM IN A FILE
           # .mega-linter.yml AT THE ROOT OF YOUR REPOSITORY
@@ -96,10 +97,14 @@ jobs:
           # Uncomment to disable copy-paste and spell checks
           # DISABLE: COPYPASTE,SPELL
 
+          # Custom Variables
+          ENABLE: PowerShell,Markdown,Spell
+          DISABLE_ERRORS_LINTERS: SPELL
+
       # Upload MegaLinter artifacts
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        if: ${{ success() }} || ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
         with:
           name: MegaLinter reports
           path: |
@@ -162,19 +167,8 @@ jobs:
         run: sudo chown -Rc $UID .git/
 
       - name: Commit and push applied linter fixes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        if: >-
-          steps.ml.outputs.has_updated_sources == 1 &&
-          (
-            env.APPLY_FIXES_EVENT == 'all' ||
-            env.APPLY_FIXES_EVENT == github.event_name
-          ) &&
-          env.APPLY_FIXES_MODE == 'commit' &&
-          (!contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)) &&
-          (
-            github.event_name == 'push' ||
-            github.event.pull_request.head.repo.full_name == github.repository
-          )
+        uses: stefanzweifel/git-auto-commit-action@v5
+        if: env.APPLY_FIXES_IF_COMMIT == 'true'
         with:
           branch: >-
             ${{
