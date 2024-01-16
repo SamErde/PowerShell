@@ -98,7 +98,7 @@ jobs:
           # DISABLE: COPYPASTE,SPELL
 
           # Custom Variables
-          ENABLE: PowerShell,Markdown,Spell
+          # ENABLE: PowerShell,Markdown,Spell
           DISABLE_ERRORS_LINTERS: SPELL
 
       # Upload MegaLinter artifacts
