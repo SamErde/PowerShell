@@ -98,7 +98,7 @@ jobs:
           # Uncomment to disable copy-paste and spell checks
           # DISABLE: COPYPASTE,SPELL
           # DISABLE_ERRORS: true
-          DISABLE_ERRORS_LINTERS: repository_devskim,repository_kics,repository_checkov,powershell_powershell,spell_cspell
+          DISABLE_ERRORS_LINTERS: REPOSITORY_DEVSKIM,REPOSITORY_KICS,REPOSITORY_CHECKOV,POWERSHELL_POWERSHELL,SPELL_CSPELL
 
       # Upload MegaLinter artifacts
       - name: Archive production artifacts
