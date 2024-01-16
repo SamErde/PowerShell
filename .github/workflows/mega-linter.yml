@@ -57,14 +57,14 @@ jobs:
 
           # If you use VALIDATE_ALL_CODEBASE = true, you can remove this line to
           # improve performance
-          fetch-depth: 0
+          # fetch-depth: 0
 
       # MegaLinter
       - name: MegaLinter
 
         # You can override MegaLinter flavor used to have faster performances
         # More info at https://megalinter.io/flavors/
-        uses: oxsecurity/megalinter@v7.3.0
+        uses: oxsecurity/megalinter/flavors/dotnet@v7.7.0
 
         id: ml
 
@@ -86,11 +86,7 @@ jobs:
           #   }}
             # Linters to leave enabled but not block on errors
 
-          VALIDATE_ALL_CODEBASE: >-
-            ${{
-              github.event_name == 'push' &&
-              contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
-            }}
+          VALIDATE_ALL_CODEBASE: true
 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
