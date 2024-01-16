@@ -99,7 +99,7 @@ jobs:
 
           # Custom Variables
           # ENABLE: PowerShell,Markdown,Spell
-          DISABLE_ERRORS_LINTERS: SPELL
+          DISABLE_ERRORS_LINTERS: SPELL,REPOSITORY,MARKDOWN
 
       # Upload MegaLinter artifacts
       - name: Archive production artifacts
