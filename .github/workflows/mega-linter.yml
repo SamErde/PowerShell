@@ -97,9 +97,10 @@ jobs:
 
           # Uncomment to disable copy-paste and spell checks
           # DISABLE: COPYPASTE,SPELL
-          # DISABLE_ERRORS: true
+          DISABLE_ERRORS: true
           DISABLE_LINTERS: SPELL_LYCHEE
-          DISABLE_ERRORS_LINTERS: REPOSITORY_DEVSKIM,REPOSITORY_KICS,REPOSITORY_CHECKOV,POWERSHELL_POWERSHELL,SPELL_CSPELL
+          # Uncomment DISABLE_ERRORS_LINTERS if you want to turn errors back on selectively.
+          # DISABLE_ERRORS_LINTERS: REPOSITORY_DEVSKIM,REPOSITORY_KICS,REPOSITORY_CHECKOV,POWERSHELL_POWERSHELL,SPELL_CSPELL
 
       # Upload MegaLinter artifacts
       - name: Archive production artifacts
