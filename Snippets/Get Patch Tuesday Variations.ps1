@@ -86,3 +86,16 @@ function PatchTuesday {
     WeekdayInMonth -Date $Date -Weekday [DayOfWeek]::Tuesday -WeekNumber 2
 }
 $PatchTuesdayFunction = PatchTuesday
+
+
+
+
+
+<#
+    -----
+#>
+$PatchTuesday
+$PatchTuesday1
+$PatchTuesday2
+$PatchTuesdaySwitch
+$PatchTuesdayFunction
