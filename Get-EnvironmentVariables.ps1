@@ -1,8 +1,10 @@
-function Get-EnvironmentVariable {
+function Get-EnvironmentVariables {
+    [Alias('gev')]
     [CmdletBinding()]
-    [Alias("genv")]
     param (
-        
+        # The name of the environment variable to retrieve. If not specified, all environment variables are returned.
+        [Parameter()]
+        [string]$Variable
     )
     
     begin {
@@ -10,7 +12,11 @@ function Get-EnvironmentVariable {
     }
     
     process {
-        Get-ChildItem env:
+        if ($Variable) {
+            [Environment]::GetEnvironmentVariable($Variable)
+        } else {
+            [Environment]::GetEnvironmentVariables()
+        }
     }
     
     end {
