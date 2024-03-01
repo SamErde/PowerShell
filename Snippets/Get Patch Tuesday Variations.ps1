@@ -71,7 +71,7 @@ $PatchTuesday
 
 
 # Here's a similar one from James Orlando (@Jorlando82) that also gets the 1st day of the month in a slightly different way.
-$FirstDay = (Get-Date).AddDays(-((Get-Date).AddDays(-1)).Day)
+$FirstDay = (Get-Date).AddDays( - (  (Get-Date).AddDays(-1)  ).Day)
 $PatchTuesday = Switch ($FirstDay.DayOfWeek) {
     "Monday"   { $FirstDay.AddDays(8) }
     "Tuesday"  { $FirstDay.AddDays(7) }
@@ -81,7 +81,7 @@ $PatchTuesday = Switch ($FirstDay.DayOfWeek) {
     "Saturday" { $FirstDay.AddDays(10) }
     "Sunday"   { $FirstDay.AddDays(9) }
 }
-$PatchTuesday
+$PatchTuesday.Date
 
 
 
@@ -121,6 +121,7 @@ function PatchTuesday {
         [datetime]$Date = (Get-Date)
     )
 
-    WeekdayInMonth -Date $Date -Weekday [DayOfWeek]::Tuesday -WeekNumber 2
+    WeekdayInMonth -Date $Date -Weekday 'Tuesday' -WeekNumber 2
 }
 $PatchTuesday = PatchTuesday
+# Get date with 00 timestamp
