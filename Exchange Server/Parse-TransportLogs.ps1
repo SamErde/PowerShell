@@ -16,7 +16,7 @@
 Set-ExecutionPolicy RemoteSigned
 $ExchangeCredential = Get-Credential -Message "Please enter credentials to connect to your Exchange Server. `nThis will be used to pull message subject lines from the tracking logs."
 $ExchangeServer = Read-Host "Please specify an Exchange Server name."
-$ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://$ExchangeServer.mphealth.org/PowerShell/ -Authentication Kerberos -Credential $ExchangeCredential
+$ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://$ExchangeServer.DOMAINNAME.org/PowerShell/ -Authentication Kerberos -Credential $ExchangeCredential
 Import-PSSession $ExchangeSession -DisableNameChecking
 
 $SMTPLogPath = Read-Host "`nWhat is the path of the folder containing your SMTP transport logs?"
