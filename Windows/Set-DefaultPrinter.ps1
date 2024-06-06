@@ -12,6 +12,8 @@ function Set-DefaultPrinter {
             Author: Sam Erde
             Date Modified: 2024-06-06
             Version: 0.1.0
+
+            Dedicated to Matt Dillon, our Intune Engineer Extraordinaire!
     #>
     [CmdletBinding()]
     param (
