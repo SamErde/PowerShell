@@ -22,7 +22,7 @@ function Test-WinREEnabled {
         }
     }
     
-    if ($WinReEnabled = $false) {
+    if ($WinReEnabled -eq $false) {
         reagentc.exe /enable
     }
 }
