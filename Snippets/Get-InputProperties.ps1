@@ -9,6 +9,7 @@ function Get-InputProperties {
             THIS CONCEPT AND POTENTIAL USE CASE IS NOT COMPLETE
     #>
     [CmdletBinding()]
+    [OutputType([String])]
     param (
         $InputObjectObject
     )
@@ -42,6 +43,6 @@ function Get-InputProperties {
     }
     
     end {
-        Out-Null $GivenName $SurName $Nickname
+        "$GivenName $SurName ($Nickname)" | Out-Null
     }
 }
