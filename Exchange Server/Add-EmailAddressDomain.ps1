@@ -9,6 +9,12 @@ function Add-EmailAddressDomain {
 
     .PARAMETER NewDomain
         The new domain name that will be added for all existing email addresses.
+    
+    .PARAMETER CSVExportOnly
+        A switch to export a CSV file that shows the current and pending email addresses instead of actually making any changes.
+    
+    .PARAMETER CSVExportPath
+        Path to save the exported CSV report in.
 
     .EXAMPLE
         For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
@@ -28,10 +34,21 @@ function Add-EmailAddressDomain {
     #>
     [CmdletBinding()]
     param (
+        # Name of the domain that addresses are being created for.
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $NewDomain
+        $NewDomain,
+        
+        # Switch to export a CSV of potential changes instead of making changes.
+        [Parameter()]
+        [switch]
+        $CSVExportOnly,
+
+        # Path to save the exported CSV file to.
+        [Parameter()]
+        [string]
+        $CSVExportPath = "Address Creation Preview for $NewDomain at $(Get-Date -Format 'yyyy-MM-dd HH.mm.ss').csv"
     )
 
     # Get all mailboxes in the Exchange organization and then loop through each of them.
