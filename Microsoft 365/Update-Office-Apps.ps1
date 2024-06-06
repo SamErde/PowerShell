@@ -1,0 +1,1 @@
+& "$env:ProgramFiles\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe" /Update User

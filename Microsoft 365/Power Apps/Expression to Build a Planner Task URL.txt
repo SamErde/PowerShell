@@ -1,0 +1,1 @@
+concat('<a href="https://tasks.office365.us/martinspoint.onmicrosoft.us/Home/Task/',triggerOutputs()?['body/id'],'?Type=TaskLink">',triggerOutputs()?['body/title'],'</a>')

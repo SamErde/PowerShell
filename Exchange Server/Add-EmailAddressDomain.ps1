@@ -19,7 +19,12 @@ function Add-EmailAddressDomain {
     
     .NOTES
         Version: 1.0
-        Modified: 2024-31-05
+        Modified: 2024-06-05
+
+        To Do:
+                Add an option to create a CSV that contains current and future addresses
+                Add an option to batch changes with delays to minimize AD replication congestion
+                Use SupportShouldProcess
     #>
     [CmdletBinding()]
     param (
@@ -54,7 +59,7 @@ function Add-EmailAddressDomain {
                 continue
             }
 
-            # Skip (continue) if the new address is already found in the $CurrentEmailAddresses array so it doesn't try to add it again.
+            # Only add the new address if it isn't already present.
             if ($CurrentEmailAddresses -notcontains $NewEmailAddress -and $ValidEmailAddress -eq $true) {
                 # Add the new email address to the recipient.
                 Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Add address: '$NewEmailAddress'" -InformationAction Continue
