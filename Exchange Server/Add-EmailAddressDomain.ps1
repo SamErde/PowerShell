@@ -10,11 +10,14 @@ function Add-EmailAddressDomain {
     .PARAMETER NewDomain
         The new domain name that will be added for all existing email addresses.
     
-    .PARAMETER CSVExportOnly
-        A switch to export a CSV file that shows the current and pending email addresses instead of actually making any changes.
+    .PARAMETER ReportOnly
+        Create a CSV report showing current and new addresses but do not make any changes.
     
-    .PARAMETER CSVExportPath
+    .PARAMETER ReportFilePath
         Path to save the exported CSV report in.
+    
+    .PARAMETER Passthru
+        Return the CSVData in the script output.
 
     .EXAMPLE
         For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
@@ -23,14 +26,27 @@ function Add-EmailAddressDomain {
         
         The script will add the following email addresses to the recipient: user@example.com, userFirst.userLast@example.com, customUser@example.com
     
+    .EXAMPLE
+        Add-EmailAddressDomain -NewDomain 'example.com' -ReportOnly -ReportFilePath '.\New Email Address Report.csv'
+
+        Will create a CSV file that shows current email addresses next to the email addresses that would be created if
+        this command is run without the -ReportOnly parameter.
+
+    .EXAMPLE
+        An example of returning the CSV data to an object outside of the function that you can continue to work with:
+
+        $ReportData = Add-EmailAddressDomain -NewDomain 'powershealth.org' -ReportOnly -Passthru
+        $ReportData
+        $ReportData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Set-Clipboard
+    
     .NOTES
-        Version: 1.0
-        Modified: 2024-06-05
+        Version: 0.3.1
+        Modified: 2024-06-07
 
         To Do:
-                Add an option to create a CSV that contains current and future addresses
-                Add an option to batch changes with delays to minimize AD replication congestion
-                Use SupportShouldProcess
+                TESTING: Add an option to create a CSV that contains current and future addresses
+                NOT STARTED: Add an option to batch changes with delays to minimize AD replication congestion
+                NOT STARTED: Use SupportShouldProcess
     #>
     [CmdletBinding()]
     param (
@@ -41,48 +57,94 @@ function Add-EmailAddressDomain {
         $NewDomain,
         
         # Switch to export a CSV of potential changes instead of making changes.
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ReportOnly')]
         [switch]
-        $CSVExportOnly,
+        $ReportOnly,
 
         # Path to save the exported CSV file to.
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ReportOnly')]
         [string]
-        $CSVExportPath = "Address Creation Preview for $NewDomain at $(Get-Date -Format 'yyyy-MM-dd HH.mm.ss').csv"
+        $ReportFilePath = "Address Creation Preview for $NewDomain at $(Get-Date -Format 'yyyy-MM-dd HH.mm.ss').csv",
+
+        # Optionally return the CSV report data as an output object
+        [Parameter(ParameterSetName = 'ReportOnly')]
+        [switch]
+        $Passthru
+
     )
 
-    # Get all mailboxes in the Exchange organization and then loop through each of them.
-    Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting mailboxes..." -InformationAction Continue
-    $Recipients = Get-Mailbox -ResultSize 10 #Unlimited
+    begin {
+        if ($ReportOnly) {
+            $CSVData = New-Object System.Collections.ArrayList
+        }
 
-    Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Processing mailboxes..." -InformationAction Continue
-    foreach ($recipient in $Recipients) {
+        # Get all mailboxes in the Exchange organization and then loop through each of them.
+        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting mailboxes..." -InformationAction Continue
+        $Recipients = Get-Mailbox -ResultSize 10 #Unlimited
+    }
 
-        # Get all current email addresses for the recipient. Ignore the invalid "@mail.comhs.org" domain addresses.
-        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
-        $CurrentEmailAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
+    process {
+        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Processing mailboxes..." -InformationAction Continue
+        foreach ($recipient in $Recipients) {
 
-        foreach ($address in $CurrentEmailAddresses) {
-            # Copy each current address using the new domain name.
-            [string]$NewEmailAddress = $address.SmtpAddress -replace '@.*$', "@$NewDomain"
+            # Get all current email addresses for the recipient. Ignore the invalid "@mail.comhs.org" domain addresses.
+            Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
+            $CurrentEmailAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
 
-            try {
-                [mailaddress]::new("$NewEmailAddress") | Out-Null
-                [bool]$ValidEmailAddress = $true
-            } catch {
-                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Invalid address: '$NewEmailAddress'" -InformationAction Continue
-                # Exit the loop (continue) if the address is invalid.
-                [bool]$ValidEmailAddress = $false
+            # Make the change or just preview it in a CSV?
+            if ($ReportOnly) {
+                $CSVData.Add(
+                    [PSCustomObject]@{
+                        Name = $($recipient.DisplayName)
+                        Alias = $($recipient.alias)
+                        CurrentEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring) -replace ' ', ', ' )
+                        NewEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring -replace '@.*$', "@$NewDomain") -replace ' ', ', ' )
+                    }
+                ) | Out-Null
+                # Continue to the next recipient in report-only  mode instead of adding addresses.
                 continue
             }
 
-            # Only add the new address if it isn't already present.
-            if ($CurrentEmailAddresses -notcontains $NewEmailAddress -and $ValidEmailAddress -eq $true) {
-                # Add the new email address to the recipient.
-                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Add address: '$NewEmailAddress'" -InformationAction Continue
-                Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add="$NewEmailAddress"} -WhatIf
+            foreach ($address in $CurrentEmailAddresses) {
+                # Copy each current address using the new domain name.
+                [string]$NewEmailAddress = $address.SmtpAddress -replace '@.*$', "@$NewDomain"
+
+                try {
+                    [mailaddress]::new("$NewEmailAddress") | Out-Null
+                    [bool]$ValidEmailAddress = $true
+                } catch {
+                    Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Invalid address: '$NewEmailAddress'" -InformationAction Continue
+                    # Exit the loop (continue) if the address is invalid.
+                    [bool]$ValidEmailAddress = $false
+                    continue
+                }
+
+                # Only add the new address if it isn't already present and if not using ReportOnly.
+                if ($CurrentEmailAddresses -notcontains $NewEmailAddress -and $ValidEmailAddress -eq $true) {
+                    # Add the new email address to the recipient.
+                    Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Add address: '$NewEmailAddress'" -InformationAction Continue
+                    Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add="$NewEmailAddress"} -WhatIf
+                }
+                Write-Output "`n"
+            } # End foreach $address
+        } # End foreach $recipient
+    }
+
+    end {
+        # Create the CSV file if -ReportOnly created CSV data
+        if ($CSVData) {
+            Write-Information -MessageData "The report will be saved to '$ReportFilePath'."
+            try {
+                $CSVData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Out-File -FilePath $ReportFilePath
+                # OFI: Check if the file already exists and prompt the user to overwrite or save a copy.
+            } catch {
+                $_
             }
-            Write-Output "`n"
-        } # End foreach $address
-    } # End foreach $recipient
+        }
+
+        # Return the $CSVData object if -Passthru was specified
+        if ($Passthru) {
+            $CSVData
+        }
+    }
 } # End function Add-EmailAddressDomain
