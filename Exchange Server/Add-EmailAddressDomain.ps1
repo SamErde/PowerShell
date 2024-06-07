@@ -55,7 +55,7 @@ function Add-EmailAddressDomain {
         $ReportData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Set-Clipboard
     
     .NOTES
-        Version: 0.4.1
+        Version: 0.4.2
         Modified: 2024-06-07
 
         To Do:
@@ -98,28 +98,32 @@ function Add-EmailAddressDomain {
     )
 
     begin {
+        # Get all mailboxes in the Exchange organization and then loop through each of them.
+        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting Exchange recipients..." -InformationAction Continue
+        $Recipients = Get-Mailbox -ResultSize Unlimited
+        $RecipientCount = $Recipients.Count
+
         if ($ReportOnly) {
             $CSVData = New-Object System.Collections.ArrayList
         }
 
-        # Get all mailboxes in the Exchange organization and then loop through each of them.
-        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting mailboxes..." -InformationAction Continue
-        $Recipients = Get-Mailbox -ResultSize Unlimited
-        $RecipientCount = $Recipients.Count
-
-        if ($Delay) {
-            $DelaySeconds = (New-TimeSpan -Minutes $Delay).TotalSeconds
-        }
-
+        # If BatchSize was not set, make it simply equal the recipient count.
         if ( -not $PSBoundParameters.ContainsKey('BatchSize') ) {
             $BatchSize = $RecipientCount
+        }
+
+        # Convert the delay from minutes to seconds for the Start-Sleep cmdlet.
+        if ($Delay) {
+            $DelaySeconds = (New-TimeSpan -Minutes $Delay).TotalSeconds
         }
     }
 
     process {
         Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Processing $RecipientCount recipients..." -InformationAction Continue
 
+        # Loop through batch sizes
         for ($i = 0; $i -lt $RecipientCount; $i += $BatchSize) {
+
             if ($BatchSize) {
                 Write-Information -MessageData "$i - $($i + $BatchSize)" -InformationAction Continue
             }
@@ -168,13 +172,13 @@ function Add-EmailAddressDomain {
                 Write-Output "`n"
             } # End foreach $recipient
 
-            # Pause between batches if a delay is specified
+            # Pause between batches of recipients if a delay is specified
             if ( ($i + $BatchSize -lt $RecipientCount) -and $Delay) {
                 Write-Information -MessageData "Waiting for $DelaySeconds seconds..." -InformationAction Continue
                 Start-Sleep -Seconds $DelaySeconds
             }
-        }
-    }
+        } # End batch size loop
+    } # End process block
 
     end {
         # Create the CSV file if -ReportOnly created CSV data
@@ -190,7 +194,7 @@ function Add-EmailAddressDomain {
 
         # Return the $CSVData object if -Passthru was specified
         if ($Passthru) {
-            $CSVData
+            $CSVData | Out-Null
         }
     }
 } # End function Add-EmailAddressDomain
