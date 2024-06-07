@@ -60,7 +60,7 @@ function Add-EmailAddressDomain {
 
         To Do:
                 TESTING: Add an option to create a CSV that contains current and future addresses
-                IN PROGRESS: Add an option to batch changes with delays to minimize AD replication congestion
+                TESTING: Add an option to batch changes with delays to minimize AD replication congestion
                 NOT STARTED: Use SupportShouldProcess
     #>
     [CmdletBinding()]
