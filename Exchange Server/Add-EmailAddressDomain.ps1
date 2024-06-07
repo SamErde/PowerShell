@@ -18,6 +18,14 @@ function Add-EmailAddressDomain {
     
     .PARAMETER Passthru
         Return the CSVData in the script output.
+    
+    .PARAMETER BatchSize
+        Set the batch size for the number of recipients to update before waiting to start the next batch of changes.
+        This can be used to reduce change congestion in AD replication or to minimize the number of changes that get
+        synced to Entra ID (or other platforms).
+
+    .PARAMETER Delay
+        Set the number of minutes to wait between batches of changes.
 
     .EXAMPLE
         For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
@@ -25,6 +33,14 @@ function Add-EmailAddressDomain {
             Add-EmailAddressDomain -NewDomain 'example.com'
         
         The script will add the following email addresses to the recipient: user@example.com, userFirst.userLast@example.com, customUser@example.com
+    
+    .EXAMPLE
+        For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
+
+            Add-EmailAddressDomain -NewDomain 'example.com' -BatchSize 250 -Delay 15
+        
+        The script will add the following email addresses to the recipient: user@example.com, userFirst.userLast@example.com, customUser@example.com
+        It will update 250 recipients at a time, then wait 15 minutes before updating the next batch of 250 recipients.
     
     .EXAMPLE
         Add-EmailAddressDomain -NewDomain 'example.com' -ReportOnly -ReportFilePath '.\New Email Address Report.csv'
@@ -36,16 +52,15 @@ function Add-EmailAddressDomain {
         An example of returning the CSV data to an object outside of the function that you can continue to work with:
 
         $ReportData = Add-EmailAddressDomain -NewDomain 'powershealth.org' -ReportOnly -Passthru
-        $ReportData
         $ReportData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Set-Clipboard
     
     .NOTES
-        Version: 0.3.1
+        Version: 0.3.11
         Modified: 2024-06-07
 
         To Do:
                 TESTING: Add an option to create a CSV that contains current and future addresses
-                NOT STARTED: Add an option to batch changes with delays to minimize AD replication congestion
+                IN PROGRESS: Add an option to batch changes with delays to minimize AD replication congestion
                 NOT STARTED: Use SupportShouldProcess
     #>
     [CmdletBinding()]
@@ -69,8 +84,17 @@ function Add-EmailAddressDomain {
         # Optionally return the CSV report data as an output object
         [Parameter(ParameterSetName = 'ReportOnly')]
         [switch]
-        $Passthru
+        $Passthru,
 
+        # Break the changes into smaller batches of recipients vs all of the things
+        [Parameter(ParameterSetName = 'Batches')]
+        [int]
+        $BatchSize,
+
+        # Specify the delay to wait between batches
+        [Parameter(ParameterSetName = 'Batches')]
+        [int]
+        $Delay = 15
     )
 
     begin {
