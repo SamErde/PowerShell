@@ -10,22 +10,24 @@ function Set-DefaultPrinter {
             If no printer name is specified, a list of installed printers will be shown without making a change.
         .NOTES
             Author: Sam Erde
-            Date Modified: 2024-06-06
-            Version: 0.1.0
+            Date Modified: 2024-06-11
+            Version: 0.1.1
 
             Dedicated to Matt Dillon, our Intune Engineer Extraordinaire!
     #>
     [CmdletBinding()]
     param (
         # Name of the printer to set as your default. Provides tab-autocomplete with names of installed printers.
+        # The way this handles printer names with spaces in them feels sloppy, but works. Got any better ideas for me?
         [Parameter()]
         [ArgumentCompleter( {
                 param ( $CommandName, $ParameterName, $WordToComplete, $CommandAst, $FakeBoundParameters )
-                $Script:PrinterNames = (Get-Printer).Name; $Script:PrinterNames
+                [array]$Script:PrinterNames = "'$((Get-Printer).Name -join "','")'" -split ','
+                $Script:PrinterNames
             }
         )]
         [ValidateScript({
-                if ($_ -in $Script:PrinterNames) {
+                if ("'" + $_ + "'" -in $Script:PrinterNames) {
                     $true
                 }
                 else {
@@ -42,13 +44,14 @@ function Set-DefaultPrinter {
         return
     }
 
-    $Printer = Get-CimInstance -Class Win32_Printer -Filter "Name=`'$PrinterName`'"
+    $UnquotedPrinter = $PrinterName -replace "'",""
+    $Printer = Get-CimInstance -Class Win32_Printer -Filter "Name=`'$UnquotedPrinter`'"
     
     # SetDefaultPrinter if the specified printer name is found
     if ($Printer) {
         Invoke-CimMethod -InputObject $Printer -MethodName SetDefaultPrinter
     }
     else {
-        Write-Host "No printer with the name '$PrinterName' was found." -ForegroundColor Yellow -BackgroundColor Black
+        Write-Host "No printer with the name '$UnquotedPrinter' was found." -ForegroundColor Yellow -BackgroundColor Black
     }
 }
