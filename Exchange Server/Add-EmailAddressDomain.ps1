@@ -100,7 +100,7 @@ function Add-EmailAddressDomain {
     begin {
         # Get all mailboxes in the Exchange organization.
         Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting Exchange recipients..." -InformationAction Continue
-        $Recipients = Get-Mailbox -ResultSize Unlimited
+        $Recipients = Get-Mailbox -ResultSize Unlimited -SortBy DisplayName
         $RecipientCount = $Recipients.Count
 
         # Initialize an arraylist to store the CSV data.
@@ -132,8 +132,13 @@ function Add-EmailAddressDomain {
             foreach ($recipient in $Recipients) {
 
                 # Get all current email addresses for the recipient. Ignore the invalid "@mail.comhs.org" domain addresses.
-                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t [$i] Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
-                $CurrentEmailAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
+                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
+                $SmtpAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
+                $CurrentAddresses = ($SmtpAddresses.addressstring | Sort-Object) #-join ', '
+                $NewEmailAddresses = foreach ($address in $($SmtpAddresses.addressstring)) {
+                    $address -replace '@.*',"@$NewDomain"
+                }
+                $NewEmailAddresses = ($NewEmailAddresses | Sort-Object -Unique) #-join ', '
 
                 # Make the change or just preview it in a CSV?
                 if ($ReportOnly) {
@@ -141,33 +146,32 @@ function Add-EmailAddressDomain {
                         [PSCustomObject]@{
                             Name = $($recipient.DisplayName)
                             Alias = $($recipient.alias)
-                            CurrentEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring) -replace ' ', ', ' )
-                            NewEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring -replace '@.*$', "@$NewDomain") -replace ' ', ', ' ) | Sort-Object -Unique
+                            CurrentEmailAddresses = [string]($CurrentAddresses -join ', ')
+                            NewEmailAddresses = [string]($NewEmailAddresses -join ', ')
                         }
                     ) | Out-Null
-                    # Continue to the next recipient in report-only  mode instead of adding addresses.
+                    # Continue to the next recipient in report-only mode instead of adding addresses.
                     continue
                 }
 
-                foreach ($address in $CurrentEmailAddresses) {
-                    # Copy each current address using the new domain name.
-                    [string]$NewEmailAddress = $address.SmtpAddress -replace '@.*$', "@$NewDomain"
-
+                # Loop through the new addresses, check them, and add them if not yet present.
+                foreach ($address in $NewEmailAddresses) {
+                    # Validate the new email address
                     try {
-                        [mailaddress]::new("$NewEmailAddress") | Out-Null
+                        [mailaddress]::new("$address") | Out-Null
                         [bool]$ValidEmailAddress = $true
                     } catch {
-                        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Invalid address: '$NewEmailAddress'" -InformationAction Continue
+                        Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t`t Invalid address: '$aAddress'" -InformationAction Continue
                         # Exit the loop (continue) if the address is invalid.
                         [bool]$ValidEmailAddress = $false
                         continue
                     }
 
                     # Only add the new address if it isn't already present and if not using ReportOnly.
-                    if ($CurrentEmailAddresses -notcontains $NewEmailAddress -and $ValidEmailAddress -eq $true) {
+                    if ($SmtpAddresses -notcontains $address -and $ValidEmailAddress -eq $true) {
                         # Add the new email address to the recipient.
-                        Write-Information "`t`t`t Add address: '$NewEmailAddress'" -InformationAction Continue
-                        Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add="$NewEmailAddress"} -WhatIf
+                        Write-Information "`t`t`t Add address: '$address'" -InformationAction Continue
+                        Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add="$address"}
                     }
                 } # End foreach $address
                 Write-Output "`n"
