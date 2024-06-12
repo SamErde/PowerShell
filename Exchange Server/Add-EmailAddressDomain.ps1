@@ -55,13 +55,13 @@ function Add-EmailAddressDomain {
         $ReportData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Set-Clipboard
     
     .NOTES
-        Version: 0.4.2
-        Modified: 2024-06-07
+        Version: 0.4.3
+        Modified: 2024-06-11
 
         To Do:
-                TESTING: Add an option to create a CSV that contains current and future addresses
-                TESTING: Add an option to batch changes with delays to minimize AD replication congestion
-                NOT STARTED: Use SupportShouldProcess
+            Add logging
+            Use SupportShouldProcess
+
     #>
     [CmdletBinding()]
     param (
@@ -79,35 +79,36 @@ function Add-EmailAddressDomain {
         # Path to save the exported CSV file to.
         [Parameter(ParameterSetName = 'ReportOnly')]
         [string]
-        $ReportFilePath = "Address Creation Preview for $NewDomain at $(Get-Date -Format 'yyyy-MM-dd HH.mm.ss').csv",
+        $ReportFilePath = "Email Address Preview $(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss').csv",
 
-        # Optionally return the CSV report data as an output object
+        # Optionally return the CSV report data as an output object.
         [Parameter(ParameterSetName = 'ReportOnly')]
         [switch]
         $Passthru,
 
-        # Break the changes into smaller batches of recipients vs all of the things
+        # Break the changes into smaller batches of recipients with pauses between each batch.
         [Parameter(Mandatory, ParameterSetName = 'Batches')]
         [int]
         $BatchSize,
 
-        # Specify the delay to wait between batches
+        # Specify the number of minutes to wait between batches.
         [Parameter(ParameterSetName = 'Batches')]
         [int]
         $Delay = 15
     )
 
     begin {
-        # Get all mailboxes in the Exchange organization and then loop through each of them.
+        # Get all mailboxes in the Exchange organization.
         Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Getting Exchange recipients..." -InformationAction Continue
         $Recipients = Get-Mailbox -ResultSize Unlimited
         $RecipientCount = $Recipients.Count
 
+        # Initialize an arraylist to store the CSV data.
         if ($ReportOnly) {
             $CSVData = New-Object System.Collections.ArrayList
         }
 
-        # If BatchSize was not set, make it simply equal the recipient count.
+        # If BatchSize was not set, make it simply equal to the recipient count.
         if ( -not $PSBoundParameters.ContainsKey('BatchSize') ) {
             $BatchSize = $RecipientCount
         }
@@ -125,13 +126,13 @@ function Add-EmailAddressDomain {
         for ($i = 0; $i -lt $RecipientCount; $i += $BatchSize) {
 
             if ($BatchSize) {
-                Write-Information -MessageData "$i - $($i + $BatchSize)" -InformationAction Continue
+                Write-Information -MessageData "Mailbox Batch: $i - $($i + $BatchSize)" -InformationAction Continue
             }
 
             foreach ($recipient in $Recipients) {
 
                 # Get all current email addresses for the recipient. Ignore the invalid "@mail.comhs.org" domain addresses.
-                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
+                Write-Information "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]`t [$i] Analyzing addresses for '$($recipient.DisplayName).'" -InformationAction Continue
                 $CurrentEmailAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
 
                 # Make the change or just preview it in a CSV?
@@ -141,7 +142,7 @@ function Add-EmailAddressDomain {
                             Name = $($recipient.DisplayName)
                             Alias = $($recipient.alias)
                             CurrentEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring) -replace ' ', ', ' )
-                            NewEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring -replace '@.*$', "@$NewDomain") -replace ' ', ', ' )
+                            NewEmailAddresses = ( [string]$($CurrentEmailAddresses.addressstring -replace '@.*$', "@$NewDomain") -replace ' ', ', ' ) | Sort-Object -Unique
                         }
                     ) | Out-Null
                     # Continue to the next recipient in report-only  mode instead of adding addresses.
