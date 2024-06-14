@@ -1,10 +1,10 @@
 function Add-EmailAddressDomain {
     <#
     .SYNOPSIS
-        Copy all existing email addresses on Exchange mailboxes to include the same address with a new SMTP domain.
+        Copy all existing email addresses on Exchange mailboxes to include the same recipient address with a new SMTP domain.
 
     .DESCRIPTION
-        This script ensures that adding a new recipient domain in Exchange Server will preserve all existing email addresses for each
+        This script ensures that adding a new accepted domain in Exchange Server will preserve all existing email addresses for each
         mailbox while also duplicating their custom email addresses (created without email address policy templates) at the new domain.
 
     .PARAMETER NewDomain
