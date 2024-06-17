@@ -6,12 +6,12 @@
 
 Start-Transcript
 
-$ServerFqdn = @("","","")
-$SmtpNameSpace = "host.domain.tld"
+$ServerFqdn = @('','','')
+$SmtpNameSpace = 'host.domain.tld'
 $BaseUri = "https://$SmtpNameSpace"
 
 # Exit if these values have not been set.
-if ( !($ServerFqdn) -or ($ServerFqdn.Length = 0) -or !($SmtpNameSpace) -or ($SmtpNameSpace.Length = 0) ) { Exit }
+if ( !($ServerFqdn) -or ($ServerFqdn.Length -eq 0) -or !($SmtpNameSpace) -or ($SmtpNameSpace.Length -eq 0) ) { Exit }
 
 # Set the Uris for each server specified above
 foreach ($item in $ServerFqdn) {
