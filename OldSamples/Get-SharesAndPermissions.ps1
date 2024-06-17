@@ -1,5 +1,4 @@
-﻿Function Get-SharePermissions
-{
+﻿Function Get-SharePermissions {
     <# 
 	    .Synopsis 
 		    This function retrieves share permissions from a remote computer.
@@ -26,27 +25,28 @@
     #>
 
     # Adjusted code from https://gallery.technet.microsoft.com/scriptcenter/List-Share-Permissions-83f8c419
-	param(
-        [parameter(Mandatory=$True)]
+    param(
+        [parameter(Mandatory = $True)]
         [string]$ComputerName,
 
-        [parameter(Mandatory=$True)]
+        [parameter(Mandatory = $True)]
         [string]$ShareName,
         
-        [System.Management.Automation.CredentialAttribute()]$Credential
+        [PSCredential]$Credential
     )
     $ACL = $Null
-    $ShareSec = Get-WmiObject -Class Win32_LogicalShareSecuritySetting -ComputerName $ComputerName -Credential $Credential | Where-Object {$_.Name -eq $ShareName}
-	$SecurityDescriptor = $ShareSec.GetSecurityDescriptor().Descriptor
+    $ShareSec = Get-WmiObject -Class Win32_LogicalShareSecuritySetting -ComputerName $ComputerName -Credential $Credential | Where-Object { $_.Name -eq $ShareName }
+    $SecurityDescriptor = $ShareSec.GetSecurityDescriptor().Descriptor
     
     Try {
         $SecurityDescriptor.DACL | ForEach-Object {
             $UserName = $_.Trustee.Name
-            If ($_.Trustee.Domain -ne $Null) {$UserName = "$($_.Trustee.Domain)\$UserName"}    
-            If ($_.Trustee.Name -eq $Null) {$UserName = $_.Trustee.SIDString }      
-            [Array]$ACL += New-Object Security.AccessControl.FileSystemAccessRule($UserName, $_.AccessMask, $_.AceType)  
+            If ($Null -ne $_.Trustee.Domain) { $UserName = "$($_.Trustee.Domain)\$UserName" }
+            If ($Null -eq $_.Trustee.Name) { $UserName = $_.Trustee.SIDString }
+            #[Array]$ACL += New-Object Security.AccessControl.FileSystemAccessRule($UserName, $_.AccessMask, $_.AceType)  
         }
-    } Catch { Write-Host "Unable to obtain permissions for $share" }
+    }
+    Catch { Write-Host "Unable to obtain permissions for $share" }
     Return $ACL
 } #End Function Get-SharePermissions
 
@@ -65,21 +65,21 @@ $ComputerName = ''
 $Credential = (DOMAINNAME)
 
 $Shares = Get-WmiObject -ComputerName $ComputerName -Class Win32_Share -Credential $Credential
-$AdminShares = $Shares | Where-Object {($_.Type -ge 2147483648) -AND ($_.Type -le 2147483651)}
+$AdminShares = $Shares | Where-Object { ($_.Type -ge 2147483648) -AND ($_.Type -le 2147483651) }
 
 $ShareList = @()
 
-$Shares | Where-Object {$_.Type -eq 0} | ForEach-Object {
-    $ShareDrive = ($_.Path | split-path -Qualifier) + "\"
-    $AdminUncPath = Join-Path -Path (Join-Path -Path $('\\'+$ComputerName) -ChildPath $(($AdminShares | Where-Object {$_.Path -eq $(($ShareDrive | split-path -Qualifier)+"\")}).Name)) -ChildPath (Split-Path $_.Path -NoQualifier)
+$Shares | Where-Object { $_.Type -eq 0 } | ForEach-Object {
+    $ShareDrive = ($_.Path | Split-Path -Qualifier) + '\'
+    $AdminUncPath = Join-Path -Path (Join-Path -Path $('\\' + $ComputerName) -ChildPath $(($AdminShares | Where-Object { $_.Path -eq $(($ShareDrive | Split-Path -Qualifier) + '\') }).Name)) -ChildPath (Split-Path $_.Path -NoQualifier)
     
-    $Share = $_ | Select-Object -Property @{Name='AdminUncPath';Expression={$AdminUncPath}},
-    @{Name='AllowMaximum';Expression={$_.AllowMaximum}},@{Name='Caption';Expression={$_.Caption}},
-    @{Name='ComputerName';Expression={$_.PSComputerName}},@{Name='Description';Expression={$_.Description}},
-    @{Name='Drive';Expression={$ShareDrive}},@{Name='MaximumAllowed';Expression={$_.MaximumAllowed}},
-    @{Name='Name';Expression={$_.Name}},@{Name='NtfsAcl';Expression={$($AdminUncPath | Get-Acl)}},
-    @{Name='Path';Expression={$_.Path}},@{Name='ShareAcl';Expression={$(Get-SharePermissions -ComputerName $ComputerName -ShareName $_.Name -Credential $Credential)}},
-    @{Name='Status';Expression={$_.Status}},@{Name='Type';Expression={$_.Type}}
+    $Share = $_ | Select-Object -Property @{Name = 'AdminUncPath'; Expression = { $AdminUncPath } },
+    @{Name = 'AllowMaximum'; Expression = { $_.AllowMaximum } }, @{Name = 'Caption'; Expression = { $_.Caption } },
+    @{Name = 'ComputerName'; Expression = { $_.PSComputerName } }, @{Name = 'Description'; Expression = { $_.Description } },
+    @{Name = 'Drive'; Expression = { $ShareDrive } }, @{Name = 'MaximumAllowed'; Expression = { $_.MaximumAllowed } },
+    @{Name = 'Name'; Expression = { $_.Name } }, @{Name = 'NtfsAcl'; Expression = { $($AdminUncPath | Get-Acl) } },
+    @{Name = 'Path'; Expression = { $_.Path } }, @{Name = 'ShareAcl'; Expression = { $(Get-SharePermissions -ComputerName $ComputerName -ShareName $_.Name -Credential $Credential) } },
+    @{Name = 'Status'; Expression = { $_.Status } }, @{Name = 'Type'; Expression = { $_.Type } }
 
     $ShareList += $Share
 
