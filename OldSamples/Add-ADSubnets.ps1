@@ -72,7 +72,7 @@ If(!(Get-Module -ListAvailable | Where-Object {$_.name -eq 'ActiveDirectory'}))
 Import-Module ActiveDirectory 
  
 #List the Current Domain that the script is using. 
-Write-host "The current Domain Contoller is" (Get-ADDomainController).HostName -BackgroundColor Yellow -ForegroundColor Black 
+Write-host "The current Domain Contoller is $((Get-ADDomainController).HostName)" -BackgroundColor Yellow -ForegroundColor Black 
  
 If ($NewLog -eq 'Y') 
     { 
@@ -152,7 +152,7 @@ $i++
  
     If (!(Test-XADSite -Identity $SB.Sitename)) 
     { 
-    Write-Host 'Site' $SB.Sitename 'Does Not Exist, Please create Sites before Subnets.' -BackgroundColor Red -ForegroundColor White  
+    Write-Host "Site $($SB.Sitename) Does Not Exist, Please create Sites before Subnets." -BackgroundColor Red -ForegroundColor White  
     } 
     Else 
     { 
@@ -178,7 +178,7 @@ $i++
             If (Test-XADObject -Identity $newSubnetDN) 
                 { 
                     #Update the console 
-                    Write-Host "Created & Verified Subnet:" $SB.subnetname 
+                    Write-Host "Created & Verified Subnet: $($SB.subnetname)"
                     #Update the log file 
                     Add-Content -Path $Logfile -Value "$($SB.subnetname),Created and Verified" 
                 } 
@@ -187,7 +187,7 @@ $i++
             Else 
                 { 
                 #Update the Console 
-                Write-Host "Created but not Verified Subnet:" $SB.subnetname 
+                Write-Host "Created but not Verified Subnet: $($SB.subnetname)"
                 #Update the log file 
                 Add-Content -Path $Logfile -Value "$($SB.subnetname),Created but not Verified " 
                 } 
@@ -197,7 +197,7 @@ $i++
         #Make note that the subnet already existed. 
         Else { 
             #Update the Console 
-            Write-Host "Subnet" $SB.subnetname "already exists. Skipping this subnet" -BackgroundColor Red -ForegroundColor White 
+            Write-Host "Subnet $($SB.subnetname) already exists. Skipping this subnet" -BackgroundColor Red -ForegroundColor White 
             #Update the log file. 
             Add-Content -Path $Logfile -Value "$($SB.subnetname),PreExisting" 
              } 
