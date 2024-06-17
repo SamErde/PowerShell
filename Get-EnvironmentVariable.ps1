@@ -34,7 +34,7 @@ function Get-EnvironmentVariable {
             https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables
     #>
     [Alias("gev")]
-    [Outputs([System.String])]
+    [OutputType([System.String],[System.Collections.IDictionary])]
     [CmdletBinding()]
     param (
         # The name of the environment variable to retrieve. If not specified, all environment variables are returned.
