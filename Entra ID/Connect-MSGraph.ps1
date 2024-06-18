@@ -33,24 +33,6 @@ function Connect-MSGraphWP5 {
 # Add/save variable with Graph endpoint for the given environment.
 
 
-# PowerShell Core 6+ usage
-Class EnvironmentName : System.Management.Automation.IValidateSetValuesGenerator {
-    [string[]] GetValidValues() {
-        $EnvironmentNames = (Get-MgEnvironment).Name
-        return [string[]] $EnvironmentNames
-    }
-}
-
-function Connect-MSGraph6 {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$false)]
-        [ValidateSet([EnvironmentName])]
-        [string]$Environment
-    )
-    Connect-MgGraph -Environment $Environment
-}
-
 
 # Use with PowerShell 7
 $global:Environments = Get-MgEnvironment
@@ -58,6 +40,7 @@ $global:Environments = Get-MgEnvironment
 Class EnvironmentName : System.Management.Automation.IValidateSetValuesGenerator {
     [string[]] GetValidValues() {
         $EnvironmentNames = ($global:Environments.Name)
+        # $EnvironmentNames = (Get-MgEnvironment).Name
         return [string[]] $EnvironmentNames
     }
 }
@@ -71,14 +54,14 @@ function Connect-MSGraph6 {
     )
     Connect-MgGraph -Environment $Environment
     $global:GraphEndpoint = ( ($global:Environments).Where({$_.Name -eq $Environment}).GraphEndpoint )
-    Write-Host -NoNewLine `n'You can reference $GraphEndpoint' "($GraphEndpoint) to query the Graph API in the $Environment environment.`n"
+    Write-Information -NoNewLine `n'You can reference $GraphEndpoint' "($GraphEndpoint) to query the Graph API in the $Environment environment.`n"
     return $global:GraphEndpoint | Out-Null
 }
 
 
-#Users with no UsageLocation
+# Users with no UsageLocation
 Connect-Graph -Scopes User.ReadWrite.All
-Get-MgUser -Select Id,DisplayName,Mail,UserPrincipalName,UsageLocation,UserType | where { $_.UsageLocation -eq $null -and $_.UserType -eq 'Member' }
+Get-MgUser -Select Id,DisplayName,Mail,UserPrincipalName,UsageLocation,UserType | Where-Object { $_.UsageLocation -eq $null -and $_.UserType -eq 'Member' }
 
-#Update users with no UsageLocation
-Get-MgUser -Select Id,DisplayName,Mail,UserPrincipalName,UsageLocation,UserType | where { $_.UsageLocation -eq $null -and $_.UserType -eq 'Member' } | ForEach-Object { Update-MgUser -UserId $_.Id -UsageLocation "US"}
+# Update users with no UsageLocation
+Get-MgUser -Select Id,DisplayName,Mail,UserPrincipalName,UsageLocation,UserType | Where-Object { $_.UsageLocation -eq $null -and $_.UserType -eq 'Member' } | ForEach-Object { Update-MgUser -UserId $_.Id -UsageLocation "US"}

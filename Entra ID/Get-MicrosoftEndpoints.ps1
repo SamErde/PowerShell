@@ -1,9 +1,12 @@
 function Get-MicrosoftEndpoints {
+    [CmdletBinding()]
     param (      
-        [parameter(parameterSetName = "CSV")][string]$CSVPath
+        [parameter(ParameterSetName = "CSV")]
+        [string]
+        $CSVPath
     )
     
-    #Hide download progress, get current JSON url, retrieve all Endpoints and Convert it from JSON format
+    # Hide download progress, get current JSON url, retrieve all Endpoints and Convert it from JSON format
     $ProgressPreference = "SilentlyContinue"
     try {
         $site = Invoke-WebRequest -Uri 'https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide' -UseBasicParsing
@@ -16,14 +19,13 @@ function Get-MicrosoftEndpoints {
 
     try {
         $Endpoints = Invoke-WebRequest -Uri $jsonlink -ErrorAction Stop | ConvertFrom-Json
-        Write-Host ("Downloading worldwide Microsoft Endpoints") -ForegroundColor Green
+        Write-Information "Downloading worldwide Microsoft Endpoints"
     }
     catch {
-        Write-Warning ("Error downloading worldwide Microsoft Endpoints, please check if $($jsonlink) is accessible")
+        Write-Warning "Error downloading worldwide Microsoft Endpoints, please check if $($jsonlink) is accessible"
         return
     }
     
-    Write-Host ("Processing items...") -ForegroundColor Green
     $Total = foreach ($Endpoint in $Endpoints) {
         #Check if IPs are available for the Endpoint, set to not available if not
         if (-not $Endpoint.ips) {
@@ -84,15 +86,14 @@ function Get-MicrosoftEndpoints {
         try {
             New-Item -Path $CSVPath -ItemType File -Force:$true -ErrorAction Stop | Out-Null
             $Total | Sort-Object serviceAreaDisplayName | Export-Csv -Path $CSVPath -Encoding UTF8 -Delimiter ';' -NoTypeInformation
-            Write-Host ("Saved results to {0} `nDone!" -f $CSVPath) -ForegroundColor Green
+            Write-Information "Saved results to {0}" -f $CSVPath
         }
         catch {
-            Write-Warning ("Could not save results to {0}" -f $CSVPath)
+            Write-Warning "Could not save results to {0}" -f $CSVPath
         }
     }
     else {
         #Export to Out-Gridview
-        Write-Host ("Exporting results to Out-GridView `nDone!") -ForegroundColor Green
         $Total | Sort-Object serviceAreaDisplayName | Out-GridView -Title 'Microsoft Endpoints Worldwide'
     }
 }
