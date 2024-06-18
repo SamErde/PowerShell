@@ -1,13 +1,13 @@
 # Some basic Exchange Server checks to run after maintenance.
-Write-Host -ForeGroundColor Yellow "Service Health"
+Write-Information "Service Health"
 Test-ServiceHealth
-Write-Host -ForeGroundColor Yellow "MAPI Connectivity"
+Write-Information "MAPI Connectivity"
 Test-MAPIConnectivity
-Write-Host -ForeGroundColor Yellow "Mailbox Database Copy Status"
+Write-Information "Mailbox Database Copy Status"
 Get-MailboxDatabaseCopyStatus
-Write-Host -ForeGroundColor Yellow "Cluster Node Status"
+Write-Information "Cluster Node Status"
 Get-ClusterNode
-Write-Host -ForeGroundColor Yellow "Replication Health"
+Write-Information "Replication Health"
 Test-ReplicationHealth
-Write-Host -ForeGroundColor Yellow "Server Component State"
+Write-Information "Server Component State"
 Get-ServerComponentState -Identity $env:COMPUTERNAME

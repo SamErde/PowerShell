@@ -1,5 +1,5 @@
 <#
-    Set our URLs for all Microosft Exchange Server services.
+    Set our URLs for all Microsoft Exchange Server services.
 
     Fill in the array of server FQDNs and specify the SMTP namespace, such as mail.domain.com or mailtest.domain.com.
 #>

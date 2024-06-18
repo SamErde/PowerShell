@@ -13,7 +13,6 @@ Microsoft.Graph.Applications
 
 # Check if the pre-requisite modules are installed and install them if needed
 foreach ($module in $IdentityModules) {
-    Write-Host -ForegroundColor Yellow -BackgroundColor DarkBlue "Checking for $module"
     if (!(Get-Module -Name $module -ListAvailable)) {
         Install-Module -Name $module -Scope CurrentUser
     }
