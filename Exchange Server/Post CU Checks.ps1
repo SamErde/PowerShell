@@ -1,6 +1,0 @@
-Test-ServiceHealth
-Test-MAPIConnectivity
-Get-MailboxDatabaseCopyStatus
-Get-ClusterNode
-Test-ReplicationHealth
-Get-ServerComponentState -Identity $env:COMPUTERNAME
