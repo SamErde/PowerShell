@@ -74,8 +74,10 @@
         }        
         Try {
             [void][Threading.Tasks.Task]::WaitAll($Task.Task)
-        } Catch {}
-        $Task | ForEach {
+        } Catch {
+            $_
+        }
+        $Task | ForEach-Object {
             $Result = If ($_.Task.IsFaulted) {
                 $_.Task.Exception.InnerException.Message
             } Else {
