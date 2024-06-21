@@ -118,7 +118,7 @@ $currentyear = ($now).Year
 $previousmonth = ((Get-Date).AddMonths(-1)).Month
 $firstdayofpreviousmonth = (Get-Date -Year $currentyear -Month $currentmonth -Day 1).AddMonths(-1)
 
-$myDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+#$myDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 #$output = "$myDir\IISLogsCleanup.log"
 $output = "$LogPath\IISLogsCleanup-$(Get-Date -f yyyyMMddHHmm).log"
 $logpathfoldername = $logpath.Split("\")[-1]
@@ -148,13 +148,13 @@ Function Write-Logfile()
 function IsFileLocked( [string]$path)
 {
     If ([string]::IsNullOrEmpty($path) -eq $true) {
-        Throw “The path must be specified.”
+        Throw "The path must be specified."
     }
 
     [bool] $fileExists = Test-Path $path
 
     If ($fileExists -eq $false) {
-        Throw “File does not exist (” + $path + “)”
+        Throw "File does not exist (" + $path + ")"
     }
 
     [bool] $isFileLocked = $true
@@ -180,7 +180,7 @@ function IsFileLocked( [string]$path)
     }
     Finally
     {
-        If ($file -ne $null)
+        If ($null -ne $file)
         {
             $file.Close()
         }
@@ -227,9 +227,9 @@ Write-Host $tmpstring
 Write-Logfile $tmpstring
 
 #Fetch list of log files older than 1st day of previous month
-$logstoremove = Get-ChildItem -Path "$($Logpath)\*.*" -Include *.log | Where {$_.CreationTime -lt $firstdayofpreviousmonth -and $_.PSIsContainer -eq $false}
+$logstoremove = Get-ChildItem -Path "$($Logpath)\*.*" -Include *.log | Where-Object {$_.CreationTime -lt $firstdayofpreviousmonth -and $_.PSIsContainer -eq $false}
 
-if ($($logstoremove.Count) -eq $null)
+if ($null -eq $($logstoremove.Count))
 {
     $logcount = 0
 }
@@ -253,8 +253,8 @@ foreach ($logfile in $logstoremove)
 }
 
 #Calculate unique yyyy-MM dates from logfiles in hashtable
-$hashtable = $hashtable.GetEnumerator() | Sort Value
-$dates = @($hashtable | Group -Property:Value | Select Name)
+$hashtable = $hashtable.GetEnumerator() | Sort-Object Value
+$dates = @($hashtable | Group-Object -Property:Value | Select-Object Name)
 
 #For each yyyy-MM date add those logfiles to a zip file
 foreach ($date in $dates)
@@ -264,13 +264,13 @@ foreach ($date in $dates)
     if(-not (test-path($zipfilename)))
     {
         set-content $zipfilename ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
-        (dir $zipfilename).IsReadOnly = $false 
+        (Get-ChildItem $zipfilename).IsReadOnly = $false 
     }
 
     $shellApplication = new-object -com shell.application
     $zipPackage = $shellApplication.NameSpace($zipfilename)
 
-    $zipfiles = $hashtable | Where {$_.Value -eq "$($date.Name)"}
+    $zipfiles = $hashtable | Where-Object {$_.Value -eq "$($date.Name)"}
 
     $tmpstring = "Zip file name is $zipfilename and will contain $($zipfiles.Count) files"
     Write-Host $tmpstring
