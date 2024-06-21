@@ -35,7 +35,7 @@
         [PSCredential]$Credential
     )
     $ACL = $Null
-    $ShareSec = Get-WmiObject -Class Win32_LogicalShareSecuritySetting -ComputerName $ComputerName -Credential $Credential | Where-Object { $_.Name -eq $ShareName }
+    $ShareSec = Get-CimInstance -ClassName Win32_LogicalShareSecuritySetting -ComputerName $ComputerName -Credential $Credential | Where-Object { $_.Name -eq $ShareName }
     $SecurityDescriptor = $ShareSec.GetSecurityDescriptor().Descriptor
     
     Try {
@@ -64,7 +64,7 @@
 $ComputerName = ''
 $Credential = (DOMAINNAME)
 
-$Shares = Get-WmiObject -ComputerName $ComputerName -Class Win32_Share -Credential $Credential
+$Shares = Get-CimInstance -ClassName Win32_Share -ComputerName $ComputerName -Credential $Credential
 $AdminShares = $Shares | Where-Object { ($_.Type -ge 2147483648) -AND ($_.Type -le 2147483651) }
 
 $ShareList = @()
