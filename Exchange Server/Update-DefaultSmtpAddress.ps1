@@ -8,8 +8,8 @@ function Update-DefaultSmtpAddress {
         already been added, but not yet set as default.
     .NOTES
         Author: Sam Erde
-        Version: 0.0.3
-        Modified: 2024-06-20
+        Version: 0.0.4
+        Modified: 2024-06-24
 
         See https://learn.microsoft.com/en-us/powershell/module/exchange/set-mailbox?view=exchange-ps#-windowsemailaddress
         for more information about the differences between the -WindowsEmailAddress and -PrimarySmtpAddress parameters.
@@ -58,7 +58,8 @@ function Update-DefaultSmtpAddress {
         # Get all of the relevant recipients that have EmailAddressPolicy disabled.
         Write-Log "`nCurrent Domain: $CurrentDomain`nNew Domain: $NewDomain`n"
         Write-Log "Getting $CurrentDomain recipients that have EmailAddressPolicy disabled."
-        $Recipients = Get-Mailbox -Filter 'EmailAddressPolicyEnabled -eq $false' | Where-Object {$_.PrimarySmtpAddress -like "*$CurrentDomain"}
+        # Get all recipients that have a primary address ending with @$CurrentDomain and have EmailAddressPolicy disabled.
+        $Recipients = Get-Mailbox -Filter 'EmailAddressPolicyEnabled -eq $false' | Where-Object {$_.PrimarySmtpAddress -like "*@$CurrentDomain"}
         $RecipientCount = $Recipients.Count
         Write-Log "Found $RecipientCount recipients.`n"
     } # end begin block
