@@ -1,5 +1,6 @@
 function Update-SysInternals {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Colors are beautiful')]
     param (
         [Parameter()]
         [string]$DestinationPath = $PSScriptRoot
