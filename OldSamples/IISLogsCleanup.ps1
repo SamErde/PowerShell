@@ -172,7 +172,7 @@ function IsFileLocked( [string]$path)
     }
     Catch [IO.IOException]
     {
-        If ($_.Exception.Message.EndsWith(“it is being used by another process.”) -eq $false)
+        If ($_.Exception.Message.EndsWith("it is being used by another process.") -eq $false)
         {
             # Throw $_.Exception
             [bool] $isFileLocked = $true
