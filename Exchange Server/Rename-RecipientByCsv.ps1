@@ -78,12 +78,12 @@ function Rename-RecipientByCsv {
             Write-Log "`n$($recipient.DisplayName)"
             Write-Log "`tAlias: $($recipient.Alias)  >  $($recipient.NewAlias)"
             Write-Log "`tDisplayName: $($recipient.DisplayName)  >  $($recipient.NewDisplayName)"
-            Write-Log "`tPrimaryAddress: $($recipient.PrimarySmtpAddress)  >  $($recipient.NewPrimarySmtpAddress)"
+            Write-Log "`tPrimaryAddress: $($recipient.PrimaryAddress)  >  $($recipient.NewPrimaryAddress)"
             $SetMailboxParams = @{
                 Identity = $recipient.alias
                 DisplayName = $recipient.NewDisplayName
-                WindowsEmailAddress = $recipient.NewPrimarySmtpAddress
-                WhatIf = $true
+                WindowsEmailAddress = $recipient.NewPrimaryAddress
+                WhatIf = $false
             }
             # Set the PrimarySmtpAddress and the WindowsEmailAddress simultaneously with one argument.
             Set-Mailbox @SetMailboxParams
