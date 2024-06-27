@@ -16,11 +16,11 @@ Function Get-GPOsMissingPermissions {
     If ($GPOsMissingPermissions.Count -ne 0) {
         Write-Warning  "The following Group Policy Objects do not grant any permissions to the 'Authenticated Users' or 'Domain Computers' groups:"
         foreach ($item in $GPOsMissingPermissions) {
-            Write-Host "'$($item.DisplayName)'"
+            Write-Output "'$($item.DisplayName)'"
         }
     }
     Else {
-        Write-Host "There are no GPOs missing permissions for Authenticated Users AND Domain Computers."
+        Write-Output "There are no GPOs missing permissions for Authenticated Users AND Domain Computers."
     }
 
     # Check for GPOs missing Authenticated Users
@@ -34,11 +34,11 @@ Function Get-GPOsMissingPermissions {
     If ($GPOsMissingAuthenticatedUsers.Count -ne 0) {
         Write-Warning  "The following Group Policy Objects do not grant any permissions to the 'Authenticated Users' security principal:"
         foreach ($item in $GPOsMissingAuthenticatedUsers) {
-            Write-Host "'$($item.DisplayName)'"
+            Write-Output "'$($item.DisplayName)'"
         }
     }
     Else {
-        Write-Host "There are no GPOs missing permissions for Authenticated Users."
+        Write-Output "There are no GPOs missing permissions for Authenticated Users."
     }
 }
 
