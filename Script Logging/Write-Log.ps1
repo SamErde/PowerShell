@@ -1,6 +1,7 @@
 function Write-Log {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support Using Write-Host')]
     [OutputType([string])]
         param (
             # The message to display and write to a log
