@@ -39,26 +39,26 @@ $RegistryPathStr = @()
 
 #List Registrys in HKEY_USERS
 $RegistryPath = Get-ChildItem -Path Registry::HKEY_USERS\.DEFAULT\SOFTWARE -Recurse -ErrorAction 'SilentlyContinue' | Where-Object { $_.Name -like '*PDF Architect*' } | Select-Object -Property Name, PSPath
-If ($RegistryPath.PSPath -ne $null) {
+If ($null -ne $RegistryPath.PSPath) {
     $RegistryPathStr += $RegistryPath.PSPath
 }
 
 #List Registrys in HKLM:\SYSTEM\CurrentControlSet\Services
 $RegistryPath = Get-ChildItem -Path HKLM:\SYSTEM\CurrentControlSet\Services -Recurse -ErrorAction 'SilentlyContinue' | Where-Object { $_.Name -like '*PDF Architect*' } | Select-Object -Property Name, PSPath
-If ($RegistryPath.PSPath -ne $null) {
+If ($null -ne $RegistryPath.PSPath) {
     $RegistryPathStr += $RegistryPath.PSPath
 }
 
 #List registrys in HKLM:\Software # key with subkeys
 $RegistryPath = Get-ChildItem -Path HKLM:\software | Where-Object { $_.Name -like '*PDF Architect*' } | Select-Object -Property Name, PSPath
-If ($RegistryPath.PSPath -ne $null) {
+If ($null -ne $RegistryPath.PSPath) {
     $RegistryPathStr += $RegistryPath.PSPath
 }
 
 #List registry in HKCU:\Software
 #List registry in HKEY_USER:\
 $RegistryPath =	Get-ChildItem -Path Registry::HKEY_USERS\ -Recurse -ErrorAction 'SilentlyContinue' | Where-Object { $_.Name -like '*PDF Architect*' } | Select-Object -Property Name, PSPath
-If ($RegistryPath.PSPath -ne $null) {
+If ($null -ne $RegistryPath.PSPath) {
     $RegistryPathStr += $RegistryPath.PSPath
 }
 
