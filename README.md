@@ -5,6 +5,7 @@
 [![MegaLinter](https://github.com/samerde/powershell/workflows/MegaLinter/badge.svg?branch=main)](https://github.com/samerde/powershell/actions?query=workflow%3AMegaLinter+branch%3Amain)
 [![GitHub contributors](https://img.shields.io/github/contributors/samerde/powershell.svg)](https://github.com/samerde/powershell/graphs/contributors/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ae92f0d929de494690e712b68fb3b52c)](https://app.codacy.com/gh/SamErde/PowerShell/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 <!-- badges-end -->
 
 My collection of PowerShell scripts, functions, snippets, prompts, and resources for Visual Studio Code. PRs are welcomed!
