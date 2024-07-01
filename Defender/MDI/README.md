@@ -1,6 +1,12 @@
-# Migrate ATA to MDI
+# Microsoft Defender XDR
 
-For now this is just a quick script to install the Microsoft Defender for Identity on Windows Server Core. When done, it will also remove the old Microsoft Advanced Threat Analytics sensor if that is present.
+Scripts for working with Microsoft Defender XDR (Defender for Endpoint, Defender for Identity, and Defender for Office 365.)
+
+## Defender for Identity
+
+### Install-MDI.ps1
+
+For now this is just a quick script to install the Microsoft Defender for Identity on Windows Server Core. When done, it will also remove the old Microsoft Advanced Threat Analytics sensor if that is present. Use `Disable-NetAdapterLso` to disable LSO for all network adapters before installing MDI.
 
 ## To-Do
 
