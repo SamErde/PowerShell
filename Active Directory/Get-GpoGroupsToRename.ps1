@@ -32,8 +32,8 @@ function Get-GpoGroupsToRename {
 
         .NOTES
         Author: Sam Erde
-        Version: 0.1.0
-        Modified: 2024-06-28
+        Version: 0.1.1
+        Modified: 2024-07-03
     #>
 
     [CmdletBinding( SupportsShouldProcess, ConfirmImpact = 'High' )]
