@@ -68,7 +68,7 @@ function Get-GpoGroupsToRename {
 
         # Generate a log file name if one was not specified in the parameters.
         if ( -not $PSBoundParameters.ContainsKey($LogFile) ) {
-            $LogFile = "Renaming GPO Security Filtering Groups {0}.txt" -f ($StartTime.ToString("yyyy-MM-dd HH_mm_ss"))
+            $LogFile = "GPO Security Filtering Groups to Rename {0}.txt" -f ($StartTime.ToString("yyyy-MM-dd HH_mm_ss"))
         }
 
         # Set a name for the exported CSV file is one is not specified.
@@ -76,10 +76,12 @@ function Get-GpoGroupsToRename {
             $GroupsToRenameCsvFile = ".\Groups to Rename {0}.csv" -f ($StartTime.ToString("yyyy-MM-dd HH_mm_ss"))
         }
 
+        [string]$Domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain().Name
+
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Renaming GPO Security Filtering Groups"
+        Write-Log "Getting GPO Security Filtering Groups to Rename"
         Write-Log "$StartTime `n"
 
         # Initialize the list of strings include for ignoring group names:
@@ -94,15 +96,15 @@ function Get-GpoGroupsToRename {
 
         # Get the GPO (or all GPOs) so we can check their security filtering groups:
         if ($GPO) {
-            Write-Verbose "Checking GPO named: $GPO"
-            $GPOs = Get-Gpo $GPO
+            Write-Verbose "Checking GPO named: `'$GPO`' in $Domain"
+            $GPOs = Get-Gpo $GPO -Domain $Domain
         } else {
-            Write-Verbose "Checking all GPOs."
-            $GPOs = Get-GPO -All
+            Write-Verbose "Checking all GPOs in $Domain."
+            $GPOs = Get-GPO -All -Domain $Domain
         }
         $GpoCount = $Gpos.Count
 
-        Write-Log -LogText "`nInspecting $GpoCount GPOs.`n" -Output Both
+        Write-Log -LogText "`nInspecting $GpoCount GPOs in $Domain.`n" -Output Both
 
     } # end begin block
 
@@ -114,7 +116,7 @@ function Get-GpoGroupsToRename {
         foreach ($gpo in $GPOs) {
             $GpoName = $gpo.DisplayName
 
-            [array]$GpoApply = $gpo | Get-GPPermission -All -TargetType Group | Where-Object {
+            [array]$GpoApply = $gpo | Get-GPPermission -All -TargetType Group -Domain $Domain | Where-Object {
                     $_.Permission -eq 'GpoApply' -and
                     $_.Trustee.SidType -eq 'Group'
                 }
@@ -152,12 +154,15 @@ function Get-GpoGroupsToRename {
     } # end process block
 
     end {
-        # Create the CSV file of groups to rename.
-        try {
-            $GroupsToRename | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Out-File -FilePath $GroupsToRenameCsvFile
-            Write-Log -LogText "A table of the potential changes has been written to `'$GroupsToRenameCsvFile`'." -Output Both
-        } catch {
-            Write-Log -LogText "Failed to create `'$GroupsToRenameCsvFile`'.`n$_"
+        
+        if ($GroupsToRename.Count -gt 0) {
+            # Create the CSV file of groups to rename.
+            try {
+                $GroupsToRename | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Out-File -FilePath $GroupsToRenameCsvFile
+                Write-Log -LogText "A table of the potential changes has been written to `'$GroupsToRenameCsvFile`'." -Output Both
+            } catch {
+                Write-Log -LogText "Failed to create `'$GroupsToRenameCsvFile`'.`n$_"
+            }
         }
 
         # Write the log file
