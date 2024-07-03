@@ -52,13 +52,13 @@ function Rename-GroupsByCsv {
         Write-Log "$StartTime `n"
 
         try {
-            $GroupsCsv = Import-Csv -Path $CsvFile
+            $GroupsCsv = Import-Csv -Path $CsvFile -Delimeter ';'
         } catch {
             Write-Log -LogText "Failed to import the CSV file `'$GroupsCsv`'.`n$_"
             break
         }
 
-        Import-Module Active Directory
+        Import-Module ActiveDirectory
     } # end begin block
     
     process {
