@@ -59,6 +59,9 @@ function Rename-GroupsByCsv {
         }
 
         Import-Module ActiveDirectory
+
+        [string]$Domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain().Name
+
     } # end begin block
     
     process {
@@ -66,7 +69,7 @@ function Rename-GroupsByCsv {
             try {
                 $OldName = $group.GroupName
                 $NewName = $group.NewGroupName
-                Get-ADGroup $OldName | Set-ADGroup -SamAccountName $NewName -DisplayName $NewName -WhatIf
+                Get-ADGroup $OldName -Server $Domain | Set-ADGroup -SamAccountName $NewName -DisplayName $NewName -Server $Domain -WhatIf
                 Write-Log -LogText "$(Get-Date) [Renamed] `'$OldName`' renamed to `'$NewName`'." -Output Both
             } catch {
                 Write-Log -LogText "$(Get-Date) [Failed] Failed to rename `'$OldName`'.`n$_" -Output Both

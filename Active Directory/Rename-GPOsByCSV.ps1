@@ -64,6 +64,9 @@ function Rename-GPOsByCSV {
         Write-Log "$StartTime `n"
 
         Import-Module GroupPolicy
+
+        [string]$Domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain().Name
+
     } # end begin block
 
     process {
@@ -90,14 +93,14 @@ function Rename-GPOsByCSV {
             foreach ($gpo in $Batch) {
                 try {
                     # Get the old GPO and rename it:
-                    $OldGpo = (Get-GPO -Name $gpo.OldName -ErrorAction Stop).DisplayName
+                    $OldGpo = (Get-GPO -Name $gpo.OldName -Domain $Domain -ErrorAction Stop).DisplayName
 
                     # Check if -WhatIf parameter is specified
                     $Target = "$($gpo.OldName)"
                     $Operation = "Rename to '$($gpo.NewName)'"
                     if ($PSCmdlet.ShouldProcess($Target, $Operation)) {
                         # Rename the GPO and suppress the host output
-                        Rename-GPO -Name $OldGpo -TargetName $gpo.NewName | Out-Null
+                        Rename-GPO -Name $OldGpo -TargetName $gpo.NewName -Domain $Domain | Out-Null
                         Write-Log -LogText "$(Get-Date) [Success] Renamed GPO '$Target' to '$($gpo.NewName)'." -Output Both
                     } else {
                         Write-Log -LogText "$(Get-Date) [Skipped] $Target" -Output Both
