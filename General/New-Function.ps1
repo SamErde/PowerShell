@@ -23,6 +23,9 @@ function New-Function {
         .PARAMETER Path
         The path of the directory to save the new script in.
 
+        .PARAMETER SkipValidation
+        Optionally skip validation of the script name. This will not check for use of approved verbs or restricted characters.
+
         .EXAMPLE
         New-Function -Name "Get-Demo" -Synopsis "Get a demo." -Description "This function gets a demo." -Alias "Get-Sample"
 
@@ -36,9 +39,24 @@ function New-Function {
     [Alias('New-Script')]
     param (
         # The name of the new function.
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter(Mandatory, ParameterSetName = 'Named')]
         [string]
         $Name,
+
+        # The verb to use for the function name.
+        [Parameter(Mandatory, ParameterSetName = 'VerbNoun')]
+        [string]
+        $Verb,
+
+        # The noun to use for the function name.
+        [Parameter(Mandatory, ParameterSetName = 'VerbNoun')]
+        [string]
+        $Noun,
+
+        # Optionally skip name validation checks.
+        [Parameter()]
+        [switch]
+        $SkipValidation,
 
         # Synopsis of the new function.
         [Parameter()]
@@ -60,6 +78,21 @@ function New-Function {
         [string]
         $Path
     )
+
+    if ($PSBoundParameters.ContainsKey('Verb') -and -not $SkipValidation -and $Verb -notin (Get-Verb).Verb) {
+        Write-Warning "`"$Verb`" is not an approved verb. Please run `"Get-Verb`" to see a list of approved verbs."
+        break
+    }
+
+    if ($PSBoundParameters.ContainsKey('Verb') -and $PSBoundParameters.ContainsKey('Noun')) {
+        $Name = "$Verb-$Noun"
+        Write-Host "Name: $Name."
+    }
+
+    if ($PSBoundParameters.ContainsKey('Name') -and -not $SkipValidation -and
+            $Name -match '\w-\w' -and $Name.Split('-')[0] -notin (Get-Verb).Verb ) {
+        Write-Warning "It looks like you are not using an approved verb: `"$($Name.Split('-')[0]).`" Please run `"Get-Verb`" to see a list of approved verbs."
+    }
 
     # Set the script path and filename. Use current directory if no path specified.
     if (Test-Path -Path $Path -PathType Container) {
