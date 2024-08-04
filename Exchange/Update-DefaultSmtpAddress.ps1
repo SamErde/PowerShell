@@ -32,7 +32,7 @@ function Update-DefaultSmtpAddress {
         [string]
         $LogFile
     )
-    
+
     begin {
         $StartTime = Get-Date
 
@@ -44,8 +44,8 @@ function Update-DefaultSmtpAddress {
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Updating Primary SMTP Addresses and Windows Addresses"
-        Write-Log $StartTime
+        Write-This "Updating Primary SMTP Addresses and Windows Addresses"
+        Write-This $StartTime
 
         # Remove the '@' symbol if it was included in the domain name parameters.
         if ($CurrentDomain -match '^@.*') {
@@ -56,21 +56,21 @@ function Update-DefaultSmtpAddress {
         }
 
         # Get all of the relevant recipients that have EmailAddressPolicy disabled.
-        Write-Log "`nCurrent Domain: $CurrentDomain`nNew Domain: $NewDomain`n"
-        Write-Log "Getting $CurrentDomain recipients that have EmailAddressPolicy disabled."
+        Write-This "`nCurrent Domain: $CurrentDomain`nNew Domain: $NewDomain`n"
+        Write-This "Getting $CurrentDomain recipients that have EmailAddressPolicy disabled."
         # Get all recipients that have a primary address ending with @$CurrentDomain and have EmailAddressPolicy disabled.
         $Recipients = Get-Mailbox -Filter 'EmailAddressPolicyEnabled -eq $false' | Where-Object {$_.PrimarySmtpAddress -like "*@$CurrentDomain"}
         $RecipientCount = $Recipients.Count
-        Write-Log "Found $RecipientCount recipients.`n"
+        Write-This "Found $RecipientCount recipients.`n"
     } # end begin block
 
     process {
-        Write-Log "Processing $RecipientCount recipients..."
+        Write-This "Processing $RecipientCount recipients..."
         foreach ($recipient in $Recipients) {
-            Write-Log "`n$($Recipients.IndexOf($recipient)+1): $($recipient.DisplayName)"
+            Write-This "`n$($Recipients.IndexOf($recipient)+1): $($recipient.DisplayName)"
             $CurrentPrimarySmtpAddress = $($recipient.PrimarySmtpAddress.address)
             $NewPrimarySmtpAddress = $CurrentPrimarySmtpAddress -replace "@$CurrentDomain","@$NewDomain"
-            Write-Log "`tCurrent Address: $CurrentPrimarySmtpAddress`n`tNew Address:`t $NewPrimarySmtpAddress"
+            Write-This "`tCurrent Address: $CurrentPrimarySmtpAddress`n`tNew Address:`t $NewPrimarySmtpAddress"
             # Set the PrimarySmtpAddress and the WindowsEmailAddress simultaneously with one argument.
             Set-Mailbox -Identity $recipient -WindowsEmailAddress $NewPrimarySmtpAddress -WhatIf
             # Set-Mailbox -Identity $recipient -PrimarySmtpAddress $NewPrimarySmtpAddress
@@ -80,7 +80,7 @@ function Update-DefaultSmtpAddress {
     end {
         # Write the log file
         $FinishTime = Get-Date
-        Write-Log "`n`nFinished processing $RecipientCount recipients at $FinishTime.`n"
+        Write-This "`n`nFinished processing $RecipientCount recipients at $FinishTime.`n"
         try {
             $LogStringBuilder.ToString() | Out-File -FilePath $LogFile -Encoding utf8 -Force
             Write-Output "The log file has been written to $LogFile."
@@ -91,7 +91,7 @@ function Update-DefaultSmtpAddress {
     } # end end block
 } # end function Update-DefaultSmtpAddress
 
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support logging to host')]
@@ -121,4 +121,4 @@ function Write-Log {
                 [void]$LogStringBuilder.AppendLine($LogText)
             }
         }
-} # end function Write-Log
+} # end function Write-This

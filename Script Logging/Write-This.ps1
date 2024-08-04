@@ -1,4 +1,4 @@
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support Using Write-Host')]
@@ -28,4 +28,4 @@ function Write-Log {
                 [void]$LogStringBuilder.AppendLine($LogText)
             }
         }
-} # end function Write-Log
+} # end function Write-This

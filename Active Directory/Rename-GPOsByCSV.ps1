@@ -16,7 +16,7 @@ function Rename-GPOsByCSV {
 
         .PARAMETER Delay
         The number of seconds to wait between batches. The default value is 900 seconds (15 minutes).
-        
+
         .PARAMETER LogFile
         Path and filename to save logs in.
 
@@ -60,8 +60,8 @@ function Rename-GPOsByCSV {
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Renaming Group Policy Objects from $GpoCsvPath"
-        Write-Log "$StartTime `n"
+        Write-This "Renaming Group Policy Objects from $GpoCsvPath"
+        Write-This "$StartTime `n"
 
         Import-Module GroupPolicy
 
@@ -79,7 +79,7 @@ function Rename-GPOsByCSV {
                 $BatchSize = $GpoCount
             }
         } catch {
-            Write-Log -LogText "Failed to import the GPO renaming list: $_" -Output Both
+            Write-This -LogText "Failed to import the GPO renaming list: $_" -Output Both
             break
         }
 
@@ -88,7 +88,7 @@ function Rename-GPOsByCSV {
             # Get the current batch of GPOs
             $Batch = $GPOs[$i..($i + $BatchSize - 1)]
 
-            Write-Log -LogText "Looping through $GpoCount GPOs in batches of $BatchSize.`n" -Output Both
+            Write-This -LogText "Looping through $GpoCount GPOs in batches of $BatchSize.`n" -Output Both
             # Rename each GPO in the batch
             foreach ($gpo in $Batch) {
                 try {
@@ -101,19 +101,19 @@ function Rename-GPOsByCSV {
                     if ($PSCmdlet.ShouldProcess($Target, $Operation)) {
                         # Rename the GPO and suppress the host output
                         Rename-GPO -Name $OldGpo -TargetName $gpo.NewName -Domain $Domain | Out-Null
-                        Write-Log -LogText "$(Get-Date) [Success] Renamed GPO '$Target' to '$($gpo.NewName)'." -Output Both
+                        Write-This -LogText "$(Get-Date) [Success] Renamed GPO '$Target' to '$($gpo.NewName)'." -Output Both
                     } else {
-                        Write-Log -LogText "$(Get-Date) [Skipped] $Target" -Output Both
+                        Write-This -LogText "$(Get-Date) [Skipped] $Target" -Output Both
                     }
                 }
                 catch {
-                    Write-Log -LogText "$(Get-Date) [Error] Failed to rename GPO '$($gpo.OldName)': $_" -Output Both
+                    Write-This -LogText "$(Get-Date) [Error] Failed to rename GPO '$($gpo.OldName)': $_" -Output Both
                 }
             }
 
             # Pause between batches to avoid overloading domain controller replication.
             if ($i + $BatchSize -lt $GPOs.Count) {
-                Write-Log -LogText "Pausing for $Delay seconds." -Output Both
+                Write-This -LogText "Pausing for $Delay seconds." -Output Both
                 Start-Sleep -Seconds $Delay
             }
         } # end loop through GPOs
@@ -122,7 +122,7 @@ function Rename-GPOsByCSV {
     end {
         # Write the log file
         $FinishTime = Get-Date
-        Write-Log "`n`nFinished renaming $GpoCount GPOs at $FinishTime.`n"
+        Write-This "`n`nFinished renaming $GpoCount GPOs at $FinishTime.`n"
         try {
             $LogStringBuilder.ToString() | Out-File -FilePath $LogFile -Encoding utf8 -Force
             Write-Output "The log file has been written to $LogFile."
@@ -133,7 +133,7 @@ function Rename-GPOsByCSV {
     } # end end block
 } # end function Rename-GPOsByCsv
 
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support using Write-Host and colors for interactive scripts.')]
@@ -163,4 +163,4 @@ function Write-Log {
             [void]$LogStringBuilder.AppendLine($LogText)
         }
     } # end switch Output
-} # end function Write-Log
+} # end function Write-This

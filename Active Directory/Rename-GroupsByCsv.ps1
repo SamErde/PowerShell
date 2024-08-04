@@ -48,13 +48,13 @@ function Rename-GroupsByCsv {
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Renaming Security Groups from $CsvFile."
-        Write-Log "$StartTime `n"
+        Write-This "Renaming Security Groups from $CsvFile."
+        Write-This "$StartTime `n"
 
         try {
             $GroupsCsv = Import-Csv -Path $CsvFile -Delimeter ';'
         } catch {
-            Write-Log -LogText "Failed to import the CSV file `'$GroupsCsv`'.`n$_"
+            Write-This -LogText "Failed to import the CSV file `'$GroupsCsv`'.`n$_"
             break
         }
 
@@ -63,24 +63,24 @@ function Rename-GroupsByCsv {
         [string]$Domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetComputerDomain().Name
 
     } # end begin block
-    
+
     process {
         foreach ($group in $GroupsCsv) {
             try {
                 $OldName = $group.GroupName
                 $NewName = $group.NewGroupName
                 Get-ADGroup $OldName -Server $Domain | Set-ADGroup -SamAccountName $NewName -DisplayName $NewName -Server $Domain -WhatIf
-                Write-Log -LogText "$(Get-Date) [Renamed] `'$OldName`' renamed to `'$NewName`'." -Output Both
+                Write-This -LogText "$(Get-Date) [Renamed] `'$OldName`' renamed to `'$NewName`'." -Output Both
             } catch {
-                Write-Log -LogText "$(Get-Date) [Failed] Failed to rename `'$OldName`'.`n$_" -Output Both
+                Write-This -LogText "$(Get-Date) [Failed] Failed to rename `'$OldName`'.`n$_" -Output Both
             }
         } # end foreach group
     } # end process block
-    
+
     end {
         # Write the log file
         $FinishTime = Get-Date
-        Write-Log "`n`nFinished renaming $GroupCount groups at $FinishTime.`n"
+        Write-This "`n`nFinished renaming $GroupCount groups at $FinishTime.`n"
         try {
             $LogStringBuilder.ToString() | Out-File -FilePath $LogFile -Encoding utf8 -Force
             Write-Output "The log file has been written to $LogFile."
@@ -91,7 +91,7 @@ function Rename-GroupsByCsv {
     } # end end block
 } # end function Rename-GroupsByCsv
 
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support using Write-Host and colors for interactive scripts.')]
@@ -121,4 +121,4 @@ function Write-Log {
             [void]$LogStringBuilder.AppendLine($LogText)
         }
     } # end switch Output
-} # end function Write-Log
+} # end function Write-This

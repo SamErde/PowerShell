@@ -28,7 +28,7 @@ function Rename-RecipientByCsv {
         [string]
         $LogFile
     )
-    
+
     begin {
         $StartTime = Get-Date
 
@@ -41,8 +41,8 @@ function Rename-RecipientByCsv {
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Renaming Recipients in Exchange"
-        Write-Log $StartTime
+        Write-This "Renaming Recipients in Exchange"
+        Write-This $StartTime
 
         # Import the CSV file (alias,DisplayName,PrimaryAddress,NewAlias,NewDisplayName,NewPrimaryAddress)
         if (Test-Path -Path $CsvFile -ErrorAction SilentlyContinue) {
@@ -65,7 +65,7 @@ function Rename-RecipientByCsv {
             #>
         }
         else {
-            Write-Log "Unable to load the CSV file: $CsvFile."
+            Write-This "Unable to load the CSV file: $CsvFile."
             $_
             break
         }
@@ -73,12 +73,12 @@ function Rename-RecipientByCsv {
     } # end begin block
 
     process {
-        Write-Log "Processing $RecipientCount recipients..."
+        Write-This "Processing $RecipientCount recipients..."
         foreach ($recipient in $CsvData) {
-            Write-Log "`n$($recipient.DisplayName)"
-            Write-Log "`tAlias: $($recipient.Alias)  >  $($recipient.NewAlias)"
-            Write-Log "`tDisplayName: $($recipient.DisplayName)  >  $($recipient.NewDisplayName)"
-            Write-Log "`tPrimaryAddress: $($recipient.PrimaryAddress)  >  $($recipient.NewPrimaryAddress)"
+            Write-This "`n$($recipient.DisplayName)"
+            Write-This "`tAlias: $($recipient.Alias)  >  $($recipient.NewAlias)"
+            Write-This "`tDisplayName: $($recipient.DisplayName)  >  $($recipient.NewDisplayName)"
+            Write-This "`tPrimaryAddress: $($recipient.PrimaryAddress)  >  $($recipient.NewPrimaryAddress)"
             $SetMailboxParams = @{
                 Identity = $recipient.alias
                 DisplayName = $recipient.NewDisplayName
@@ -93,7 +93,7 @@ function Rename-RecipientByCsv {
     end {
         # Write the log file
         $FinishTime = Get-Date
-        Write-Log "`n`nFinished processing $RecipientCount recipients at $FinishTime.`n"
+        Write-This "`n`nFinished processing $RecipientCount recipients at $FinishTime.`n"
         try {
             $LogStringBuilder.ToString() | Out-File -FilePath $LogFile -Encoding utf8 -Force
             Write-Output "The log file has been written to $LogFile."
@@ -104,7 +104,7 @@ function Rename-RecipientByCsv {
     } # end end block
 } # end function Rename-Recipient
 
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support logging to host')]
@@ -134,4 +134,4 @@ function Write-Log {
                 [void]$LogStringBuilder.AppendLine($LogText)
             }
         }
-} # end function Write-Log
+} # end function Write-This
