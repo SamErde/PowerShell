@@ -81,16 +81,16 @@ function Get-GpoGroupsToRename {
         # Start the log string builder.
         $LogStringBuilder = [System.Text.StringBuilder]::New()
 
-        Write-Log "Getting GPO Security Filtering Groups to Rename"
-        Write-Log "$StartTime `n"
+        Write-This "Getting GPO Security Filtering Groups to Rename"
+        Write-This "$StartTime `n"
 
         # Initialize the list of strings include for ignoring group names:
         [System.Collections.Generic.List[string]]$DefaultIgnoreWords = @(
             'Authenticated Users','Domain Computers','Domain Controllers'
         )
-        Write-Log -LogText "Ignoring by default: $($DefaultIgnoreWords -join ', ')." -Output Both
+        Write-This -LogText "Ignoring by default: $($DefaultIgnoreWords -join ', ')." -Output Both
         if ($IgnoreWords) {
-            Write-Log -LogText "Ignoring group names that include: $($IgnoreWords -join ', ')." -Output Both
+            Write-This -LogText "Ignoring group names that include: $($IgnoreWords -join ', ')." -Output Both
         }
         $IgnoreWords.AddRange($DefaultIgnoreWords)
 
@@ -104,7 +104,7 @@ function Get-GpoGroupsToRename {
         }
         $GpoCount = $Gpos.Count
 
-        Write-Log -LogText "`nInspecting $GpoCount GPOs in $Domain.`n" -Output Both
+        Write-This -LogText "`nInspecting $GpoCount GPOs in $Domain.`n" -Output Both
 
     } # end begin block
 
@@ -120,24 +120,24 @@ function Get-GpoGroupsToRename {
                     $_.Permission -eq 'GpoApply' -and
                     $_.Trustee.SidType -eq 'Group'
                 }
-            
+
             if (-not $GpoApply) {
                 # Security filtering is not used.
-                Write-Log -LogText "$(Get-Date) [Skipped] `'$GpoName`' does not use security group filtering." -Output LogOnly
+                Write-This -LogText "$(Get-Date) [Skipped] `'$GpoName`' does not use security group filtering." -Output LogOnly
                 Continue
             }
 
             foreach ($ace in $GpoApply) {
                 $GroupName = $ace.Trustee.Name
-                
+
                 if ( $IgnoreWords | Where-Object { $GroupName -match $_ } ) {
                     # Security filtering groups include an ignored word in the name.
-                    Write-Log -LogText "$(Get-Date) [Ignored] `'$GpoName`' security filtering group `'$GroupName`' includes an ignored word in the name." -Output Both
+                    Write-This -LogText "$(Get-Date) [Ignored] `'$GpoName`' security filtering group `'$GroupName`' includes an ignored word in the name." -Output Both
                     Continue
                 }
                 if ($GroupName -eq "GPO.$GpoName") {
                     # The group name matches the GPO name.
-                    Write-Log -LogText "$(Get-Date) [Matched] `'$GpoName`' security filtering group `'$GroupName`' matches." -Output LogOnly
+                    Write-This -LogText "$(Get-Date) [Matched] `'$GpoName`' security filtering group `'$GroupName`' matches." -Output LogOnly
                     Continue
                 }
 
@@ -148,27 +148,27 @@ function Get-GpoGroupsToRename {
                     NewGroupName = $NewGroupName
                 }) | Out-Null
 
-                Write-Log -LogText "`n$(Get-Date) [Mismatch] $GpoName`n`t`tGroup: $GroupName`n`t`tNew Group: $NewGroupName`n" -Output Both
+                Write-This -LogText "`n$(Get-Date) [Mismatch] $GpoName`n`t`tGroup: $GroupName`n`t`tNew Group: $NewGroupName`n" -Output Both
             } #end foreach ace
         } # end foreach gpo
     } # end process block
 
     end {
-        
+
         if ($GroupsToRename.Count -gt 0) {
             # Create the CSV file of groups to rename.
             try {
                 $GroupsToRename | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Out-File -FilePath $GroupsToRenameCsvFile
-                Write-Log -LogText "A table of the potential changes has been written to `'$GroupsToRenameCsvFile`'." -Output Both
+                Write-This -LogText "A table of the potential changes has been written to `'$GroupsToRenameCsvFile`'." -Output Both
             } catch {
-                Write-Log -LogText "Failed to create `'$GroupsToRenameCsvFile`'.`n$_"
+                Write-This -LogText "Failed to create `'$GroupsToRenameCsvFile`'.`n$_"
             }
         }
 
         # Write the log file
         $FinishTime = Get-Date
-        Write-Log "`n`nFinished reviewing $GpoCount at $FinishTime." -Output Both
-        Write-Log "There are $($GroupsToRename.Count) groups to review and rename." -Output Both
+        Write-This "`n`nFinished reviewing $GpoCount at $FinishTime." -Output Both
+        Write-This "There are $($GroupsToRename.Count) groups to review and rename." -Output Both
         try {
             $LogStringBuilder.ToString() | Out-File -FilePath $LogFile -Encoding utf8 -Force
             Write-Output "`nThe log file has been written to `'$LogFile`'."
@@ -179,7 +179,7 @@ function Get-GpoGroupsToRename {
     } # end end block
 } # end function
 
-function Write-Log {
+function Write-This {
     # Write a string of text to the host and a log file simultaneously.
     [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Support using Write-Host and colors for interactive scripts.')]
@@ -209,4 +209,4 @@ function Write-Log {
             [void]$LogStringBuilder.AppendLine($LogText)
         }
     } # end switch Output
-} # end function Write-Log
+} # end function Write-This
