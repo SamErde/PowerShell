@@ -70,7 +70,7 @@ get-dhcpserverv4scope -computername $DhcpServer | ForEach-Object{
         $obj | Add-Member -Type NoteProperty -Name OptionType -Value 'IP Address'
         $OptionList += $obj
     }
-    
+
     $output += $OptionList
  }
 
