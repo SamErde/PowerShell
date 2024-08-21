@@ -20,8 +20,8 @@ $String5 = "There are: $NumberOfDays days in a week."
 $String5
 
 # But this fails because colons are used to define the scope of a variable or function.
-$String6 = "$NumberOfDays: how many days are in a week?"
-$String6
+# $String6 = "$NumberOfDays: how many days are in a week?"
+# $String6
 $String6 = "${NumberOfDays}: how many days are in a week?"
 $String6
 
