@@ -1,7 +1,7 @@
 {
     "version": "0.2",
     "language": "en",
-    
+
     "words": [
         "RSAT"
     ],
@@ -10,9 +10,10 @@
         "stefanzweifel",
         "diffy"
     ],
-    
+
     "flagWords": [
-        "yeet"
+        "yeet",
+        "rizz"
     ],
 
     "patterns": [
