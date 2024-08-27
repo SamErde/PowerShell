@@ -27,14 +27,14 @@ function Get-EnvironmentVariable {
             the calling process), whereas Target={User,Machine} causes a registry lookup against environment
             data in either HKCU or HKLM.
 
-            The relevant sources for the User and Machine targets are in the registry at: 
+            The relevant sources for the User and Machine targets are in the registry at:
             - HKEY_CURRENT_USER\Environment
             - HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
         .LINK
             https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables
     #>
-    [Alias("gev")]
-    [OutputType([System.String],[System.Collections.IDictionary])]
+    [Alias('gev')]
+    [OutputType([System.String], [System.Collections.IDictionary])]
     [CmdletBinding()]
     param (
         # The name of the environment variable to retrieve. If not specified, all environment variables are returned.
@@ -51,29 +51,29 @@ function Get-EnvironmentVariable {
         [switch]
         $All
     )
-    
+
     begin {
-        
+
     }
-    
+
     process {
-        if ( $PSBoundParameters.Contains($Variable) ) {
+        if ( $PSBoundParameters.Contains('Variable') ) {
             [Environment]::GetEnvironmentVariable($Variable, $Target)
-        } elseif (-not $PSBoundParameters.Contains($All) ) {
+        } elseif (-not $PSBoundParameters.Contains('All') ) {
             [Environment]::GetEnvironmentVariables()
         }
 
         if ($All) {
-            Write-Output "Process Environment Variables:"
+            Write-Output 'Process Environment Variables:'
             [Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Process)
-            Write-Output "User Environment Variables:"
+            Write-Output 'User Environment Variables:'
             [Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::User)
-            Write-Output "Machine Environment Variables:"
+            Write-Output 'Machine Environment Variables:'
             [Environment]::GetEnvironmentVariables([System.EnvironmentVariableTarget]::Machine)
         }
     }
-    
+
     end {
-        
+
     }
 }
