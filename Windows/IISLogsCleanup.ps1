@@ -6,12 +6,12 @@ IISLogsCleanup.ps1 - IIS Log File Cleanup Script
 A PowerShell script to compress and archive IIS log files.
 
 This script will check the folder that you specify, and any files older
-than the first day of the previous month will be coDOMAINNAMEsed into a
+than the first day of the previous month will be compressed into a
 zip file. If you specify an archive path as well the zip file will be
 moved to that location.
 
 The recommended use for this script is a once-monthly scheduled task
-run on the first day of each month. This will coDOMAINNAMEs all files older
+run on the first day of each month. This will compress all files older
 than the first day of the previous month, resulting in only 1-2 months
 of log files being stored on the server.
 
@@ -31,12 +31,12 @@ a central log repository stored on a NAS.
 
 .EXAMPLE
 .\IISLogsCleanup.ps1 -Logpath "D:\IIS Logs\W3SVC1"
-This example will coDOMAINNAMEs the log files in "D:\IIS Logs\W3SVC1" and leave
+This example will compress the log files in "D:\IIS Logs\W3SVC1" and leave
 the zip files in that location.
 
 .EXAMPLE
 .\IISLogsCleanup.ps1 -Logpath "D:\IIS Logs\W3SVC1" -ArchivePath "\\nas01\archives\iislogs"
-This example will coDOMAINNAMEs the log files in "D:\IIS Logs\W3SVC1" and move
+This example will compress the log files in "D:\IIS Logs\W3SVC1" and move
 the zip files to the archive path.
 
 .LINK
