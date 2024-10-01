@@ -5,6 +5,7 @@
         "ms-vscode.PowerShell",
         "EditorConfig.EditorConfig",
         "streetsidesoftware.code-spell-checker",
-        "DavidAnson.vscode-markdownlint"
+        "DavidAnson.vscode-markdownlint",
+        "SamErde.pspreworkout-powershell-extensions-pack"
     ]
 }
