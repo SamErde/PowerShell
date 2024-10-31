@@ -34,8 +34,7 @@ function Enable-ADRecycleBin {
             }
         } # end if
     } # end process
-    
+
     end {
-        
     }
 }
