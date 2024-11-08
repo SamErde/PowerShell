@@ -11,7 +11,7 @@
 
     .NOTES
     Author: Sam Erde, Sentinel Technologies
-    Version: 0.0.2
+    Version: 0.0.3
     Modified: 2024-11-7
 
     .LINK
@@ -36,15 +36,20 @@
 
     # Remove the Citrix shortcut folder in the current user's start menu
     try {
-        Remove-Item -Path $ShortcutFolder -Recurse -Force
+        Remove-Item -Path $ShortcutFolder -Recurse -Force -ErrorAction Stop
     } catch {
-        Write-Error -Message "Failed to remove the Citrix shortcut folder in the user's startmenu."
+        Write-Warning -Message "Failed to remove the Citrix shortcut folder in the user's start menu.`n$_"
+        return
     }
 
     # Wait for shortcut folder to come back. Time out after 30 seconds if not.
     $StartTime = Get-Date
-    while (-not (Test-Path $ShortcutFolder) -and (($StepTime - $StartTime).Seconds -lt 30) ) {
+    while (-not (Test-Path $ShortcutFolder)) {
         $StepTime = (Get-Date)
+        if ( ($StepTime - $StartTime).Seconds -ge 30 ) {
+            Write-Warning -Message 'Timed out while waiting for the Citrix folder to be recrated in the Start Menu.'
+            break
+        }
         Write-Information -MessageData 'Waiting for the folder to be recreated...' -InformationAction Continue
         Start-Sleep 5
     }
