@@ -1,0 +1,9 @@
+{
+    "label": "Edit My Profiles",
+    "type": "shell",
+    "command": "code",
+    "args": [
+        "$((Resolve-Path $PROFILE.CurrentUserAllHosts).Path)",
+        "$(((Resolve-Path $PROFILE.CurrentUserAllHosts).Path).Replace('profile.ps1','Microsoft.VSCode_profile.ps1'))"
+    ]
+}
