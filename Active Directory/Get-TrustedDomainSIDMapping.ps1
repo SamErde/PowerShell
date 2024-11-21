@@ -1,29 +1,31 @@
 ﻿function Get-TrustedDomainSIDMapping {
     <#
     .SYNOPSIS
-    Get the SID and DNSRoot name of trusted domains and forests.
+    Get information about trusted/trusting domains in Active Directory.
 
     .DESCRIPTION
-    This function retrieves the SID and DNSRoot name of trusted domains and forests in the current Active Directory forest.
-
-    .PARAMETER ManualEntry
-    If specified, the user may manually provide a SID and DNS name to add to the list of trusted domains.
+    This function retrieves the SID, DNSRoot name, and netBIOS name of trusted domains and forests in Active Directory. It returns this information as a dictionary object that can be used to easily reference domain details.
 
     .EXAMPLE
-    $SIDMappingTable = Get-TrustedDomainSIDMapping -ManualEntry 'S-1-5-21-1234567890-1234567890-1234567890', 'example.com' -Verbose
+    $SIDMappingTable = Get-TrustedDomainSIDMapping
 
-    This example retrieves the SIDs and DNSRoot names of trusted domains and forests in the current Active Directory forest and adds a manual entry to the results.
+    Returns a dictionary object that contains the SID, DNSRoot name, and NetBIOS name of trusted domains and forests in Active Directory.
+
+    .EXAMPLE
+    Get-TrustedDomainSIDMapping | Format-Table @{N = 'NetBiosName'; E = { $_.TrustedDomainInformation.NetBIOSName } }, @{N = 'DomainSid'; E = { $_.TrustedDomainInformation.DomainSid } }, SourceName, TargetName
+
+    Return a table that shows the NetBIOS name, Domain SID, and source/target names of all trusted domains in the forest.
+
+    .INPUTS
+    None
+
+    .OUTPUTS
+    System.Collections.Hashtable
 
     .NOTES
     Author: Sam Erde, Sentinel Technologies, Inc.
-    Version: 0.0.1
-    Modified: 2024-11-14
-
-    To-Do:
-    - Add support for trusted forests and external trusts.
-    - Add support for manually including a CSV file with trusted domain information.
-    - Add support for exporting a CSV file with trusted domain information.
-    - Add support for taking an array of trusted domain SIDs and DNS root names as input for ManualEntry.
+    Version: 0.1.0
+    Modified: 2024-11-21
 
     .LINK
     https://github.com/SamErde
@@ -34,90 +36,27 @@
     .LINK
     https://www.sentinel.com/
     #>
+
     [CmdletBinding()]
-    param (
-        # If specified, the user may manually provide a SID and DNS name to add to the list of trusted domains.
-        [Parameter(HelpMessage = 'Enter the SID and DNS name of a trusted domain in the format ''S-1-5-21-1234567890-1234567890-1234567890'', ''example.com''.')]
-        [array]$ManualEntry
-    )
+    [OutputType([System.Collections.Hashtable])]
+    param ()
 
     begin {
-        # Import the ActiveDirectory module if it is not already loaded.
-        if (-not (Get-Module -Name ActiveDirectory)) {
-            Write-Verbose -Message 'Importing ActiveDirectory module.'
-            Import-Module ActiveDirectory
-            Write-Verbose -Message '------------------------------'
-            Write-Verbose -Message 'Beginning to process trusts...'
-        }
-
         # Create a dictionary to store domain SIDs with their corresponding DNS root names.
         $DomainSIDMapping = [ordered] @{}
-        $CurrentDomain = (Get-ADDomain)
-        $DomainSIDMapping.Add(
-            $CurrentDomain.DomainSID.Value,
-            $CurrentDomain.DNSRoot
-        )
-
-        # If the user provided a manual entry, add it to the dictionary.
-        if ($PSBoundParameters.ContainsKey('ManualEntry')) {
-            Write-Verbose -Message "Manually entered SID: $($ManualEntry[0])"
-            Write-Verbose -Message "Manually entered DNS root name: $($ManualEntry[1])"
-            $DomainSIDMapping.Add(
-                $ManualEntry[0],
-                $ManualEntry[1]
-            )
-        }
-
-        $Trusts = Get-ADTrust -Filter *
-    }
+    } # end begin
 
     process {
-        # Loop through all trusts and add the trusted domain SIDs and DNS root names to the dictionary.
-        foreach ($trust in $Trusts) {
-            # Need to see if checking SID and DNSRoot requires a different process for trusted forests vs trusted domains.
-            switch ($trust.TrustType) {
-                <#
-                "DomainTrust" {
-                    Write-Verbose -Message "Processing domain trust: $($trust.Target)"
-                    try {
-                        Write-Verbose -Message "Processing trust: $($trust.Target)"
-                        $TrustedDomain = Get-ADDomain -Identity $trust.Target
-                        $DomainSIDMapping.Add(
-                            $TrustedDomain.DomainSID.Value,
-                            $TrustedDomain.DNSRoot
-                        )
-                    } catch {
-                        Write-Warning -Message "$_"
-                        continue
-                    }
-                }
-                "ForestTrust" {
-                    Write-Verbose -Message "Processing forest trust: $($trust.Target)"
-                    # ... (add code to handle external trusts here
-                }
-                "External" {
-                    Write-Verbose -Message "Processing external trust: $($trust.Target)"
-                    # ... (add code to handle external trusts here
-                }
-                #>
-                default {
-                    try {
-                        Write-Verbose -Message "Processing trust: $($trust.Target)"
-                        $TrustedDomain = Get-ADDomain -Identity $trust.Target
-                        $DomainSIDMapping.Add(
-                            $TrustedDomain.DomainSID.Value,
-                            $TrustedDomain.DNSRoot
-                        )
-                    } catch {
-                        Write-Warning -Message "$_"
-                        continue
-                    }
-                }
-            } # end switch ($trust.TrustType)
-        } # end foreach ($trust in $Trusts)
+        # Get the details of all trusted domains and create a dictionary to lookup SID-based references and identify which domain they point to
+        $ForestTrusts = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().GetAllTrustRelationships()
+        $TrustedDomainInformation = $ForestTrusts.TrustedDomainInformation
+        foreach ($domain in $TrustedDomainInformation) {
+            $DomainSIDMapping[$domain.DomainSid] = $domain
+        }
     } # end process
 
     end {
         $DomainSIDMapping
     } # end end
+
 } # end function
