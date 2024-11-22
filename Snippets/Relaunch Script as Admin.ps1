@@ -1,8 +1,7 @@
 $isAdmin = [System.Security.Principal.WindowsPrincipal]::new(
-    [System.Security.Principal.WindowsIdentity]::GetCurrent()).
-        IsInRole('Administrators')
+    [System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrators')
 
-if(-not $isAdmin) {
+if (-not $isAdmin) {
     $params = @{
         FilePath     = 'powershell' # or pwsh if Core
         Verb         = 'RunAs'
