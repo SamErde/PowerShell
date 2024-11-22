@@ -4,3 +4,4 @@ $Job = Start-ThreadJob -ScriptBlock {
         ForEach-Object { Start-Sleep -ms 200; $_ } |
             oss | Write-Host
 } -StreamingHost $Host
+Get-Job $Job
