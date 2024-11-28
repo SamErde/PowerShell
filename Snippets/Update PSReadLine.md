@@ -3,8 +3,8 @@
 Close ALL instances of PowerShell, including VS Code, and then run this from an elevated command prompt:
 
 ``` shell
-pwsh.exe -noprofile -command "Install-Module PSReadLine -Force -SkipPublisherCheck -AllowPrerelease"
-powershell.exe -noprofile -command "Install-Module PSReadLine -Force -SkipPublisherCheck
+pwsh.exe -NoProfile -command "Install-Module PSReadLine -Force -SkipPublisherCheck -AllowPrerelease"
+powershell.exe -NoProfile -command "Install-Module PSReadLine -Force -SkipPublisherCheck
 ```
 
 Add this to your PowerShell profiles. Windows PowerShell does not support 'HistoryAndPlugin'.

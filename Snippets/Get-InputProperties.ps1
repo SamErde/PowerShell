@@ -29,19 +29,19 @@ function Get-InputProperties {
 
     process {
 
-        if ([bool]$InputObject.PSObject.Properties["GivenName"]) {
-            $GivenName = $InputObject.GivenName;
+        if ([bool]$InputObject.PSObject.Properties['GivenName']) {
+            $GivenName = $InputObject.GivenName
         }
-        if ([bool]$InputObject.PSObject.Properties["SurName"]) {
-            $SurName = $InputObject.SurName;
+        if ([bool]$InputObject.PSObject.Properties['SurName']) {
+            $SurName = $InputObject.SurName
         }
-        if ([bool]$InputObject.PSObject.Properties["Nickname"]) {
-            $Nickname = $InputObject.Nickname;
+        if ([bool]$InputObject.PSObject.Properties['Nickname']) {
+            $Nickname = $InputObject.Nickname
         } else {
             "The property 'Nickname' was not present."
         }
     }
-    
+
     end {
         "$GivenName $SurName ($Nickname)" | Out-Null
     }

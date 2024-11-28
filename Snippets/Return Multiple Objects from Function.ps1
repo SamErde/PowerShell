@@ -1,11 +1,11 @@
 function Get-Food {
-    $TreeFruit = @("Apple","Orange","Peach")
-    $Squash = @("Pumpkin","Acorn Squash","Winter Squash")
-    $RootVegetable = @("Potato","Sweet Potato","Turnip","Radish")
+    $TreeFruit = @('Apple', 'Orange', 'Peach')
+    $Squash = @('Pumpkin', 'Acorn Squash', 'Winter Squash')
+    $RootVegetable = @('Potato', 'Sweet Potato', 'Turnip', 'Radish')
 
     Return @{
-        TreeFruit = $TreeFruit
-        Squash = $Squash
+        TreeFruit     = $TreeFruit
+        Squash        = $Squash
         RootVegetable = $RootVegetable
     }
 }
@@ -25,9 +25,9 @@ $($Results['RootVegetable'] -join ', ')
 
 # Problematic solution that simply returns multiple objects
 function Get-Food {
-    $TreeFruit = @("Apple","Orange","Peach")
-    $Squash = @("Pumpkin","Acorn Squash","Winter Squash")
-    $RootVegetable = @("Potato","Sweet Potato","Turnip","Radish")
+    $TreeFruit = @('Apple', 'Orange', 'Peach')
+    $Squash = @('Pumpkin', 'Acorn Squash', 'Winter Squash')
+    $RootVegetable = @('Potato', 'Sweet Potato', 'Turnip', 'Radish')
 
     Return @($TreeFruit, $Squash, $RootVegetable)
     # Or just: $TreeFruit, $Squash, $RootVegetable
@@ -35,9 +35,9 @@ function Get-Food {
 $Food = Get-Food
 
 # Recreate the arrays that might contain the food found with imatch:
-$TreeFruit = $Food -imatch "Apple"
-$Squash = $Food -imatch "Squash"
-$RootVegetable = $Food -imatch "Turnip"
+$TreeFruit = $Food -imatch 'Apple'
+$Squash = $Food -imatch 'Squash'
+$RootVegetable = $Food -imatch 'Turnip'
 
 # Recreate the arrays by index and hope you get the order right:
 $TreeFruit = $Food[0]

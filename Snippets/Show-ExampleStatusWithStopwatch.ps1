@@ -5,7 +5,7 @@ function Show-ExampleProgressUpdates {
         $StopWatchSegment.Start()
         $StopWatchTotal = New-Object System.Diagnostics.Stopwatch
         $StopWatchTotal.Start()
-        Write-Output "Started processing!"
+        Write-Output 'Started processing!'
     }
     process {
 

@@ -14,12 +14,12 @@ function Get-Uptime {
     .NOTES
         Inspired by @md's blog at https://xkln.net/blog/getting-uptime-with-powershell---the-fast-way/
     #>
-    [Cmdletbinding()]
-    [Alias("Uptime")]
+    [CmdletBinding()]
+    [Alias('Uptime')]
     param (
         # The type of units to return
         [Parameter()]
-        [ValidateSet('Days','Hours','Minutes','Seconds','Milliseconds','Microseconds','Nanoseconds')]
+        [ValidateSet('Days', 'Hours', 'Minutes', 'Seconds', 'Milliseconds', 'Microseconds', 'Nanoseconds')]
         [string]
         $Units
     )

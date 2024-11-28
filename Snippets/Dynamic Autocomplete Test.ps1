@@ -2,18 +2,18 @@
 function Connect-AzureTestCompatible {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ArgumentCompleter( {
-            param ( $CommandName, $ParameterName, $WordToComplete, $CommandAst, $FakeBoundParameters )
-            $Global:EnvironmentNames = (Get-MgEnvironment).Name; $Global:EnvironmentNames
-        } )]
+                param ( $CommandName, $ParameterName, $WordToComplete, $CommandAst, $FakeBoundParameters )
+                $Global:EnvironmentNames = (Get-MgEnvironment).Name; $Global:EnvironmentNames
+            } )]
         [ValidateScript({
-            if ($_ -in $Global:EnvironmentNames) {
-                $true
-            } else {
-                throw "`n$_ is not a valid environment name. Please use one of the following: $($Global:EnvironmentNames -join ', ')"
-            }
-        })]
+                if ($_ -in $Global:EnvironmentNames) {
+                    $true
+                } else {
+                    throw "`n$_ is not a valid environment name. Please use one of the following: $($Global:EnvironmentNames -join ', ')"
+                }
+            })]
         [string]$Environment
     )
     Connect-MgGraph -Environment $Environment
@@ -32,7 +32,7 @@ Class EnvironmentName : System.Management.Automation.IValidateSetValuesGenerator
 function Connect-GraphTest {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet([EnvironmentName])]
         [string]$Environment
     )

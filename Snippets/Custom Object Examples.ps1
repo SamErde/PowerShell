@@ -1,4 +1,4 @@
-$BuildVersion = "23.03.15.2119"
+$BuildVersion = '23.03.15.2119'
 
 $scriptName = $script:MyInvocation.MyCommand.Name
 $scriptPath = [IO.Path]::GetDirectoryName($script:MyInvocation.MyCommand.Path)
@@ -7,7 +7,7 @@ $scriptFullName = (Join-Path $scriptPath $scriptName)
 $result = [PSCustomObject]@{
     ScriptName     = $scriptName
     CurrentVersion = $BuildVersion
-    LatestVersion  = ""
+    LatestVersion  = ''
     UpdateFound    = $false
     Error          = $null
 }
@@ -22,24 +22,24 @@ function CreateCustomCSV {
 
     $ItemType = $data.ItemClass
 
-    if ($data.ItemClass.StartsWith("IPM.Note")) {
-        $ItemType = "E-Mail"
-    } elseif ($data.ItemClass.StartsWith("IPM.Appointment")) {
-        $ItemType = "Calendar"
-    } elseif ($data.ItemClass.StartsWith("IPM.Task")) {
-        $ItemType = "Task"
+    if ($data.ItemClass.StartsWith('IPM.Note')) {
+        $ItemType = 'E-Mail'
+    } elseif ($data.ItemClass.StartsWith('IPM.Appointment')) {
+        $ItemType = 'Calendar'
+    } elseif ($data.ItemClass.StartsWith('IPM.Task')) {
+        $ItemType = 'Task'
     }
 
     $row = [PSCustomObject]@{
-        "Mailbox"                     = $mailbox
-        "Id"                          = $data.Id
-        "ItemType"                    = $ItemType
-        "Sender"                      = ($data.From | Select-Object -ExpandProperty Address) -join ","
-        "Recipient"                   = ($data.ToRecipients | Select-Object -ExpandProperty Address) -join ","
-        "Subject"                     = $data.Subject
-        "DateReceived"                = $data.DateTimeReceived
-        "PidLidReminderFileParameter" = $data.ExtendedProperties[0].Value
-        "Cleanup"                     = "N"
+        'Mailbox'                     = $mailbox
+        'Id'                          = $data.Id
+        'ItemType'                    = $ItemType
+        'Sender'                      = ($data.From | Select-Object -ExpandProperty Address) -join ','
+        'Recipient'                   = ($data.ToRecipients | Select-Object -ExpandProperty Address) -join ','
+        'Subject'                     = $data.Subject
+        'DateReceived'                = $data.DateTimeReceived
+        'PidLidReminderFileParameter' = $data.ExtendedProperties[0].Value
+        'Cleanup'                     = 'N'
     }
 
     $row | Export-Csv -Path $CsvPath -NoTypeInformation -Append -Encoding utf8 -Force

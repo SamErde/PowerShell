@@ -17,16 +17,16 @@ function Get-AverageExecutionTime {
     [CmdletBinding()]
     param (
         [Parameter(
-            Mandatory=$true,
-            HelpMessage="Specify a scriptblock to measure the execution time of."
+            Mandatory = $true,
+            HelpMessage = 'Specify a scriptblock to measure the execution time of.'
         )]
-            [scriptblock]$Scriptblock,
+        [scriptblock]$Scriptblock,
 
         [Parameter(
-            Mandatory=$false,
-            HelpMessage="Specify the number of times to run the scriptblock. (Default 50)"
+            Mandatory = $false,
+            HelpMessage = 'Specify the number of times to run the scriptblock. (Default 50)'
         )]
-            [int]$Count = 50
+        [int]$Count = 50
     )
 
     begin {
