@@ -1,11 +1,5 @@
-# Load the .NET assembly to make it available to the whole script or session
-[System.Reflection.Assembly]::LoadWithPartialName("System.DirectoryServices")
-
-# Since that is deprecated, use:
 Add-Type -AssemblyName 'System.DirectoryServices'
 Add-Type -AssemblyName 'System.Net.NetworkInformation'
-
-
 
 # Works when offline, returns the DNS domain name, not the NetBIOS domain name.
 ( [System.Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties() ).DomainName
