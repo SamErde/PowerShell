@@ -4,7 +4,7 @@
     Check for the usage of specific DHCP option IDs in any context on a DHCP server.
 
     .DESCRIPTION
-    Check for the usage of specific DHCP option IDs in any context on a DHCP server, including DHCP server options, scope options, and reservation options. Check all DHCP options used on a server, including server options, scope options, and reservation options.
+    Check for the usage of specific DHCP option IDs in any context on a DHCP server, including DHCP server options, scope options, and reservation options.
 
     .PARAMETER Server
     The hostname of a DHCP server to inspect.
@@ -23,28 +23,13 @@
         [Parameter(Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
-        $Server = 'localhost'
+        $Server = $env:COMPUTERNAME
     )
 
     begin {
         # Get the server's hostname if localhost is specified.
         if ($Server -eq 'localhost') {
             $Server = $env:COMPUTERNAME
-        }
-
-        # Check if the $Server is listed in the objects returned by Get-DhcpServerInDC.
-        $DhcpServers = Get-DhcpServerInDC
-        if ($DhcpServers.ServerName -notcontains $Server) {
-            Write-Warning -Message "The server `'$Server`' is not an authorized DHCP server in the domain."
-            return
-        }
-
-        # Verify that the server is reachable.
-        try {
-            $null = Test-NetConnection -ComputerName $Server -Count 1 -ErrorAction Stop
-        } catch {
-            Write-Error "Unable to connect to server: $Server"
-            return
         }
 
         # Define the options to check
@@ -57,6 +42,21 @@
     } # end begin block
 
     process {
+        # Check if the $Server is listed in the objects returned by Get-DhcpServerInDC.
+        $DhcpServers = Get-DhcpServerInDC
+        if ($DhcpServers.DnsName -notmatch $Server) {
+            Write-Warning -Message "The server `'$Server`' is not an authorized DHCP server in the domain."
+            return
+        }
+
+        # Verify that the server is reachable.
+        try {
+            $null = Test-NetConnection -ComputerName $Server -Count 1 -ErrorAction Stop
+        } catch {
+            Write-Error "Unable to connect to server: $Server"
+            return
+        }
+
         # Get all IPv4 DHCP server options and check the options set on each.
         Write-Host 'Checking DHCP Server Options....' -ForegroundColor Green -BackgroundColor Black
         $ServerOptions = Get-DhcpServerv4OptionValue
