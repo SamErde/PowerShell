@@ -27,15 +27,19 @@
             Write-Verbose -Message "Beginning ${MyInvocation.InvocationName}..."
         }
 
+        $SIDHistoryList = [ordered]@{}
         $DomainSIDs = New-Object -TypeName System.Collections.Generic.List[System.String]
     } # end begin
 
     process {
         # Get all ActiveDirectory objects that have SID history.
-        $AllSIDHistory = Get-ADObject -Filter { SIDHistory -like '*' } -Properties SIDHistory | Select-Object -ExpandProperty SIDHistory
+        $ADObjectsWithSIDHistory = Get-ADObject -Filter { SIDHistory -like '*' } -Properties SIDHistory | Select-Object * -ExpandProperty SIDHistory
 
-        foreach ($SID in $AllSIDHistory) {
-            $DomainSIDs.Add($SID.Substring(0, $SID.LastIndexOf('-')))
+        foreach ($object in $ADObjectsWithSIDHistory) {
+            # Create a hash table of DistinguishedName and SIDHistory for each object.
+            $SIDHistoryList.Add($object.DistinguishedName, $object.SIDHistory)
+            # Create a de-duplicated list of source domain SIDs from the SIDHistory attribute of each object.
+            $DomainSIDs.Add( $($object.SIDHistory.Substring(0, $SID.LastIndexOf('-'))) )
         }
     } # end process
 
