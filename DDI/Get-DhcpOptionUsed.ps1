@@ -42,21 +42,6 @@
     } # end begin block
 
     process {
-        # Check if the $Server is listed in the objects returned by Get-DhcpServerInDC.
-        $DhcpServers = Get-DhcpServerInDC
-        if ($DhcpServers.DnsName -notmatch $Server) {
-            Write-Warning -Message "The server `'$Server`' is not an authorized DHCP server in the domain."
-            return
-        }
-
-        # Verify that the server is reachable.
-        try {
-            $null = Test-NetConnection -ComputerName $Server -Count 1 -ErrorAction Stop
-        } catch {
-            Write-Error "Unable to connect to server: $Server"
-            return
-        }
-
         # Get all IPv4 DHCP server options and check the options set on each.
         Write-Host 'Checking DHCP Server Options....' -ForegroundColor Green -BackgroundColor Black
         $ServerOptions = Get-DhcpServerv4OptionValue
