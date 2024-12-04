@@ -46,7 +46,7 @@
         $DhcpServers = Get-DhcpServerInDC
         if ($DhcpServers.DnsName -notmatch $Server) {
             Write-Warning -Message "The server `'$Server`' is not an authorized DHCP server in the domain."
-            return
+            # return
         }
 
         # Verify that the server is reachable.
