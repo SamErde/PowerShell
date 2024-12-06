@@ -1,0 +1,93 @@
+﻿# Measure the number of network hops and the average response time for a query to a DNS server.
+
+function Measure-DnsResponseTime {
+    <#
+    .SYNOPSIS
+    Measure average query response time from a DNS server.
+
+    .PARAMETER DnsServer
+    The DNS server name or IP address to query.
+
+    .PARAMETER TargetName
+    The domain or host name to query.
+    #>
+    [CmdletBinding()]
+    [OutputType([double])]
+    param (
+        [Parameter(
+            Mandatory,
+            Position = 0,
+            HelpMessage = 'The DNS server name or IP address to query.')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $DnsServer,
+
+        [Parameter(
+            Mandatory,
+            Position = 1,
+            HelpMessage = 'The domain or host name to resolve.')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $TargetName
+    )
+    $queryTimes = @()
+    Write-Host "Querying DNS server $DnsServer for $TargetName 100 times: " -NoNewline -ForegroundColor Green
+    for ($i = 0; $i -lt 100; $i++) {
+        Write-Host '.' -NoNewline -ForegroundColor Yellow
+        try {
+            Clear-DnsClientCache
+            $QueryTimes += (Measure-Command { [System.Net.Dns]::GetHostAddresses($TargetName) }).TotalMilliseconds
+            # $QueryTimes += (Measure-Command { Resolve-DnsName -Server $DnsServer -Name $Targetname -DnsOnly -NoHostsFile }).TotalMilliseconds
+            # $ResponseTime = (Get-History -Count 1).Duration.TotalMilliseconds
+        } catch {
+            Write-Output "Failed to resolve DNS query: $_"
+            return
+            # To Do: Add error handling. Change return to a continue and track how many times it failed, then reduce the result count for the average--but also show a factor for how reliable the server was.
+        }
+    }
+    Write-Host ". Done!`n" -ForegroundColor Green
+    "Times: $($QueryTimes -join ', ')" | Write-Verbose
+    $AverageTime = [math]::Round( ($QueryTimes | Measure-Object -Average).Average, 2 )
+    Write-Host "Average response time: $AverageTime ms" -ForegroundColor Green
+    $AverageTime
+}
+
+function Measure-NetworkHops {
+    <#
+    .SYNOPSIS
+    Measure the number of network hops and get basic traceroute details for a given server.
+
+    .PARAMETER Server
+    The server name or IP address to measure network hops to.
+    #>
+    [CmdletBinding()]
+    [OutputType([int])]
+    param (
+        [Parameter(
+            Mandatory,
+            Position = 0,
+            HelpMessage = 'The DNS server name or IP address to measure network hops to.')]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Server
+    )
+    Write-Host "Measuring network hops to $Server..." -ForegroundColor Yellow
+    $TestResult = Test-NetConnection -ComputerName $Server -TraceRoute -InformationLevel Detailed
+    $Result = [PSCustomObject]@{
+        Server             = $Server
+        PingSucceeded      = $TestResult.PingSucceeded
+        PingRoundTripTime  = $TestResult.PingReplyDetails.RoundtripTime
+        Hops               = $TestResult.TraceRoute.Count
+        # NameResolutionSucceeded = $TestResult.NameResolutionSucceeded
+        # ResolvedName            = $TestResult.DNSOnlyRecords.Name
+        MatchingIpsecRules = $TestResult.MatchingIpsecRules
+    }
+    $Result
+}
+
+# Example Usage:
+$DnsServers = @('8.8.8.8', '8.8.4.4', '1.1.1.1', '9.9.9.9')
+$DnsServers | ForEach-Object {
+    Measure-NetworkHops -Server $_
+    Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com' | Out-Null
+}
