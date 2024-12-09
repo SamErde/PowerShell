@@ -81,7 +81,7 @@ function Measure-NetworkHops {
         [string]
         $Server
     )
-    Write-Host "Measuring network hops to $Server..." -ForegroundColor Magenta
+    Write-Host "Measuring network hops to $Server..." -ForegroundColor Cyan
     $TestResult = Test-NetConnection -ComputerName $Server -TraceRoute -InformationLevel Detailed
     $Result = [PSCustomObject]@{
         Server             = $Server
