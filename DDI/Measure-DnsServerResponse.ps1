@@ -17,7 +17,8 @@ function Measure-DnsResponseTime {
         [Parameter(
             Mandatory,
             Position = 0,
-            HelpMessage = 'The DNS server name or IP address to query.')]
+            HelpMessage = 'The DNS server name or IP address to query.'
+        )]
         [ValidateNotNullOrEmpty()]
         [string]
         $DnsServer,
@@ -25,14 +26,23 @@ function Measure-DnsResponseTime {
         [Parameter(
             Mandatory,
             Position = 1,
-            HelpMessage = 'The domain or host name to resolve.')]
+            HelpMessage = 'The domain or host name to resolve.'
+        )]
         [ValidateNotNullOrEmpty()]
         [string]
-        $TargetName
+        $TargetName,
+
+        # Number of times to query the DNS server for the target name.
+        [Parameter(
+            HelpMessage = 'The number of times to query the DNS server for the target name.'
+        )]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int16]
+        $QueryCount = 100
     )
     $queryTimes = @()
-    Write-Host "Querying DNS server $DnsServer for $TargetName 100 times: " -NoNewline -ForegroundColor Green
-    for ($i = 0; $i -lt 100; $i++) {
+    Write-Host "Querying DNS server $DnsServer for $TargetName $QueryCount times: " -NoNewline -ForegroundColor Green
+    for ($i = 0; $i -lt $QueryCount; $i++) {
         Write-Host '.' -NoNewline -ForegroundColor Yellow
         try {
             Clear-DnsClientCache
@@ -45,10 +55,10 @@ function Measure-DnsResponseTime {
             # To Do: Add error handling. Change return to a continue and track how many times it failed, then reduce the result count for the average--but also show a factor for how reliable the server was.
         }
     }
-    Write-Host ". Done!`n" -ForegroundColor Green
+    Write-Host '. Done!' -ForegroundColor Green
     "Times: $($QueryTimes -join ', ')" | Write-Verbose
     $AverageTime = [math]::Round( ($QueryTimes | Measure-Object -Average).Average, 2 )
-    Write-Host "Average response time: $AverageTime ms" -ForegroundColor Green
+    Write-Host "Average response time: $AverageTime ms`n" -ForegroundColor Green
     $AverageTime
 }
 
@@ -71,7 +81,7 @@ function Measure-NetworkHops {
         [string]
         $Server
     )
-    Write-Host "Measuring network hops to $Server..." -NoNewline -ForegroundColor Yellow
+    Write-Host "Measuring network hops to $Server..." -ForegroundColor Magenta
     $TestResult = Test-NetConnection -ComputerName $Server -TraceRoute -InformationLevel Detailed
     $Result = [PSCustomObject]@{
         Server             = $Server
@@ -102,7 +112,7 @@ $Servers | ForEach-Object {
         NetworkHops              = $NetworkHops.Hops
         PingSucceeded            = $NetworkHops.PingSucceeded
         PingRoundTripTime        = $NetworkHops.PingRoundTripTime
-        AverageQueryResponseTime = Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com'
+        AverageQueryResponseTime = Measure-DnsResponseTime -DnsServer $_ -TargetName 'github.com'
     }
     $TestResults.Add($Results) | Out-Null
 }
