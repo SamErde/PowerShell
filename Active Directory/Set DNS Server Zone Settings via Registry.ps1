@@ -40,26 +40,25 @@ $creds = Get-Credential
 foreach ($srv in $servers) {
     $server = $srv.Hostname
     $session = New-PSSession -ComputerName $server -Name $server -Credential $creds
-    Try { 
+    Try {
         Write-Host "Connecting to $server... " -ForegroundColor Green -NoNewline
-        Enter-PSSession $session 
-    } 
-    Catch { 
+        Enter-PSSession $session
+    } Catch {
         Write-Host "Failed to enter the PSSession for $server. Skipping." -ForegroundColor DarkYellow
-        Continue 
+        Continue
     }
     Write-Output $session.State
 
     $zones = Get-ChildItem -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\DNS Server\Zones\'
 
-        foreach ($zone in $zones) {
-            Write-Host "`n`nName: $((Get-ItemProperty -PSPath $zone.PSPath).PSChildName)" -NoNewline -ForegroundColor Yellow
-            Write-Host "`nSecondaryServers: $((Get-ItemProperty -PSPath $zone.PSPath).SecondaryServers)" -NoNewline 
-            Write-Host "`nSecureSecondaries: $((Get-ItemProperty -PSPath $zone.PSPath).SecureSecondaries) `n" -NoNewline 
+    foreach ($zone in $zones) {
+        Write-Host "`n`nName: $((Get-ItemProperty -PSPath $zone.PSPath).PSChildName)" -NoNewline -ForegroundColor Yellow
+        Write-Host "`nSecondaryServers: $((Get-ItemProperty -PSPath $zone.PSPath).SecondaryServers)" -NoNewline
+        Write-Host "`nSecureSecondaries: $((Get-ItemProperty -PSPath $zone.PSPath).SecureSecondaries) `n" -NoNewline
 
-            #Set-ItemProperty -PSPath $zone.PSPath -Name "SecondaryServers" -Value "" -Whatif
-            #Set-ItemProperty -PSPath $zone.PSPath -Name "SecureSecondaries" -Value "3" -Whatif
-        }
+        #Set-ItemProperty -PSPath $zone.PSPath -Name "SecondaryServers" -Value "" -Whatif
+        #Set-ItemProperty -PSPath $zone.PSPath -Name "SecureSecondaries" -Value "3" -Whatif
+    }
 
 
     #Cleanup and then show the current PSSession state.

@@ -8,7 +8,7 @@
 $MsiUninstall = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -like 'PDF Architect*' } | Select-Object -Property DisplayName, Uninstallstring
 
 #Empty Array to store uninstall string for Main module, OCR modules and Edit Module Msi files
-$MsiUninstallStr = @() 
+$MsiUninstallStr = @()
 
 #Create msiexec PDF Architect Modules Uninstall Strigs
 $MsiUninstall.UninstallString | ForEach-Object {

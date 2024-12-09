@@ -9,16 +9,16 @@ function Add-EmailAddressDomain {
 
     .PARAMETER NewDomain
         The new domain name that will be added for all existing email addresses.
-    
+
     .PARAMETER ReportOnly
         Create a CSV report showing current and new addresses but do not make any changes.
-    
+
     .PARAMETER ReportFilePath
         Path to save the exported CSV report in.
-    
+
     .PARAMETER Passthru
         Return the CSVData in the script output.
-    
+
     .PARAMETER BatchSize
         Set the batch size for the number of recipients to update before waiting to start the next batch of changes.
         This can be used to reduce change congestion in AD replication or to minimize the number of changes that get
@@ -31,17 +31,17 @@ function Add-EmailAddressDomain {
         For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
 
             Add-EmailAddressDomain -NewDomain 'example.com'
-        
+
         The script will add the following email addresses to the recipient: user@example.com, userFirst.userLast@example.com, customUser@example.com
-    
+
     .EXAMPLE
         For a recipient with the following email addresses: user@domain.com, userFirst.userLast@domain.com, customUser@domain.com
 
             Add-EmailAddressDomain -NewDomain 'example.com' -BatchSize 250 -Delay 15
-        
+
         The script will add the following email addresses to the recipient: user@example.com, userFirst.userLast@example.com, customUser@example.com
         It will update 250 recipients at a time, then wait 15 minutes before updating the next batch of 250 recipients.
-    
+
     .EXAMPLE
         Add-EmailAddressDomain -NewDomain 'example.com' -ReportOnly -ReportFilePath '.\New Email Address Report.csv'
 
@@ -53,7 +53,7 @@ function Add-EmailAddressDomain {
 
         $ReportData = Add-EmailAddressDomain -NewDomain 'powershealth.org' -ReportOnly -Passthru
         $ReportData | ConvertTo-Csv -NoTypeInformation -Delimiter ';' | Set-Clipboard
-    
+
     .NOTES
         Version: 0.4.3
         Modified: 2024-06-11
@@ -70,7 +70,7 @@ function Add-EmailAddressDomain {
         [ValidateNotNullOrEmpty()]
         [string]
         $NewDomain,
-        
+
         # Switch to export a CSV of potential changes instead of making changes.
         [Parameter(ParameterSetName = 'ReportOnly')]
         [switch]
@@ -136,7 +136,7 @@ function Add-EmailAddressDomain {
                 $SmtpAddresses = $recipient.EmailAddresses | Where-Object { $_.PrefixString -eq 'smtp' }
                 $CurrentAddresses = ($SmtpAddresses.addressstring | Sort-Object) #-join ', '
                 $NewEmailAddresses = foreach ($address in $($SmtpAddresses.addressstring)) {
-                    $address -replace '@.*',"@$NewDomain"
+                    $address -replace '@.*', "@$NewDomain"
                 }
                 $NewEmailAddresses = ($NewEmailAddresses | Sort-Object -Unique) #-join ', '
 
@@ -144,10 +144,10 @@ function Add-EmailAddressDomain {
                 if ($ReportOnly) {
                     $CSVData.Add(
                         [PSCustomObject]@{
-                            Name = $($recipient.DisplayName)
-                            Alias = $($recipient.alias)
+                            Name                  = $($recipient.DisplayName)
+                            Alias                 = $($recipient.alias)
                             CurrentEmailAddresses = [string]($CurrentAddresses -join ', ')
-                            NewEmailAddresses = [string]($NewEmailAddresses -join ', ')
+                            NewEmailAddresses     = [string]($NewEmailAddresses -join ', ')
                         }
                     ) | Out-Null
                     # Continue to the next recipient in report-only mode instead of adding addresses.
@@ -171,7 +171,7 @@ function Add-EmailAddressDomain {
                     if ($SmtpAddresses -notcontains $address -and $ValidEmailAddress -eq $true) {
                         # Add the new email address to the recipient.
                         Write-Information "`t`t`t Add address: '$address'" -InformationAction Continue
-                        Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add="$address"}
+                        Set-Mailbox -Identity $recipient.Identity -EmailAddresses @{Add = "$address" }
                     }
                 } # End foreach $address
                 Write-Output "`n"

@@ -9,7 +9,7 @@
         Get-InstanceNames
 
         Pull a list of all Microsoft cloud instance names. They include the general worldwide instance, government, DoD, and foreign instances.
-        
+
     .EXAMPLE
         Get-ServiceAreas
 
@@ -28,7 +28,7 @@
 
     .NOTES
     Reference Documentation:
-        
+
         Office 365 IP Addresses and URL Web Service
         https://docs.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service?view=o365-worldwide
 
@@ -37,7 +37,7 @@
 #>
 
 # $Guid = New-Guid
-[Guid]$global:Guid = "f31523fa-cb44-44e6-9a13-037a0643e282"
+[Guid]$global:Guid = 'f31523fa-cb44-44e6-9a13-037a0643e282'
 
 function Get-InstanceNames {
     # Get a list of available cloud instance names (gov, foreign, worldwide, etc) using a GUID for the request.
@@ -51,21 +51,20 @@ function Get-ServiceAreas {
     # Get all service area names for a given instance.
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ArgumentCompleter({
-            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
-            if (!($global:InstanceNames)) {
-                Get-InstanceNames
-            }
-            else {
-                Return $global:InstanceNames
-            }
-        })]
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                if (!($global:InstanceNames)) {
+                    Get-InstanceNames
+                } else {
+                    Return $global:InstanceNames
+                }
+            })]
         [string]
         $Instance
     )
 
-    $Uri = "https://endpoints.office.com/endpoints/$Instance"+"?clientrequestid=$Guid"
+    $Uri = "https://endpoints.office.com/endpoints/$Instance" + "?clientrequestid=$Guid"
     $global:ServiceAreas = ( ( ((Invoke-WebRequest -Uri $Uri).Content) | ConvertFrom-Json ) | Select-Object serviceArea -Unique).servicearea
     Return $global:ServiceAreas
 } # End function Get-ServiceAreas
@@ -74,16 +73,15 @@ function Get-ServiceUrls {
     # Get all service URLs for a selected instance and service area.
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ArgumentCompleter({
-            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
-            if (!($global:InstanceNames)) {
-                Get-InstanceNames
-            }
-            else {
-                Return $global:InstanceNames
-            }
-        })]
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                if (!($global:InstanceNames)) {
+                    Get-InstanceNames
+                } else {
+                    Return $global:InstanceNames
+                }
+            })]
         [string]
         $Instance,
         [ArgumentCompleter(
@@ -91,14 +89,12 @@ function Get-ServiceUrls {
                 param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
                 if (!($global:InstanceNames)) {
                     Get-InstanceTypes
-                }
-                elseif (!($ServiceAreas)) {
+                } elseif (!($ServiceAreas)) {
                     if (!($Instance)) {
-                        $Instance = "Worldwide"
+                        $Instance = 'Worldwide'
                     }
                     Get-ServiceAreas -InstanceName $Instance
-                }
-                else {
+                } else {
                     Return $global:ServiceAreas
                 }
             }
@@ -107,7 +103,7 @@ function Get-ServiceUrls {
         $ServiceArea
     )
 
-    $Uri = "https://endpoints.office.com/endpoints/$Instance"+"?clientrequestid=$Guid"+'&'+"serviceArea=$ServiceArea"
+    $Uri = "https://endpoints.office.com/endpoints/$Instance" + "?clientrequestid=$Guid" + '&' + "serviceArea=$ServiceArea"
     $global:ServiceUrls = ( ( ((Invoke-WebRequest -Uri $Uri).Content) | ConvertFrom-Json ) | Select-Object urls -Unique).urls
     Return $global:ServiceUrls
 }
@@ -126,7 +122,7 @@ function Get-ServiceUrls {
         $Expression = "$Variablename = " + '"' + "https://endpoints.office.com/endpoints/"+"$item"+"?clientrequestid=$($Guid)" + '"'
         Invoke-Expression $Expression
         Write-Output `n"A new URI variable has been created for $item : " $Expression
-    } 
+    }
 
 #>
 

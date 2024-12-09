@@ -8,20 +8,20 @@
     [] Follows standard of inserting zeroes in octects where an apparent value is not specified. (Example: [IPAddress] 2.2)
 #>
 
-$IP = "10.253.26.1"
+$IP = '10.253.26.1'
 $IP -eq ([IPAddress]$IP).IPAddressToString
 # RESULT: True
 
-$IP = "1"
+$IP = '1'
 $IP -eq ([IPAddress]$IP).IPAddressToString
 # RESULT: False
 
-$IP = "300.1.1.1"
+$IP = '300.1.1.1'
 $IP -eq ([IPAddress]$IP).IPAddressToString
 # ERROR: Connot convert value "300.1.1.1" to type "System.Net.IPAddress". Error: "An invalid IP address was specified."
 
-[IPAddress] "10.253.26.1"
-<# OUTPUT: 
+[IPAddress] '10.253.26.1'
+<# OUTPUT:
     Address            : 18545930
     AddressFamily      : InterNetwork
     ScopeId            :

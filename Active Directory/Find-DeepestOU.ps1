@@ -17,9 +17,9 @@ function Find-DeepestOU {
     if ($SubOUs.Count -eq 0) {
         Return @{
             Depth = $CurrentDeepest
-            OU=$OU
+            OU    = $OU
         }
-        
+
         foreach ($ou in $SubOUs) {
             Return (Find-Deepest $ou $CurrentDepth)
         }

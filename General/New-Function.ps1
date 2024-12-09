@@ -10,7 +10,7 @@ function New-Function {
 
         .PARAMETER Name
         The name of the new function to create. It is recommended to use ApprovedVerb-Noun for names.
-        
+
         .PARAMETER Synopsis
         A synopsis of the new function.
 
@@ -90,13 +90,13 @@ function New-Function {
     }
 
     if ($PSBoundParameters.ContainsKey('Name') -and -not $SkipValidation -and
-            $Name -match '\w-\w' -and $Name.Split('-')[0] -notin (Get-Verb).Verb ) {
+        $Name -match '\w-\w' -and $Name.Split('-')[0] -notin (Get-Verb).Verb ) {
         Write-Warning "It looks like you are not using an approved verb: `"$($Name.Split('-')[0]).`" Please run `"Get-Verb`" to see a list of approved verbs."
     }
 
     # Set the script path and filename. Use current directory if no path specified.
     if (Test-Path -Path $Path -PathType Container) {
-        $ScriptPath = [System.IO.Path]::Combine($Path,"$Name.ps1")
+        $ScriptPath = [System.IO.Path]::Combine($Path, "$Name.ps1")
     } else {
         $ScriptPath = ".\$Name.ps1"
     }
@@ -136,11 +136,11 @@ function New-Function {
     begin {
 
     } # end begin block
-    
+
     process {
 
     } # end process block
-    
+
     end {
 
     } # end end block

@@ -14,8 +14,8 @@
 $NumberAts = Get-Mailbox -ResultSize Unlimited -SortBy alias | Where-Object {
     $_.alias -match '\d$' -or $_.PrimarySmtpAddress -match '^.*\d@.*$'
 }
-$NumberAts | 
+$NumberAts |
     Select-Object DisplayName, alias, EmailAddressPolicyEnabled, WindowsEmailAddress, PrimarySmtpAddress,
-    @{Name = 'SmtpAddresses'; Expression = { $_.emailaddresses.smtpAddress -join ', ' } } | 
-        ConvertTo-Csv -NoTypeInformation -Delimiter ';' | 
+    @{Name = 'SmtpAddresses'; Expression = { $_.emailaddresses.smtpAddress -join ', ' } } |
+        ConvertTo-Csv -NoTypeInformation -Delimiter ';' |
             Set-Clipboard

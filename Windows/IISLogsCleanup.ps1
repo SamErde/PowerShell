@@ -2,7 +2,7 @@
 .SYNOPSIS
 IISLogsCleanup.ps1 - IIS Log File Cleanup Script
 
-.DESCRIPTION 
+.DESCRIPTION
 A PowerShell script to compress and archive IIS log files.
 
 This script will check the folder that you specify, and any files older
@@ -96,12 +96,12 @@ V1.02, 25/08/2015, Fixed typo in a variable
 
 [CmdletBinding()]
 param (
-	[Parameter( Mandatory=$true)]
-	[string]$Logpath,
+    [Parameter( Mandatory = $true)]
+    [string]$Logpath,
 
-    [Parameter( Mandatory=$false)]
+    [Parameter( Mandatory = $false)]
     [string]$ArchivePath
-	)
+)
 
 
 #-------------------------------------------------
@@ -121,14 +121,14 @@ $firstdayofpreviousmonth = (Get-Date -Year $currentyear -Month $currentmonth -Da
 #$myDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 #$output = "$myDir\IISLogsCleanup.log"
 $output = "$LogPath\IISLogsCleanup-$(Get-Date -f yyyyMMddHHmm).log"
-$logpathfoldername = $logpath.Split("\")[-1]
+$logpathfoldername = $logpath.Split('\')[-1]
 
 #...................................
 # Logfile Strings
 #...................................
 
-$logstring0 = "====================================="
-$logstring1 = " IIS Log File Cleanup Script"
+$logstring0 = '====================================='
+$logstring1 = ' IIS Log File Cleanup Script'
 
 
 #-------------------------------------------------
@@ -136,52 +136,43 @@ $logstring1 = " IIS Log File Cleanup Script"
 #-------------------------------------------------
 
 #This function is used to write the log file for the script
-Function Write-Logfile()
-{
-	param( $logentry )
-	$timestamp = Get-Date -DisplayHint Time
-	"$timestamp $logentry" | Out-File $output -Append
+Function Write-Logfile() {
+    param( $logentry )
+    $timestamp = Get-Date -DisplayHint Time
+    "$timestamp $logentry" | Out-File $output -Append
 }
 
 # This function is to test the completion of the async CopyHere method
 # Function provided by Alain Arnould
-function IsFileLocked( [string]$path)
-{
+function IsFileLocked( [string]$path) {
     If ([string]::IsNullOrEmpty($path) -eq $true) {
-        Throw "The path must be specified."
+        Throw 'The path must be specified.'
     }
 
     [bool] $fileExists = Test-Path $path
 
     If ($fileExists -eq $false) {
-        Throw "File does not exist (" + $path + ")"
+        Throw 'File does not exist (' + $path + ')'
     }
 
     [bool] $isFileLocked = $true
 
     $file = $null
 
-    Try
-    {
+    Try {
         $file = [IO.File]::Open($path,
-                        [IO.FileMode]::Open,
-                        [IO.FileAccess]::Read,
-                        [IO.FileShare]::None)
+            [IO.FileMode]::Open,
+            [IO.FileAccess]::Read,
+            [IO.FileShare]::None)
 
         $isFileLocked = $false
-    }
-    Catch [IO.IOException]
-    {
-        If ($_.Exception.Message.EndsWith("it is being used by another process.") -eq $false)
-        {
+    } Catch [IO.IOException] {
+        If ($_.Exception.Message.EndsWith('it is being used by another process.') -eq $false) {
             # Throw $_.Exception
             [bool] $isFileLocked = $true
         }
-    }
-    Finally
-    {
-        If ($null -ne $file)
-        {
+    } Finally {
+        If ($null -ne $file) {
             $file.Close()
         }
     }
@@ -205,8 +196,7 @@ Write-Logfile $logstring0w
 
 
 #Check whether IIS Logs path exists, exit if it does not
-if ((Test-Path $Logpath) -ne $true)
-{
+if ((Test-Path $Logpath) -ne $true) {
     $tmpstring = "Log path $logpath not found"
     Write-Warning $tmpstring
     Write-Logfile $tmpstring
@@ -227,14 +217,11 @@ Write-Host $tmpstring
 Write-Logfile $tmpstring
 
 #Fetch list of log files older than 1st day of previous month
-$logstoremove = Get-ChildItem -Path "$($Logpath)\*.*" -Include *.log | Where-Object {$_.CreationTime -lt $firstdayofpreviousmonth -and $_.PSIsContainer -eq $false}
+$logstoremove = Get-ChildItem -Path "$($Logpath)\*.*" -Include *.log | Where-Object { $_.CreationTime -lt $firstdayofpreviousmonth -and $_.PSIsContainer -eq $false }
 
-if ($null -eq $($logstoremove.Count))
-{
+if ($null -eq $($logstoremove.Count)) {
     $logcount = 0
-}
-else
-{
+} else {
     $logcount = $($logstoremove.Count)
 }
 
@@ -246,10 +233,9 @@ Write-Logfile $tmpstring
 $hashtable = @{}
 
 #Add each logfile to hashtable
-foreach ($logfile in $logstoremove)
-{
-    $zipdate = $logfile.LastWriteTime.ToString("yyyy-MM")
-    $hashtable.Add($($logfile.FullName),"$zipdate")
+foreach ($logfile in $logstoremove) {
+    $zipdate = $logfile.LastWriteTime.ToString('yyyy-MM')
+    $hashtable.Add($($logfile.FullName), "$zipdate")
 }
 
 #Calculate unique yyyy-MM dates from logfiles in hashtable
@@ -257,89 +243,75 @@ $hashtable = $hashtable.GetEnumerator() | Sort-Object Value
 $dates = @($hashtable | Group-Object -Property:Value | Select-Object Name)
 
 #For each yyyy-MM date add those logfiles to a zip file
-foreach ($date in $dates)
-{
+foreach ($date in $dates) {
     $zipfilename = "$Logpath\$computername-$logpathfoldername-$($date.Name).zip"
 
-    if(-not (test-path($zipfilename)))
-    {
-        set-content $zipfilename ("PK" + [char]5 + [char]6 + ("$([char]0)" * 18))
-        (Get-ChildItem $zipfilename).IsReadOnly = $false 
+    if (-not (Test-Path($zipfilename))) {
+        Set-Content $zipfilename ('PK' + [char]5 + [char]6 + ("$([char]0)" * 18))
+        (Get-ChildItem $zipfilename).IsReadOnly = $false
     }
 
-    $shellApplication = new-object -com shell.application
+    $shellApplication = New-Object -com shell.application
     $zipPackage = $shellApplication.NameSpace($zipfilename)
 
-    $zipfiles = $hashtable | Where-Object {$_.Value -eq "$($date.Name)"}
+    $zipfiles = $hashtable | Where-Object { $_.Value -eq "$($date.Name)" }
 
     $tmpstring = "Zip file name is $zipfilename and will contain $($zipfiles.Count) files"
     Write-Host $tmpstring
     Write-Logfile $tmpstring
 
-    foreach($file in $zipfiles) 
-    { 
+    foreach ($file in $zipfiles) {
         $fn = $file.key.ToString()
-        
+
         $tmpstring = "Adding $fn to $zipfilename"
         Write-Host $tmpstring
         Write-Logfile $tmpstring
 
-        $zipPackage.CopyHere($fn,16)
+        $zipPackage.CopyHere($fn, 16)
 
         #This sleep interval helps avoids file lock/conflict issues. May need to increase if larger
         #log files are taking longer to add to the zip file.
-        do
-        {
-            Start-sleep -s $sleepinterval
+        do {
+            Start-Sleep -s $sleepinterval
         }
         while (IsFileLocked($zipfilename))
     }
 
     #Compare count of log files on disk to count of log files in zip file
     $zippedcount = ($zipPackage.Items()).Count
-    
+
     $tmpstring = "Zipped count: $zippedcount"
     Write-Host $tmpstring
     Write-Logfile $tmpstring
-    
+
     $tmpstring = "Files: $($zipfiles.Count)"
     Write-Host $tmpstring
     Write-Logfile $tmpstring
 
     #If counts match it is safe to delete the log files from disk
-    if ($zippedcount -eq $($zipfiles.Count))
-    {
-        $tmpstring = "Zipped file count matches log file count, safe to delete log files"
+    if ($zippedcount -eq $($zipfiles.Count)) {
+        $tmpstring = 'Zipped file count matches log file count, safe to delete log files'
         Write-Host $tmpstring
         Write-Logfile $tmpstring
-        foreach($file in $zipfiles) 
-        { 
+        foreach ($file in $zipfiles) {
             $fn = $file.key.ToString()
             Remove-Item $fn
         }
 
         #If archive path was specified move zip file to archive path
-        if ($ArchivePath)
-        {
+        if ($ArchivePath) {
             #Check whether archive path is accessible
-            if ((Test-Path $ArchivePath) -ne $true)
-            {
+            if ((Test-Path $ArchivePath) -ne $true) {
                 $tmpstring = "Log path $archivepath not found or inaccessible"
                 Write-Warning $tmpstring
                 Write-Logfile $tmpstring
-            }
-            else
-            {
+            } else {
                 #Check if subfolder of archive path exists
-                if ((Test-Path $ArchivePath\$computername) -ne $true)
-                {
-                    try 
-                    {
+                if ((Test-Path $ArchivePath\$computername) -ne $true) {
+                    try {
                         #Create subfolder based on server name
                         New-Item -Path $ArchivePath\$computername -ItemType Directory -ErrorAction STOP
-                    }
-                    catch
-                    {
+                    } catch {
                         #Subfolder creation failed
                         $tmpstring = "Unable to create $computername subfolder in $archivepath"
                         Write-Host $tmpstring
@@ -351,15 +323,11 @@ foreach ($date in $dates)
                     }
                 }
 
-                if ((Test-Path $ArchivePath\$computername\$logpathfoldername) -ne $true)
-                {
-                    try
-                    {
+                if ((Test-Path $ArchivePath\$computername\$logpathfoldername) -ne $true) {
+                    try {
                         #create subfolder based on log path folder name
                         New-Item -Path $ArchivePath\$computername\$logpathfoldername -ItemType Directory -ErrorAction STOP
-                    }
-                    catch
-                    {
+                    } catch {
                         #Subfolder creation failed
                         $tmpstring = "Unable to create $logpathfoldername subfolder in $archivepath\$computername"
                         Write-Host $tmpstring
@@ -372,30 +340,25 @@ foreach ($date in $dates)
                 }
 
                 #Now move the zip file to the archive path
-                try 
-                {
+                try {
                     #Move the zip file
                     Move-Item $zipfilename -Destination $ArchivePath\$computername\$logpathfoldername -ErrorAction STOP
                     $tmpstring = "$zipfilename was moved to $archivepath\$computername\$logpathfoldername"
                     Write-Host $tmpstring
                     Write-Logfile $tmpstring
-                }
-                catch
-                {
+                } catch {
                     #Move failed, log the error
                     $tmpstring = "Unable to move $zipfilename to $ArchivePath\$computername\$logpathfoldername"
                     Write-Host $tmpstring
                     Write-Logfile $tmpstring
                     Write-Warning $_.Exception.Message
                     Write-Logfile $_.Exception.Message
-                }   
+                }
             }
         }
 
-    }
-    else
-    {
-        $tmpstring = "Zipped file count does not match log file count, not safe to delete log files"
+    } else {
+        $tmpstring = 'Zipped file count does not match log file count, not safe to delete log files'
         Write-Host $tmpstring
         Write-Logfile $tmpstring
     }
@@ -404,7 +367,7 @@ foreach ($date in $dates)
 
 
 #Finished
-$tmpstring = "Finished"
+$tmpstring = 'Finished'
 Write-Host $tmpstring
 Write-Logfile $tmpstring
 

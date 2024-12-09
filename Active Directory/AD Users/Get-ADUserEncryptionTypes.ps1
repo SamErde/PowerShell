@@ -4,10 +4,10 @@
 
     .NOTES
     This is a work in progress that I haven't finished, but I think does get pretty close to finding the important information.
-    
-    Need to review documentation to validate filters for desired results: 
+
+    Need to review documentation to validate filters for desired results:
     https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/decrypting-the-selection-of-supported-kerberos-encryption-types/ba-p/1628797
-    
+
     Inspiration: @debugprivilege and https://support.microsoft.com/en-us/topic/kb5021131-how-to-manage-the-kerberos-protocol-changes-related-to-cve-2022-37966-fd837ac3-cdec-4e76-a6ec-86e67501407d
 
     Primary Goal: Find accounts using vulnerable or "less secure" encryption types.
@@ -20,10 +20,10 @@ $FilterUnspecifiedEncryptionTypes = '(&(objectClass=user)(|(!msDS-SupportedEncry
 $Searcher = New-Object -TypeName System.DirectoryServices.DirectorySearcher
 # Need to set max result size to get everything while accounting for the server default limit of 1000.  ::thinking::
 
-    $PropertiesToLoad = @("distinguishedname","msds-supportedencryptiontypes","pwdlastset","useraccountcontrol","lastlogontimestamp","displayname","description")
-    foreach ($item in $PropertiesToLoad) {
-        [void]$Searcher.PropertiesToLoad.Add("$item")
-    }
+$PropertiesToLoad = @('distinguishedname', 'msds-supportedencryptiontypes', 'pwdlastset', 'useraccountcontrol', 'lastlogontimestamp', 'displayname', 'description')
+foreach ($item in $PropertiesToLoad) {
+    [void]$Searcher.PropertiesToLoad.Add("$item")
+}
 
 # Directly filter all users for those with vulnerable encryption types set
 $Searcher.Filter = "$FilterVulnerableEncryptionTypes"
@@ -36,18 +36,18 @@ $AccountsNotRequiringAES = $Searcher.FindAll()
 Write-Output "There are $($AccountsNotRequiringAES.Count) accounts that are not yet enforcing AES encryption."
 
 
-# A better way to find both: 
-$Searcher.Filter = "(objectClass=user)"
+# A better way to find both:
+$Searcher.Filter = '(objectClass=user)'
 $AllUsers = $Searcher.FindAll()
 
 $AllUsers | Group-Object msds-supportedencryptiontypes
 
 # ------------
 
-$UserEncryptionTypes = Get-ADUser -Properties msDS-SupportedEncryptionTypes,KerberosEncryptionType,CanonicalName -Filter *
+$UserEncryptionTypes = Get-ADUser -Properties msDS-SupportedEncryptionTypes, KerberosEncryptionType, CanonicalName -Filter *
 
 $UserEncryptionTypes | Group-Object 'msDS-SupportedEncryptionTypes'
 
-$UserEncryptionTypes.Where({$_.'msDS-SupportedEncryptionTypes' -eq $null -or $_.'msDS-SupportedEncryptionTypes' -eq '0'}) | `
-    Select-Object *,@{N="Path";E={ ((($_.CanonicalName).Split('/')) | Select-Object -SkipLast 1) -join '/' } } | `
-        Group-Object Path -NoElement | Sort-Object Name | Format-Table Count,Name -AutoSize
+$UserEncryptionTypes.Where({ $_.'msDS-SupportedEncryptionTypes' -eq $null -or $_.'msDS-SupportedEncryptionTypes' -eq '0' }) | `
+        Select-Object *, @{N = 'Path'; E = { ((($_.CanonicalName).Split('/')) | Select-Object -SkipLast 1) -join '/' } } | `
+            Group-Object Path -NoElement | Sort-Object Name | Format-Table Count, Name -AutoSize
