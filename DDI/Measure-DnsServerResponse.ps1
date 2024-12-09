@@ -99,7 +99,7 @@ function Measure-NetworkHops {
 $DnsServers = @('8.8.8.8', '8.8.4.4', '1.1.1.1', '9.9.9.9')
 $DnsServers | ForEach-Object {
     Measure-NetworkHops -Server $_
-    Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com' | Out-Null
+    Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com' -QueryCount 10 | Out-Null
 }
 
 # Example Usage: Measure network hops and DNS response time for all domain controllers in the current domain.
@@ -112,7 +112,7 @@ $Servers | ForEach-Object {
         NetworkHops              = $NetworkHops.Hops
         PingSucceeded            = $NetworkHops.PingSucceeded
         PingRoundTripTime        = $NetworkHops.PingRoundTripTime
-        AverageQueryResponseTime = Measure-DnsResponseTime -DnsServer $_ -TargetName 'github.com'
+        AverageQueryResponseTime = Measure-DnsResponseTime -DnsServer $_ -TargetName 'github.com' -QueryCount 10
     }
     $TestResults.Add($Results) | Out-Null
 }
