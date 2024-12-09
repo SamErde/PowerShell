@@ -71,7 +71,7 @@ function Measure-NetworkHops {
         [string]
         $Server
     )
-    Write-Host "Measuring network hops to $Server..." -ForegroundColor Yellow
+    Write-Host "Measuring network hops to $Server..." -NoNewline -ForegroundColor Yellow
     $TestResult = Test-NetConnection -ComputerName $Server -TraceRoute -InformationLevel Detailed
     $Result = [PSCustomObject]@{
         Server             = $Server
@@ -85,9 +85,24 @@ function Measure-NetworkHops {
     $Result
 }
 
-# Example Usage:
+# Example Usage: Measure network hops and DNS response time for a list of DNS servers.
 $DnsServers = @('8.8.8.8', '8.8.4.4', '1.1.1.1', '9.9.9.9')
 $DnsServers | ForEach-Object {
     Measure-NetworkHops -Server $_
     Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com' | Out-Null
+}
+
+# Example Usage: Measure network hops and DNS response time for all domain controllers in the current domain.
+$TestResults = New-Object System.Collections.Generic.List[PSObject]
+$Servers = Get-ADDomainController -Filter * | Select-Object -ExpandProperty Name
+$Servers | ForEach-Object {
+    $NetworkHops = Measure-NetworkHops -Server $_
+    $Results = [PSCustomObject]@{
+        Server                   = $NetworkHops.Server
+        NetworkHops              = $NetworkHops.Hops
+        PingSucceeded            = $NetworkHops.PingSucceeded
+        PingRoundTripTime        = $NetworkHops.PingRoundTripTime
+        AverageQueryResponseTime = Measure-DnsResponseTime -DnsServer $_ -TargetName 'day3bits.com'
+    }
+    $TestResults.Add($Results) | Out-Null
 }
