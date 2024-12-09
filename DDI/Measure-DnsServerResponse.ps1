@@ -106,3 +106,4 @@ $Servers | ForEach-Object {
     }
     $TestResults.Add($Results) | Out-Null
 }
+$TestResults | Format-Table -AutoSize
