@@ -173,6 +173,7 @@ function Get-AllAdSidHistorySourceDomains {
 
 function Get-AllADSIDHistoryDetails {
     [CmdletBinding()]
+    [OutputType([hashtable])]
     param ()
 
     begin {

@@ -1,5 +1,6 @@
 function Get-RepositoryInfo {
     [CmdletBinding()]
+    [OutputType([hashtable])]
     param (
     )
 

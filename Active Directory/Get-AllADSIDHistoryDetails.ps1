@@ -1,5 +1,6 @@
 ﻿function Get-AllADSIDHistoryDetails {
     [CmdletBinding()]
+    [OutputType([hashtable])]
     param ()
 
     begin {
