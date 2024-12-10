@@ -1,5 +1,5 @@
 function Set-EnvironmentVariable {
-    [Alias("sev")]
+    [Alias('sev')]
     [CmdletBinding()]
     param (
         # The name of the environment variable to set.
@@ -16,16 +16,16 @@ function Set-EnvironmentVariable {
         [System.EnvironmentVariableTarget]
         $Target
     )
-    
+
     begin {
-        
+
     }
-    
+
     process {
         [Environment]::SetEnvironmentVariable($Name, $Value, $Target)
     }
-    
+
     end {
-        
+
     }
 }

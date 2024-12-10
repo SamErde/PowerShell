@@ -10,8 +10,8 @@ Describe 'Set-DefaultPrinter' {
 
             Mock Get-Printer {
                 return @(
-                    [PSCustomObject]@{ Name = "Printer1" }
-                    [PSCustomObject]@{ Name = "Printer2" }
+                    [PSCustomObject]@{ Name = 'Printer1' }
+                    [PSCustomObject]@{ Name = 'Printer2' }
                 )
             }
 
@@ -30,16 +30,16 @@ Describe 'Set-DefaultPrinter' {
 
             Mock Get-Printer {
                 return @(
-                    [PSCustomObject]@{ Name = "Printer1" }
-                    [PSCustomObject]@{ Name = "Printer2" }
+                    [PSCustomObject]@{ Name = 'Printer1' }
+                    [PSCustomObject]@{ Name = 'Printer2' }
                 )
             }
 
             Mock Get-CimInstance {
-                $PrinterMock = [Microsoft.Management.Infrastructure.CimInstance]::new('Win32_Printer','root/cimv2')
-                $PrinterName = [Microsoft.Management.Infrastructure.CimProperty]::Create('Name','Printer1', [cimtype]::String, 'Property, ReadOnly')
+                $PrinterMock = [Microsoft.Management.Infrastructure.CimInstance]::new('Win32_Printer', 'root/cimv2')
+                $PrinterName = [Microsoft.Management.Infrastructure.CimProperty]::Create('Name', 'Printer1', [cimtype]::String, 'Property, ReadOnly')
                 $PrinterMock.CimInstanceProperties.Add($PrinterName)
-                
+
                 return $PrinterMock
             }
 
@@ -47,11 +47,11 @@ Describe 'Set-DefaultPrinter' {
                 return $null
             }
 
-            Set-DefaultPrinter -PrinterName "Printer1"
+            Set-DefaultPrinter -PrinterName 'Printer1'
 
             Assert-MockCalled Get-CimInstance -Exactly -Times 1 -Scope It -ParameterFilter { $Filter -eq "Name='Printer1'" }
 
-            Assert-MockCalled Invoke-CimMethod -Exactly -Times 1 -Scope It -ParameterFilter { $MethodName -eq "SetDefaultPrinter" }
+            Assert-MockCalled Invoke-CimMethod -Exactly -Times 1 -Scope It -ParameterFilter { $MethodName -eq 'SetDefaultPrinter' }
         }
     }
 
@@ -61,8 +61,8 @@ Describe 'Set-DefaultPrinter' {
 
             Mock Get-Printer {
                 return @(
-                    [PSCustomObject]@{ Name = "Printer1" }
-                    [PSCustomObject]@{ Name = "Printer2" }
+                    [PSCustomObject]@{ Name = 'Printer1' }
+                    [PSCustomObject]@{ Name = 'Printer2' }
                 )
             }
 
@@ -70,7 +70,7 @@ Describe 'Set-DefaultPrinter' {
                 return $null
             }
 
-            { Set-DefaultPrinter -PrinterName "InvalidPrinter" } | Should -Throw
+            { Set-DefaultPrinter -PrinterName 'InvalidPrinter' } | Should -Throw
         }
     }
 }

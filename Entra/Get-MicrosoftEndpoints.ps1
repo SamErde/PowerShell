@@ -1,72 +1,65 @@
 function Get-MicrosoftEndpoints {
     [CmdletBinding()]
-    param (      
-        [parameter(ParameterSetName = "CSV")]
+    param (
+        [parameter(ParameterSetName = 'CSV')]
         [string]
         $CSVPath
     )
-    
+
     # Hide download progress, get current JSON url, retrieve all Endpoints and Convert it from JSON format
-    $ProgressPreference = "SilentlyContinue"
+    $ProgressPreference = 'SilentlyContinue'
     try {
         $site = Invoke-WebRequest -Uri 'https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide' -UseBasicParsing
-        $jsonlink = ($site.Links | where-Object OuterHTML -match 'JSON formatted').href
-    }
-    catch {
-        Write-Warning ("Error downloading JSON file, please check if https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide is accessible")
-        return 
+        $jsonlink = ($site.Links | Where-Object OuterHTML -Match 'JSON formatted').href
+    } catch {
+        Write-Warning ('Error downloading JSON file, please check if https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges?view=o365-worldwide is accessible')
+        return
     }
 
     try {
         $Endpoints = Invoke-WebRequest -Uri $jsonlink -ErrorAction Stop | ConvertFrom-Json
-        Write-Information "Downloading worldwide Microsoft Endpoints"
-    }
-    catch {
+        Write-Information 'Downloading worldwide Microsoft Endpoints'
+    } catch {
         Write-Warning "Error downloading worldwide Microsoft Endpoints, please check if $($jsonlink) is accessible"
         return
     }
-    
+
     $Total = foreach ($Endpoint in $Endpoints) {
         #Check if IPs are available for the Endpoint, set to not available if not
         if (-not $Endpoint.ips) {
             $IPaddresses = 'Not available'
-        }
-        else {
+        } else {
             $IPaddresses = $Endpoint.ips.split(' ') -join ', '
         }
 
         #Check if TCP ports are available for the Endpoint, set to not available if not
         if (-not $Endpoint.tcpPorts) {
             $TCPPorts = 'Not available'
-        }
-        else {
+        } else {
             $TCPPorts = $Endpoint.TCPPorts.split(',') -join ', '
         }
-            
+
         #Check if UDP ports are available for the Endpoint, set to not available if not
         if (-not $Endpoint.udpPorts) {
             $UDPPorts = 'Not available'
-        }
-        else {
+        } else {
             $UDPPorts = $Endpoint.udpPorts.split(',') -join ', '
         }
 
         #Check if there are notes for the Endpoint, set to not available if not
         if (-not $Endpoint.notes) {
             $Notes = 'Not available'
-        }
-        else {
+        } else {
             $Notes = $Endpoint.Notes
         }
 
         #Check if URLs are available for the Endpoint, set to not available if not
         if (-not $Endpoint.urls) {
             $URLlist = 'Not available'
-        }
-        else {
+        } else {
             $URLlist = $Endpoint.urls -join ', '
         }
-                        
+
         [PSCustomObject]@{
             serviceArea            = $Endpoint.serviceArea
             serviceAreaDisplayName = $Endpoint.serviceAreaDisplayName
@@ -86,13 +79,11 @@ function Get-MicrosoftEndpoints {
         try {
             New-Item -Path $CSVPath -ItemType File -Force:$true -ErrorAction Stop | Out-Null
             $Total | Sort-Object serviceAreaDisplayName | Export-Csv -Path $CSVPath -Encoding UTF8 -Delimiter ';' -NoTypeInformation
-            Write-Information "Saved results to {0}" -f $CSVPath
+            Write-Information 'Saved results to {0}' -f $CSVPath
+        } catch {
+            Write-Warning 'Could not save results to {0}' -f $CSVPath
         }
-        catch {
-            Write-Warning "Could not save results to {0}" -f $CSVPath
-        }
-    }
-    else {
+    } else {
         #Export to Out-Gridview
         $Total | Sort-Object serviceAreaDisplayName | Out-GridView -Title 'Microsoft Endpoints Worldwide'
     }

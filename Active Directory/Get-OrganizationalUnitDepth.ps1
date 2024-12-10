@@ -14,27 +14,27 @@
 
 function Get-OrganizationalUnitDepth {
     [CmdletBinding()]
-    [Alias("Get-OUDepth")]
+    [Alias('Get-OUDepth')]
     param (
-        [parameter(ValueFromPipeline = $true, ParameterSetName = "UserSpecified")]
-            # Allow the user to specify an OU to fathom (from the pipeline)
-            $OrganizationalUnit,
+        [parameter(ValueFromPipeline = $true, ParameterSetName = 'UserSpecified')]
+        # Allow the user to specify an OU to fathom (from the pipeline)
+        $OrganizationalUnit,
 
         [parameter()]
-            # Show the OUs at the deepest level of the OU hierarchy
-            [switch]$Deepest,
-        
+        # Show the OUs at the deepest level of the OU hierarchy
+        [switch]$Deepest,
+
         [parameter()]
-            # Just show a summary with the number of OUs at each depth
-            [switch]$Summary
+        # Just show a summary with the number of OUs at each depth
+        [switch]$Summary
     )
-    
+
     begin {
         Import-Module ActiveDirectory
 
         # if ((-not($Deepest)) -and (-not($Summary))) { $Summary = $true }
     }
-    
+
     process {
         # Get the specified OU or get all OUs if none is specified.
         if ($OrganizationalUnit) {
@@ -45,17 +45,17 @@ function Get-OrganizationalUnitDepth {
 
         <#
             Create Summary of Organizational Unit Depths
-            Group OUs by the count of forward slashes in their canonical names. 
-            
-                NOTE: Grouping by CanonicalName is easier to work with than DistinguishedName because the entire domain 
-                name is in its own segment, whereas DNs can have an unknown number of DC segments that represent the 
+            Group OUs by the count of forward slashes in their canonical names.
+
+                NOTE: Grouping by CanonicalName is easier to work with than DistinguishedName because the entire domain
+                name is in its own segment, whereas DNs can have an unknown number of DC segments that represent the
                 FQDN of the domain.
-            
+
             "Name" isn't a helpful column heading for each depth group, so I change that to "Depth" with Select-Object.
         #>
-        $OUDepths = $OUs | Group-Object { ([regex]::Matches($_.CanonicalName,'/')).Count } | 
-            Select-Object @{Name="Depth"; Expression = {$_.Name}},@{Name="OU Count";Expression={$_.Count}},Group |
-            Sort-Object Depth
+        $OUDepths = $OUs | Group-Object { ([regex]::Matches($_.CanonicalName, '/')).Count } |
+            Select-Object @{Name = 'Depth'; Expression = { $_.Name } }, @{Name = 'OU Count'; Expression = { $_.Count } }, Group |
+                Sort-Object Depth
 
         <# Get the Deepest OUs:
 
@@ -81,7 +81,7 @@ function Get-OrganizationalUnitDepth {
             $Output = $OUDepths
         }
     }
-    
+
     end {
         Write-Information -MessageData $OutputMessage -InformationAction Continue
         $Output

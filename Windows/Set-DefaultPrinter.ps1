@@ -5,7 +5,7 @@ function Set-DefaultPrinter {
         .DESCRIPTION
             Set the user's default printer in Windows. Shows a list of installed printers if none is specified.
         .PARAMETER PrinterName
-            The name of an installed printer to set as the default. 
+            The name of an installed printer to set as the default.
             Includes tab-autocomplete to select from the currently installed printers.
             If no printer name is specified, a list of installed printers will be shown without making a change.
         .NOTES
@@ -29,8 +29,7 @@ function Set-DefaultPrinter {
         [ValidateScript({
                 if ("'" + $_ + "'" -in $Script:PrinterNames) {
                     $true
-                }
-                else {
+                } else {
                     throw "`n$_ is not a valid printer name. Please use one of the following: $($Script:PrinterNames -join ', ')"
                 }
             })]
@@ -44,14 +43,13 @@ function Set-DefaultPrinter {
         return
     }
 
-    $UnquotedPrinter = $PrinterName -replace "'",""
+    $UnquotedPrinter = $PrinterName -replace "'", ''
     $Printer = Get-CimInstance -Class Win32_Printer -Filter "Name=`'$UnquotedPrinter`'"
-    
+
     # SetDefaultPrinter if the specified printer name is found
     if ($Printer) {
         Invoke-CimMethod -InputObject $Printer -MethodName SetDefaultPrinter
-    }
-    else {
+    } else {
         Write-Host "No printer with the name '$UnquotedPrinter' was found." -ForegroundColor Yellow -BackgroundColor Black
     }
 }

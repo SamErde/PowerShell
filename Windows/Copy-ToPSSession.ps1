@@ -3,7 +3,7 @@
 Copy files to a server using PowerShell remoting sessions instead of SMB.
 
 .DESCRIPTION
-A method to copy files to a server using PowerShell remoting sessions instead of SMB, 
+A method to copy files to a server using PowerShell remoting sessions instead of SMB,
 which should be off/blocked as a best practice in secure networks.
 
 .NOTES
@@ -14,13 +14,13 @@ function Copy-ItemToRemote {
     [CmdletBinding()]
     param (
         [Parameter()]
-            [string]$RemoteComputer,
+        [string]$RemoteComputer,
         [Parameter()]
-            [string]$SourcePath,
+        [string]$SourcePath,
         [Parameter()]
-            [string]$DestinationPath,
-        [Parameter(Mandatory=$false)]
-            $Session
+        [string]$DestinationPath,
+        [Parameter(Mandatory = $false)]
+        $Session
     )
 
     if (-not $Session) {
@@ -28,8 +28,7 @@ function Copy-ItemToRemote {
     }
     try {
         Copy-Item -Path $SourcePath -Target $DestinationPath -ToSession $Session
-    }
-    catch {
+    } catch {
         $Error
     }
 }

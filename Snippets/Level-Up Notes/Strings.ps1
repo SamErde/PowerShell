@@ -2,10 +2,10 @@
 $String1 = 'This is a string.'
 $String1
 
-$String2 = "This is a string."
+$String2 = 'This is a string.'
 $String2
 
-# What are the benefits of using single quotes or double quotes? 
+# What are the benefits of using single quotes or double quotes?
 # Single quotes are "faster" and "safer" because they don't expand variables or escape characters. Two single quotes can be used to escape a single quote, but can also be confusing when they appear together.
 
 $NumberOfDays = 7
@@ -35,11 +35,11 @@ panama
 '@
 $Palindrome1
 
-$Palindrome2 = @"
+$Palindrome2 = @'
 'A man, a plan, a canal - Panama' is a famous palindrome.
 A palindrome is a word, number, phrase, or other sequence of symbols that reads the same backwards as forwards.
 The sentence "A man, a plan, a canal - Panama" reads the same backwards as forwards.
-"@
+'@
 $Palindrome2
 # Note the mixed use of single and double quotes in the above example.
 
@@ -51,7 +51,7 @@ $Palindrome3
 $String6 = "This is a string with a backtick ` and a newline `n and a tab `t."
 $String6
 
-$Palindrome5 = "'A man, a plan, a canal - Panama' is a famous palindrome. `nA palindrome is a word, number, phrase, or other sequence of symbols that reads the same backwards as forwards. `nThe sentence 'A man, a plan, a canal - Panama' 
+$Palindrome5 = "'A man, a plan, a canal - Panama' is a famous palindrome. `nA palindrome is a word, number, phrase, or other sequence of symbols that reads the same backwards as forwards. `nThe sentence 'A man, a plan, a canal - Panama'
 reads the same backwards as forwards."
 $Palindrome5
 
@@ -66,9 +66,9 @@ $String7
 $YourName = 'Sam Erde'
 $PhoneNumber = '867-5389'
 $HerName = 'Jenny'
-$Template = @"
+$Template = @'
 Hello, {0},
 To obtain your free PowerShell stickers, please call {1} at {2}.
-"@ -f $YourName, $HerName, $PhoneNumber
+'@ -f $YourName, $HerName, $PhoneNumber
 
 $Template

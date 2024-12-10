@@ -3,7 +3,7 @@ function Test-WinREEnabled {
     [CmdletBinding()]
     param()
 
-    $ReAgentXmlPath = "C:\Windows\System32\Recovery\ReAgent.xml"
+    $ReAgentXmlPath = 'C:\Windows\System32\Recovery\ReAgent.xml'
     $WinReEnabled = $false
 
     if (Test-Path $reAgentXmlPath) {
@@ -13,7 +13,7 @@ function Test-WinREEnabled {
         if ([string]::IsNullOrEmpty($winreBcdId)) {
             Write-Verbose "No `'WindowsRE.WinreBCD`' id was found in $reAgentXmlPath`'."
             $WinReEnabled = $false
-        } elseif ($winreBcdId -eq "00000000-0000-0000-0000-000000000000") {
+        } elseif ($winreBcdId -eq '00000000-0000-0000-0000-000000000000') {
             Write-Verbose "The `'WindowsRE.WinreBCD`' id in $reAgentXmlPath`' contains all zeroes."
             $WinReEnabled = $false
         } else {
@@ -21,7 +21,7 @@ function Test-WinREEnabled {
             $WinReEnabled = $true
         }
     }
-    
+
     if ($WinReEnabled -eq $false) {
         reagentc.exe /enable
     }

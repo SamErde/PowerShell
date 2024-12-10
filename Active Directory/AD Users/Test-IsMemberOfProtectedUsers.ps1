@@ -30,7 +30,7 @@ function Test-IsMemberOfProtectedUsers {
             Author:     Sam Erde (https://linktr.ee/SamErde)
             Modified:   2024-02-16
             Version:    0.1.0
-            
+
             Membership in Active Directory's Protect Users group can have implications for anything that relies on NTLM authentication.
 
             To Do:
@@ -55,8 +55,7 @@ function Test-IsMemberOfProtectedUsers {
         # These two are different types. Fixed by referencing $CheckUser.SID later, but should fix here by using one type.
         $CurrentUser = ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name).Split('\')[-1]
         $CheckUser = Get-ADUser $CurrentUser -Properties primaryGroupID
-    }
-    else {
+    } else {
         $CheckUser = Get-ADUser $User -Properties primaryGroupID
     }
 

@@ -17,15 +17,15 @@
 
     [CmdletBinding()]
     param(
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [String]
         $Path
     )
-    
+
     begin {
-        
+
     }
-    
+
     process {
         $Results = @{}
         Get-ChildItem -Recurse -Include backup.xml $Path | ForEach-Object {
@@ -36,8 +36,8 @@
         }
         $Results | Format-Table Name, Value -AutoSize
     }
-    
+
     end {
-        
+
     }
 }

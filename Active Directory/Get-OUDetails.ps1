@@ -4,7 +4,7 @@ function Get-OUDetails {
         Get advanced details about an organizational unit (OU) in Active Directory.
     .DESCRIPTION
         THIS IS STILL A CONCEPT WORK IN PROGRESS
-    
+
     .NOTES
         The Test-BlockInheritence, Test-IsCriticalSystemObject, and Test-IsHiddenOU functions were all created because
         I would rather display an explicit value (eg: $false) than a null that implies $false. Likewise, I prefer to
@@ -14,21 +14,21 @@ function Get-OUDetails {
     [OutputType([Array])]
     param (
     )
-    
+
     Import-Module ActiveDirectory
 
     $OUs = Get-ADOrganizationalUnit -Filter * -Properties CanonicalName, gPOptions, isCriticalSystemObject, showInAdvancedViewOnly | Sort-Object CanonicalName
     foreach ($OU in $OUs) {
 
         [array]$OUDetails += [PSCustomObject]@{
-            Name                    = $OU.Name
-            DistinguishedName       = $OU.DistinguishedName
-            CanonicalName           = $OU.CanonicalName
-            Parent                  = Get-ParentOU $OU
-            Child                   = Get-ChildOU $OU
-            BlockInheritance        = Test-BlockInheritence $OU
-            CriticalLocation        = Test-IsCriticalSystemObject $OU
-            ShowInAdvancedViewOnly  = Test-IsHiddenOU $OU
+            Name                   = $OU.Name
+            DistinguishedName      = $OU.DistinguishedName
+            CanonicalName          = $OU.CanonicalName
+            Parent                 = Get-ParentOU $OU
+            Child                  = Get-ChildOU $OU
+            BlockInheritance       = Test-BlockInheritence $OU
+            CriticalLocation       = Test-IsCriticalSystemObject $OU
+            ShowInAdvancedViewOnly = Test-IsHiddenOU $OU
         }
     }
 
@@ -45,9 +45,9 @@ function Get-ParentOU {
     )
 
     $DN = $OrganizationalUnit.DistinguishedName
-    $ParentDN = ($DN.Replace("OU=$($OrganizationalUnit.Name),",''))
+    $ParentDN = ($DN.Replace("OU=$($OrganizationalUnit.Name),", ''))
 
-    if ($ParentDN -notlike "DC=*") {
+    if ($ParentDN -notlike 'DC=*') {
         $ParentOU = Get-ADOrganizationalUnit -Identity "$ParentDN" -Properties CanonicalName
     } else {
         $ParentOU = $null

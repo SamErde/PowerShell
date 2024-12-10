@@ -1,7 +1,7 @@
 ﻿Function Get-DNSHostEntryAsync {
     <#
         .SYNOPSIS
-            Performs a DNS Get Host asynchronously 
+            Performs a DNS Get Host asynchronously
 
         .DESCRIPTION
             Performs a DNS Get Host asynchronously
@@ -42,7 +42,7 @@
     [OutputType('Net.AsyncGetHostResult')]
     [cmdletbinding()]
     Param (
-        [parameter(ValueFromPipeline=$True)]
+        [parameter(ValueFromPipeline = $True)]
         [string[]]$Computername
     )
     Begin {
@@ -62,16 +62,16 @@
         $Task = ForEach ($Computer in $Computername) {
             If (([bool]($Computer -as [ipaddress]))) {
                 [pscustomobject] @{
-                    Computername = $Computer                    
-                    Task = [system.net.dns]::GetHostEntryAsync($Computer)
-                }                 
+                    Computername = $Computer
+                    Task         = [system.net.dns]::GetHostEntryAsync($Computer)
+                }
             } Else {
                 [pscustomobject] @{
-                    Computername = $Computer                    
-                    Task = [system.net.dns]::GetHostAddressesAsync($Computer)
-                }                
+                    Computername = $Computer
+                    Task         = [system.net.dns]::GetHostAddressesAsync($Computer)
+                }
             }
-        }        
+        }
         Try {
             [void][Threading.Tasks.Task]::WaitAll($Task.Task)
         } Catch {
@@ -89,9 +89,9 @@
             }
             $Object = [pscustomobject]@{
                 Computername = $_.Computername
-                Result = $Result
+                Result       = $Result
             }
-            $Object.pstypenames.insert(0,'Net.AsyncGetHostResult')
+            $Object.pstypenames.insert(0, 'Net.AsyncGetHostResult')
             $Object
         }
     }
