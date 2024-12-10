@@ -1,11 +1,11 @@
 ﻿Import-Module ActiveDirectory
 
-function Get-UnusedGroups {
+function Get-UnusedGroup {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True)]
         [string]$SearchBase
-        )
+    )
 
     Get-ADGroup -Filter * -Properties members, isCriticalSystemObject -SearchBase $SearchBase | Where-Object {
         ($_.members.count -eq 0 `

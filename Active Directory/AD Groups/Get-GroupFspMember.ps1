@@ -1,4 +1,4 @@
-function Get-GroupFspMembers {
+function Get-GroupFspMember {
     <#
     .SYNOPSIS
         Check Active Directory groups for members that are foreign security principals from other domains or forests.
@@ -18,12 +18,12 @@ function Get-GroupFspMembers {
     $GroupsWithForeignMembers = New-Object System.Collections.Generic.List[System.Object]
 
     foreach ($group in $Groups) {
-        $FspMembers = $group.members | Where-Object { $_ -like "CN=S-1-*" -and $_ -notlike "$DomainSID*" }
+        $FspMembers = $group.members | Where-Object { $_ -like 'CN=S-1-*' -and $_ -notlike "$DomainSID*" }
         if ($FspMembers.count -ne 0) {
             $tempgroup = New-Object -TypeName PSObject
-                $tempgroup | Add-Member -MemberType NoteProperty -Name 'GroupDN' -Value $group.distinguishedName
-                $tempgroup | Add-Member -MemberType NoteProperty -Name 'Description' -Value $group.Description
-                $tempgroup | Add-Member -MemberType NoteProperty -Name 'FspMembers' -Value ($FspMembers -join (', '))
+            $tempgroup | Add-Member -MemberType NoteProperty -Name 'GroupDN' -Value $group.distinguishedName
+            $tempgroup | Add-Member -MemberType NoteProperty -Name 'Description' -Value $group.Description
+            $tempgroup | Add-Member -MemberType NoteProperty -Name 'FspMembers' -Value ($FspMembers -join (', '))
             $GroupsWithForeignMembers.Add($tempgroup)
         }
     }

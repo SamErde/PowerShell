@@ -47,36 +47,43 @@ function Test-IsMemberOfProtectedUsers {
         $User
     )
 
-    Import-Module ActiveDirectory
-
-    # Use the currently logged in user if none is specified
-    # Get the user from Active Directory
-    if (-not($User)) {
-        # These two are different types. Fixed by referencing $CheckUser.SID later, but should fix here by using one type.
-        $CurrentUser = ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name).Split('\')[-1]
-        $CheckUser = Get-ADUser $CurrentUser -Properties primaryGroupID
-    } else {
-        $CheckUser = Get-ADUser $User -Properties primaryGroupID
+    begin {
+        Import-Module ActiveDirectory
     }
 
-    # Get the Protected Users group by SID instead of by its name to ensure compatibility with any locale or language.
-    $DomainSID = (Get-ADDomain).DomainSID.Value
-    $ProtectedUsersSID = "$DomainSID-525"
+    process {
+        # Use the currently logged in user if none is specified
+        # Get the user from Active Directory
+        if (-not($User)) {
+            # These two are different types. Fixed by referencing $CheckUser.SID later, but should fix here by using one type.
+            $CurrentUser = ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name).Split('\')[-1]
+            $CheckUser = Get-ADUser $CurrentUser -Properties primaryGroupID
+        } else {
+            $CheckUser = Get-ADUser $User -Properties primaryGroupID
+        }
 
-    # Get members of the Protected Users group for the current domain. Recuse in case groups are nested in it.
-    $ProtectedUsers = Get-ADGroupMember -Identity $ProtectedUsersSID -Recursive | Select-Object -Unique
+        # Get the Protected Users group by SID instead of by its name to ensure compatibility with any locale or language.
+        $DomainSID = (Get-ADDomain).DomainSID.Value
+        $ProtectedUsersSID = "$DomainSID-525"
 
-    # Check if the current user is in the 'Protected Users' group
-    if ($ProtectedUsers.SID.Value -contains $CheckUser.SID) {
-        Write-Verbose "$($CheckUser.Name) ($($CheckUser.DistinguishedName)) is a member of the Protected Users group."
-        $true
-    } else {
-        # Check if the user's PGID (primary group ID) is set to the Protected Users group RID (525).
-        if ( $CheckUser.primaryGroupID -eq '525' ) {
+        # Get members of the Protected Users group for the current domain. Recuse in case groups are nested in it.
+        $ProtectedUsers = Get-ADGroupMember -Identity $ProtectedUsersSID -Recursive | Select-Object -Unique
+
+        # Check if the current user is in the 'Protected Users' group
+        if ($ProtectedUsers.SID.Value -contains $CheckUser.SID) {
+            Write-Verbose "$($CheckUser.Name) ($($CheckUser.DistinguishedName)) is a member of the Protected Users group."
             $true
         } else {
-            Write-Verbose "$($CheckUser.Name) ($($CheckUser.DistinguishedName)) is not a member of the Protected Users group."
-            $false
+            # Check if the user's PGID (primary group ID) is set to the Protected Users group RID (525).
+            if ( $CheckUser.primaryGroupID -eq '525' ) {
+                $true
+            } else {
+                Write-Verbose "$($CheckUser.Name) ($($CheckUser.DistinguishedName)) is not a member of the Protected Users group."
+                $false
+            }
         }
     }
+
+    end { }
+
 }
