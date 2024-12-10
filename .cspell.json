@@ -1,33 +1,28 @@
 {
-    "version": "0.2",
-    "language": "en",
-
-    "words": [
-        "RSAT"
-    ],
-
-    "ignoreWords": [
-        "stefanzweifel",
-        "diffy"
-    ],
-
-    "flagWords": [
-        "yeet",
-        "rizz"
-    ],
-
-    "patterns": [
-        {
-          "name": "ALL-CAPS-WORDS",
-          "pattern": "/\b[A-Z0-9]+\b/g",
-          "description": "Any word in ALL CAPS."
-        }
-    ],
-
-    "ignoreRegExpList": [
-        "ALL-CAPS-WORDS",
-        "Email",
-        "github.com/",
-        "@"
-    ]
+  "import": [
+    "@cspell/dict-powershell/cspell-ext.json",
+    "@cspell/dict-csharp/cspell-ext.json"
+  ],
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "RSAT"
+  ],
+  "ignoreWords": [
+    "stefanzweifel",
+    "diffy"
+  ],
+  "patterns": [
+    {
+      "name": "ALL-CAPS-WORDS",
+      "pattern": "/\b[A-Z0-9]+\b/g",
+      "description": "Any word in ALL CAPS."
+    }
+  ],
+  "ignoreRegExpList": [
+    "ALL-CAPS-WORDS",
+    "Email",
+    "github.com/",
+    "@"
+  ]
 }
