@@ -1,4 +1,4 @@
-function Get-Uptime {
+function Get-PSUptime {
     <#
     .SYNOPSIS
         Get the current system uptime.
