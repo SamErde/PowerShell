@@ -45,10 +45,7 @@ function Measure-DnsResponseTime {
     for ($i = 0; $i -lt $QueryCount; $i++) {
         Write-Host '.' -NoNewline -ForegroundColor Yellow
         try {
-            Clear-DnsClientCache
-            $QueryTimes += (Measure-Command { [System.Net.Dns]::GetHostAddresses($TargetName) }).TotalMilliseconds
-            # $QueryTimes += (Measure-Command { Resolve-DnsName -Server $DnsServer -Name $Targetname -DnsOnly -NoHostsFile }).TotalMilliseconds
-            # $ResponseTime = (Get-History -Count 1).Duration.TotalMilliseconds
+            $QueryTimes += (Measure-Command { Resolve-DnsName -Server $DnsServer -Name $TargetName -DnsOnly -NoHostsFile }).TotalMilliseconds
         } catch {
             Write-Output "Failed to resolve DNS query: $_"
             return
@@ -58,14 +55,14 @@ function Measure-DnsResponseTime {
     Write-Host '. Done!' -ForegroundColor Green
     "Times: $($QueryTimes -join ', ')" | Write-Verbose
     $AverageTime = [math]::Round( ($QueryTimes | Measure-Object -Average).Average, 2 )
-    Write-Host "Average response time: $AverageTime ms`n" -ForegroundColor Green
+    Write-Host "Average response time: $AverageTime ms`n" -ForegroundColor White
     $AverageTime
 }
 
 function Measure-NetworkHops {
     <#
     .SYNOPSIS
-    Measure the number of network hops and get basic traceroute details for a given server.
+    Measure the number of network hops and get basic trace route details for a given server.
 
     .PARAMETER Server
     The server name or IP address to measure network hops to.
