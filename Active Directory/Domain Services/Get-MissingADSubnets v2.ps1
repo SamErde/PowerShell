@@ -157,17 +157,17 @@
 
         $NumberOfIPs = ([System.Math]::Pow(2, $IntIPLength)) - 1
 
-        $IpStart = New-IPv4NetworkAddress $ObjInputAddress $BlockBytes $IPv4Mask
+        $IpStart = New-IPv4NetworkAddress -Address $ObjInputAddress -nbBytes $BlockBytes -IPv4Mask $IPv4Mask
         $Obj | Add-Member -type NoteProperty -Name Subnet -Value "$($IpStart)/$($IPv4Mask)"
         $Obj | Add-Member -type NoteProperty -Name IpStart -Value $IpStart
 
         $ArrBytesIpStart = $IpStart.GetAddressBytes()
         [array]::Reverse($ArrBytesIpStart)
-        $RangeStart = [system.bitconverter]::ToUInt32($ArrBytesIpStart, 0)
+        $RangeStart = [System.BitConverter]::ToUInt32($ArrBytesIpStart, 0)
 
         $IpEnd = $RangeStart + $NumberOfIPs
 
-        if (($IpEnd.Gettype()).Name -ine 'double') {
+        if (($IpEnd.GetType()).Name -ine 'double') {
             $IpEnd = [Convert]::ToDouble($IpEnd)
         }
 
@@ -178,7 +178,7 @@
 
         $ArrBytesIpEnd = $IpEnd.GetAddressBytes()
         [array]::Reverse($ArrBytesIpEnd)
-        $Obj | Add-Member -type NoteProperty -Name RangeEnd -Value ([system.bitconverter]::ToUInt32($ArrBytesIpEnd, 0))
+        $Obj | Add-Member -type NoteProperty -Name RangeEnd -Value ([System.BitConverter]::ToUInt32($ArrBytesIpEnd, 0))
 
         # return $Obj
         $Obj
@@ -438,7 +438,7 @@
             $SubnetObj = New-Object -TypeName PsObject
 
             if ( $ObjIP.AddressFamily -match 'InterNetwork' ) {
-                $SubnetObj = New-IPv4 $SubnetObj $ObjIP $IPv4Mask
+                $SubnetObj = New-IPv4 -Obj $SubnetObj -ObjInputAddress $ObjIP -IPv4Mask $IPv4Mask
                 $SubnetObj | Add-Member -MemberType NoteProperty -Name Computer -Value $Entry.Computer
                 $ArrIPs += $SubnetObj
             } # end if $ObjIP.AddressFamily -match 'InterNetwork'
@@ -482,7 +482,7 @@
             $SubnetObj = New-Object -TypeName PsObject
             $SubnetObj | Add-Member -type NoteProperty -Name Name -Value ([string] $Subnet.Properties['cn'])
             $SubnetObj | Add-Member -type NoteProperty -Name Location -Value ([string] $Subnet.Properties['location'])
-            $SubnetObj | Add-Member -type NoteProperty -Name Site -Value ([string] $RegexCN.Match( $Subnet.Properties['siteobject']).Groups[1].Value)
+            $SubnetObj | Add-Member -type NoteProperty -Name Site -Value ([string] $RegexCN.Match( $Subnet.Properties['SiteObject']).Groups[1].Value)
 
             $InputAddress = (($SubnetObj.Name).Split('/'))[0]
             $ADSubnetPrefix = (($SubnetObj.Name).Split('/'))[1]
@@ -492,7 +492,7 @@
 
             # Check if IP is a IPv4 (IPv6 not collected)
             if ( $ObjInputAddress.AddressFamily -eq 'InterNetwork' ) {
-                $SubnetObj = New-IPv4 $SubnetObj $ObjInputAddress $ADSubnetPrefix
+                $SubnetObj = New-IPv4 -Obj $SubnetObj -ObjInputAddress $ObjInputAddress -IPv4Mask $ADSubnetPrefix
                 $SubnetsArray += $SubnetObj
             } # end if $ObjInputAddress.AddressFamily -eq 'InterNetwork'
         } # end foreach $Subnet
