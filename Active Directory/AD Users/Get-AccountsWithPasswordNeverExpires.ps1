@@ -10,6 +10,7 @@
     Get-AccountsWithPasswordNeverExpires
     #>
     [CmdletBinding()]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     param ()
 
     Search-ADAccount -PasswordNeverExpires

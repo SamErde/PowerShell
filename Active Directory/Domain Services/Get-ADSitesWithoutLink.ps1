@@ -1,4 +1,4 @@
-﻿function Get-ADSitesWithoutLinks {
+﻿function Get-ADSitesWithoutLink {
     <#
     .SYNOPSIS
     Get all Active Directory sites that are not included in any site link.

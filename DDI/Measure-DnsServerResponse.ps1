@@ -68,6 +68,7 @@ function Measure-NetworkHops {
     The server name or IP address to measure network hops to.
     #>
     [CmdletBinding()]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [OutputType([int])]
     param (
         [Parameter(

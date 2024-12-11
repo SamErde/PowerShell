@@ -1,4 +1,4 @@
-function Get-OUDetails {
+function Get-OUDetail {
     <#
     .SYNOPSIS
         Get advanced details about an organizational unit (OU) in Active Directory.
@@ -6,7 +6,7 @@ function Get-OUDetails {
         THIS IS STILL A CONCEPT WORK IN PROGRESS
 
     .NOTES
-        The Test-BlockInheritence, Test-IsCriticalSystemObject, and Test-IsHiddenOU functions were all created because
+        The Test-BlockInheritance, Test-IsCriticalSystemObject, and Test-IsHiddenOU functions were all created because
         I would rather display an explicit value (eg: $false) than a null that implies $false. Likewise, I prefer to
         display a $true or $false rather than 1 or a 0.
     #>
@@ -26,7 +26,7 @@ function Get-OUDetails {
             CanonicalName          = $OU.CanonicalName
             Parent                 = Get-ParentOU $OU
             Child                  = Get-ChildOU $OU
-            BlockInheritance       = Test-BlockInheritence $OU
+            BlockInheritance       = Test-BlockInheritance $OU
             CriticalLocation       = Test-IsCriticalSystemObject $OU
             ShowInAdvancedViewOnly = Test-IsHiddenOU $OU
         }
@@ -71,8 +71,8 @@ function Get-ChildOU {
     $ChildOU
 }
 
-function Test-BlockInheritence {
-    # Check if Block Inheritence is set on an organizational unit in Active Directory
+function Test-BlockInheritance {
+    # Check if Block Inheritance is set on an organizational unit in Active Directory
     [CmdletBinding()]
     [OutputType([Boolean])]
     param (

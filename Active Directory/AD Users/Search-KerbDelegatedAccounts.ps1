@@ -37,6 +37,7 @@
 #>
 
 [CmdletBinding()]
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
 Param
 (
     # start the search at this DN. Default is to search all of the domain.

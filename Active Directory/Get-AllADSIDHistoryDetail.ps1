@@ -1,4 +1,4 @@
-﻿function Get-AllADSIDHistoryDetails {
+﻿function Get-AllAdSidHistoryDetail {
     [CmdletBinding()]
     [OutputType([hashtable])]
     param ()

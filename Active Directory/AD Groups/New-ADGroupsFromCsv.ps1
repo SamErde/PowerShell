@@ -22,6 +22,8 @@
     Version: 0.1.0
     #>
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('SupportsShouldProcess', '')]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     param (
         # CSV file with group names and descriptions (validate path)
         [Parameter(Mandatory, Position = 0)]
@@ -69,6 +71,7 @@
                 GroupCategory  = $group.Category
                 GroupScope     = $group.Scope
                 Description    = $group.Description
+                Server         = $Server
             }
             try {
                 New-ADGroup @GroupParams

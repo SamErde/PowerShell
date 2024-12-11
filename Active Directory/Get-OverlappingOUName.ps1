@@ -1,4 +1,4 @@
-function Get-OverlappingOUNames {
+function Get-OverlappingOUName {
     [CmdletBinding()]
     param (
 

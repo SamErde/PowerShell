@@ -3,6 +3,7 @@
     # DRAFT, WORK IN PROGRESS
 
     [CmdletBinding()]
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     param (
         # Days to consider an account inactive
         [Parameter()]

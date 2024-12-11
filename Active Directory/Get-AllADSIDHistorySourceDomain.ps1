@@ -1,4 +1,4 @@
-﻿function Get-AllADSIDHistorySourceDomains {
+﻿function Get-AllAdSidHistorySourceDomain {
     <#
     .SYNOPSIS
     Get a list of source domains from all Active Directory objects that have SID history.
