@@ -80,7 +80,7 @@ function Test-BlockInheritance {
         $OrganizationalUnit
     )
 
-    if ($OU.gPOptions -eq 1) {
+    if ($OrganizationalUnit.gPOptions -eq 1) {
         $true
     } else {
         $false
