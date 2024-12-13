@@ -1,4 +1,4 @@
-﻿function Get-ADDirectReports {
+﻿function Get-ADDirectReport {
     <#
 	.SYNOPSIS
 		This function retrieve the directreports property from the IdentitySpecified.
