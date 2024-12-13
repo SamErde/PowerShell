@@ -1,4 +1,4 @@
-﻿function Get-MissingADSubnets {
+﻿function Get-MissingADSubnet {
     <#
     .SYNOPSIS
         Generate a list of missing AD subnets based on the netlogon log info from domain controllers.
