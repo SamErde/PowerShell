@@ -53,5 +53,5 @@ foreach ($srv in $servers) {
     #Cleanup and then show the current PSSession state.
     if ($session) { Exit-PSSession }
     if ($session) { Remove-PSSession $session }
-    Write-Host -ForegroundColor DarkYellow $session.ComputerName $session.State `n`n -NoNewline
+    Write-Host "$session.ComputerName $session.State `n`n" -ForegroundColor DarkYellow -NoNewline
 }
