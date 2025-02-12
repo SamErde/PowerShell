@@ -7,6 +7,8 @@
 .NOTES
     Author: Sam Erde (@SamErde)
     Date: 2025-02-12
+.LINK
+    https://github.com/SamErde/PowerShell/General
 #>
 
 # Download the .NET CLI install script if it is not found.
