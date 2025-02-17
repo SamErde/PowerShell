@@ -18,9 +18,9 @@ function Test-Obsolete {
     #>
     [CmdletBinding()]
     param (
-        # Test something
+        # Test mode parameter.
         [Parameter(Mandatory)]
-        [Obsolete("'Mode' is being replaced by the more flexible 'Scans', 'OutputType', and 'IncludeFixes' parameters, and will be removed in a future version. Use 'Get-Help Test-Obsolete -Full' for more information.")]
+        [Obsolete("'Mode' is being replaced by a more flexible set of parameters. It will be removed in a future release.`n`nPlease use 'Get-Help Test-Obsolete' or visit <https://day3bits.com/2025-02-17-using-obsolete-parameters-in-powershell/> for more information.")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(0, 5)]
         [int16]
