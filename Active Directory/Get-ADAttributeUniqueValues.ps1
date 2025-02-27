@@ -4,8 +4,9 @@ function Get-ADAttributeUniqueValues {
     Get a list of unique values for specified attributes in Active Directory.
 
     .DESCRIPTION
-    This script queries all user accounts in Active Directory and get a list of the unique values that are found in the
-    specified attributes. It defaults to checking company, department, location, office, and title.
+    This script queries all enabled user accounts in Active Directory and get a list of the unique values that are found
+    in the specified attributes. It defaults to checking company, department, location, office, and title. The results
+    are exported to a JSON file.
 
     .PARAMETER AttributesToCheck
     The attribute or list of attributes on AD users to check. (Defaults to company, department, office, and title.)
