@@ -12,6 +12,8 @@ Comply is a simple Oh My Posh theme for users who only want essential informatio
 
 - The current path displayed after a folder glyph (📁). When in your home folder's path, the standard ~ character takes its place to reduce length and provide some privacy when sharing screenshots (eg: "C:\Users\JaneDoe\Downloads" becomes "~\Downloads").
 
+- Git repository and branch information (when relevant).
+
 - The prompt character appears by itself on a new line, which makes the command history easier to read.
 - The prompt character changes from a white `>` to an orange `#` when running as admin/root, which should familiar to users who run `sudo` or `enable`.
 
