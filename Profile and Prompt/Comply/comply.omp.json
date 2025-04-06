@@ -1,0 +1,90 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 3,
+  "palettes": {
+    "template": "{{ if .Root }}admin{{ else }}user{{ end }}",
+    "list": {
+      "admin": {
+        "promptColor": "#ffffff",
+        "userColor": "#ff6200",
+        "executionTimeColor": "lightYellow"
+      },
+      "user": {
+        "promptColor": "#0CA0D8",
+        "userColor": "#45F1C2",
+        "executionTimeColor": "lightYellow"
+      }
+    }
+  },
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "type": "session",
+          "template": "\ueb99 ",
+          "style": "plain",
+          "foreground": "p:userColor"
+        },
+        {
+          "type": "executiontime",
+          "template": "  {{ .FormattedMs }} ",
+          "style": "plain",
+          "foreground": "p:executionTimeColor",
+          "properties": {
+            "threshold": 500,
+            "style": "round",
+            "always_enabled": true
+          }
+        },
+        {
+          "type": "path",
+          "template": "\uf07b  {{ .Path }} ",
+          "style": "plain",
+          "foreground": "#0CA0D8",
+          "properties": {
+            "cache_duration": "none",
+            "folder_separator_icon": "/",
+            "style": "full"
+          }
+        },
+        {
+          "type": "git",
+          "template": "{{ .UpstreamIcon }}{{ .HEAD }}{{ if gt .StashCount 0 }} \ueb4b {{ .StashCount }}{{ end }} ",
+          "style": "plain",
+          "powerline_symbol": "\ue0b0",
+          "foreground": "#ffffff",
+          "properties": {
+            "cache_duration": "none",
+            "fetch_stash_count": true,
+            "fetch_upstream_icon": true
+          }
+        }
+      ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "template": "{{if .Root}}# {{ else }}> {{ end }}",
+          "type": "root",
+          "style": "plain",
+          "foreground": "p:promptColor"
+        },
+        {
+          "type": "text",
+          "template": "{{if .Root}}{{ else }}> {{ end }}",
+          "style": "plain",
+          "foreground": "p:promptColor"
+        }
+      ]
+    }
+  ],
+  "transient_prompt": {
+    "template": ">> ",
+    "foreground": "yellow"
+  }
+}
