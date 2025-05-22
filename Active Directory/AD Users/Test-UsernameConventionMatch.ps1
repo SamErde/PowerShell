@@ -21,12 +21,14 @@ function Test-UsernameConventionMatch {
 
     .NOTES
         Requires the ActiveDirectory module.
+
+        TO DO: NEED TO HANDLE USERS THAT HAVE NO MIDDLE INITIAL BUT THE USERNAME IS STILL IN THE INITIALS FORMAT.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('SamAccountName', 'UserName', 'DistinguishedName')]
-        [string[]]$Identity
+        [string]$Identity
     )
 
     begin {
@@ -45,7 +47,7 @@ function Test-UsernameConventionMatch {
             # Extract the necessary information
             $Username = $ADUser.SamAccountName
             $FirstName = $ADUser.GivenName
-            $MiddleInitial = $ADUser.Initial
+            $MiddleInitial = $ADUser.Initials
             $LastName = $ADUser.SurName
 
             # Validate that we have first and last names
