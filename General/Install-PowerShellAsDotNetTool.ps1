@@ -11,9 +11,12 @@
     https://github.com/SamErde/PowerShell/General
 #>
 
+[CmdletBinding()]
+param ()
+
 # Download the .NET CLI install script if it is not found.
 if ( (Get-Command -Name 'dotnet' -ErrorAction SilentlyContinue) ) {
-    Write-Verbose "dotnet is already installed."
+    Write-Verbose 'dotnet is already installed.'
 } else {
     $DownloadPath = Join-Path -Path $env:TEMP -ChildPath 'dotnet-install.ps1'
     try {
@@ -26,7 +29,6 @@ if ( (Get-Command -Name 'dotnet' -ErrorAction SilentlyContinue) ) {
 
     # Install the dotnet tool. The script installs the latest LTS release by default.
     # The current stable release is required for PowerShell 7.5, which depends on .NET 9.
-    # Need to add a check for the appropriate version of .NET.
     try {
         .$DownloadPath -InstallDir '~/.dotnet' -Channel 'STS' # use of 'Current' is deprecated.
     } catch {
@@ -35,10 +37,7 @@ if ( (Get-Command -Name 'dotnet' -ErrorAction SilentlyContinue) ) {
 
 }
 
-dotnet dev-certs https --trust
-
 # Install PowerShell and add $HOME\.dotnet\tools to the PATH.
-# Need to add error handling for when the required version of .NET is missing.
 try {
     dotnet tool install --global PowerShell
     $env:PATH += ';' + [System.IO.Path]::Combine($HOME, '.dotnet', 'tools')
@@ -47,7 +46,7 @@ try {
 }
 
 # Clean up.
-Remove-Variable -Name DownloadPath
-if (Test-Path -Path DownloadPath) {
+if (Test-Path -Path $DownloadPath) {
     Remove-Item -Path $DownloadPath -Confirm:$false
 }
+Remove-Variable -Name DownloadPath
