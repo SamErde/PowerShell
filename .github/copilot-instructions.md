@@ -31,22 +31,22 @@ Generate commit messages for PowerShell projects using this format:
 Follow the GitMoji specifications at <https://conventional-emoji-commits.site/full-specification/specification> for
 commit messages. Tailor commit messages for PowerShell development, using the provided types and scopes.
 
-### PowerShell-Specific Types:
-- **feat**: ✨ New cmdlet, function, or module feature
-- **fix**: 🐛 Bug fix in PowerShell code
-- **docs**: 📚 Help documentation, comment-based help
-- **style**: 🎨 Code formatting, OTBS compliance, Pascal case fixes
-- **refactor**: ♻️ Code restructuring, approved verb compliance
-- **test**: ✅ Pester tests, unit tests
-- **build**: 🛠️ Module manifest, build scripts
-- **ci**: 🤖 Azure DevOps, GitHub Actions for PowerShell
-- **chore**: 🧹 Module organization, file cleanup
-- **perf**: ⚡ Performance improvements in cmdlets or functions
-- **revert**: ⏪ Reverting changes in PowerShell scripts or modules
-- **packaging**: 📦 Packaging changes, module version updates
-- **security**: 🔒 Security-related changes, input validation, authentication
+## PowerShell-Specific Types:
+- feat: ✨ New cmdlet, function, or module feature
+- fix: 🐛 Bug fix in PowerShell code
+- docs: 📚 Help documentation, comment-based help
+- style: 🎨 Code formatting, OTBS compliance, Pascal case fixes
+- refactor: ♻️ Code restructuring, approved verb compliance
+- test: ✅ Pester tests, unit tests
+- build: 🛠️ Module manifest, build scripts
+- ci: 🤖 Azure DevOps, GitHub Actions for PowerShell
+- chore: 🧹 Module organization, file cleanup
+- perf: ⚡ Performance improvements in cmdlets or functions
+- revert: ⏪ Reverting changes in PowerShell scripts or modules
+- packaging: 📦 Packaging changes, module version updates
+- security: 🔒 Security-related changes, input validation, authentication
 
-### PowerShell Scopes:
+## PowerShell Scopes:
 - module: Module-level changes
 - cmdlet: Specific cmdlet modifications
 - function: Function updates
@@ -54,7 +54,7 @@ commit messages. Tailor commit messages for PowerShell development, using the pr
 - manifest: Module manifest updates
 - tests: Test-related changes
 
-### Examples:
+## Examples:
 ✨feat(cmdlet): add Get-UserProfile with parameter validation
 🐛fix(function): resolve Invoke-ApiCall error handling
 📚docs(help): update comment-based help for Set-Configuration
