@@ -94,3 +94,7 @@ $RECYCLE.BIN/
 .codacy/*
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,powershell,visualstudiocode
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
