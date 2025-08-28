@@ -2,8 +2,8 @@
 # Found from internet. Need to review and cleanup.
 
 # Activate Windows
-$ProductKey = (Get-WmiObject -Class SoftwareLicensingService).OA3xOriginalProductKey
-Invoke-Expression "cscript /b C:\Windows\System32\slmgr.vbs -ipk $Productkey"
+$ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
+Invoke-Expression "cscript /b C:\Windows\System32\slmgr.vbs -ipk $ProductKey"
 Start-Sleep 5
 Invoke-Expression 'cscript /b C:\Windows\System32\slmgr.vbs -ato'
 
@@ -11,7 +11,7 @@ Invoke-Expression 'cscript /b C:\Windows\System32\slmgr.vbs -ato'
 
 # Define the registry key path and value
 $registryPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\MfaRequiredInClipRenew'
-$registryValueName = 'Verify Multifactor Authentication in ClipRenew'
+$registryValueName = 'Verify Multi-factor Authentication in ClipRenew'
 $registryValueData = 0  # DWORD value of 0
 $sid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-4')
 # SID for the Everyone group
@@ -37,6 +37,4 @@ Write-Output "Added 'Interactive' group and SID ($sid) with read permissions (wi
 #Remove the # below to make sure it will kick off the scheduled task on already enrolled devices
 Start-Process "$env:SystemRoot\system32\ClipRenew.exe"
 
-
-
-$ProductKey = (Get-WmiObject -Class SoftwareLicensingService).OA3xOriginalProductKey
+$ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
