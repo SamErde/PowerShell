@@ -14,8 +14,8 @@
 #>
 
 #region Configurable Inputs
-$InputFile = "ExportedManagersDirects.txt"
-$ChannelName = "Just for Fun"
+$CsvInputFile = 'ExportedManagersDirects.txt'
+$ChannelName = 'Just for Fun'
 #endregion
 
 #region Data Model
@@ -31,7 +31,7 @@ class Manager {
     [bool] $TeamsEnabled
     [bool] $PassedPrereqs
 
-    Manager (){
+    Manager () {
         $this.DirectReports = New-Object -TypeName System.Collections.ObjectModel.Collection["DirectReport"]
         $this.PassedPrereqs = $false
     }
@@ -39,19 +39,19 @@ class Manager {
 #endregion
 
 #region Helper Functions
-Function Get-TimeStamp {
-    return "[{0:MM/dd/yy} {0:HH:mm:ss}]" -f (Get-Date)
+function Get-TimeStamp {
+    return '[{0:MM/dd/yy} {0:HH:mm:ss}]' -f (Get-Date)
 }
-Function IsTeamsEnabled([string] $upn) {
+function IsTeamsEnabled([string] $upn) {
     $user = Get-AzureADUser -ObjectId $upn
     foreach ($plan in $user.AssignedPlans) {
-        if (($plan.ServicePlanId -eq "57ff2da0-773e-42df-b2af-ffb7a2317929") -and ($plan.CapabilityStatus -eq "Enabled")) {
+        if (($plan.ServicePlanId -eq '57ff2da0-773e-42df-b2af-ffb7a2317929') -and ($plan.CapabilityStatus -eq 'Enabled')) {
             return $true
         }
     }
     return $false
 }
-Function ProcessData ($Managers) {
+function ProcessData ($Managers) {
     $output = New-Object -type System.Collections.ObjectModel.Collection["Manager"]
 
     #Iterate through each manager
@@ -64,7 +64,7 @@ Function ProcessData ($Managers) {
 
         #Iterate over each manager's direct reports
         foreach ($directReport in $manager.Directs) {
-            $directs = $manager.Directs.Split(",")
+            $directs = $manager.Directs.Split(',')
             #Iterate over each direct report
             foreach ($direct in $directs) {
                 if ($null -ne $direct) {
@@ -88,19 +88,19 @@ Function ProcessData ($Managers) {
     return $output
 }
 
-Function CreateChannel([string] $GroupId, [string] $ChannelDisplayName) {
+function CreateChannel([string] $GroupId, [string] $ChannelDisplayName) {
     if (($null -ne $GroupId) -and ($null -ne $ChannelDisplayName)) {
         New-TeamChannel -GroupId $newTeam.GroupId -DisplayName $ChannelDisplayName | Out-Null
         Write-Verbose "$(Get-Timestamp) Info: Created '$($ChannelDisplayName)' Channel within GroupId($($newTeam.GroupId))."
     }
 }
 
-Function AddDirectToTeam([string] $GroupId, [string] $UserPrincipalName) {
+function AddDirectToTeam([string] $GroupId, [string] $UserPrincipalName) {
     Add-TeamUser -GroupId $newTeam.GroupId -User $direct.UserPrincipalName
     Write-Host "$(Get-Timestamp) Info: Added $($direct.UserPrincipalName) as a Member of GroupId($($newTeam.GroupId))."
 }
 
-Function GetNonEnabledTeamsUsers ([manager] $Manager) {
+function GetNonEnabledTeamsUsers ([manager] $Manager) {
     if ($manager.TeamsEnabled -eq $false) {
         Write-Host -ForegroundColor Yellow "$(Get-Timestamp) Warning: Manager:$($Manager.UserPrincipalName) not enabled for Teams."
     }
@@ -111,7 +111,7 @@ Function GetNonEnabledTeamsUsers ([manager] $Manager) {
     }
 }
 
-Function CreateTeam ([manager] $Manager) {
+function CreateTeam ([manager] $Manager) {
     #Validate both the Manager and Directs are enabled for Teams
     if ($Manager.PassedPrereqs) {
         $alias = $Manager.UserPrincipalName.Split('@')
@@ -120,7 +120,7 @@ Function CreateTeam ([manager] $Manager) {
         if ($Teams.Keys -notcontains $teamName) {
             if ($Teams.Values -notcontains $mailNickName) {
                 #Create Team
-                $newTeam = New-Team -DisplayName $teamName -MailNickName $mailNickName -Visibility "Private" -Owner $Manager.UserPrincipalName
+                $newTeam = New-Team -DisplayName $teamName -MailNickName $mailNickName -Visibility 'Private' -Owner $Manager.UserPrincipalName
                 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Created new team for $($Manager.UserPrincipalName) with GroupId: ($($newTeam.GroupId))."
 
                 #Create desired Channel
@@ -132,16 +132,13 @@ Function CreateTeam ([manager] $Manager) {
                         AddDirectToTeam $newTeam.GroupId $direct.UserPrincipalName
                     }
                 }
+            } else {
+                Write-Host -ForegroundColor Yellow "$(Get-Timestamp) Warning: Mailnickname $($mailNickName) already in use. Skipping creating team for $($Manager.UserPrincipalName)."
             }
-            else {
-                    Write-Host -ForegroundColor Yellow "$(Get-Timestamp) Warning: Mailnickname $($mailNickName) already in use. Skipping creating team for $($Manager.UserPrincipalName)."
-            }
-        }
-        else {
+        } else {
             Write-Host -ForegroundColor Yellow "$(Get-Timestamp) Warning: Team already exists for $($Manager.UserPrincipalName). No Team created."
         }
-    }
-    else {
+    } else {
         Write-Host -ForegroundColor Yellow "$(Get-Timestamp) Warning: Manager:$($Manager.UserPrincipalName) has the following users not enabled for Teams. No Team created."
         GetNonEnabledTeamsUsers $Manager
     }
@@ -150,11 +147,11 @@ Function CreateTeam ([manager] $Manager) {
 
 #region Script Execution
 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Step 1: Processing input file."
-$Input = import-csv .\"$($InputFile)" -Delimiter `t
+$CsvInput = Import-Csv .\"$($CsvInputFile)" -Delimiter `t
 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Step 1: Completed."
 
 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Step 2: Processing Team Pre-requisites."
-$Managers = ProcessData $Input
+$Managers = ProcessData $CsvInput
 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Step 2: Completed."
 
 Write-Host -ForegroundColor Green "$(Get-Timestamp) Info: Step 3: Creating Teams for each Manager, adding Directs and creating custom Channels."
@@ -163,7 +160,7 @@ $AllTeams = Get-Team
 $Teams = @{}
 if ($null -ne $AllTeams) {
     foreach ($team in $AllTeams) {
-        $Teams.Add($team.DisplayName,$team.MailNickName)
+        $Teams.Add($team.DisplayName, $team.MailNickName)
     }
 }
 foreach ($Manager in $Managers) {
