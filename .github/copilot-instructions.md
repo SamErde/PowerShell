@@ -55,8 +55,8 @@ commit messages. Tailor commit messages for PowerShell development, using the pr
 - tests: Test-related changes
 
 ## Examples:
-✨feat(cmdlet): add Get-UserProfile with parameter validation
-🐛fix(function): resolve Invoke-ApiCall error handling
-📚docs(help): update comment-based help for Set-Configuration
-🎨style(module): apply OTBS formatting and Pascal case
-✅test(cmdlet): add Pester tests for Get-SystemInfo
+✨feat(cmdlet): add Get-UserProfile with parameter validation  
+🐛fix(function): resolve Invoke-ApiCall error handling  
+📚docs(help): update comment-based help for Set-Configuration  
+🎨style(module): apply OTBS formatting and Pascal case  
+✅test(cmdlet): add Pester tests for Get-SystemInfo  
