@@ -17,8 +17,8 @@
     .NOTES
     Author: Sam Erde (@SamErde)
     Company: Sentinel Technologies, Inc
-    Version: 1.0.0
-    Date: 2025-09-09
+    Version: 1.0.1
+    Date: 2025-09-10
 
     #>
     [CmdletBinding()]
@@ -102,9 +102,9 @@
     $InstalledModules = @()
 
     if ($PSResourceGetInstalled) {
-        Write-Host "Using 'Save-PSResource' (Microsoft.PowerShell.PSResourceGet) to download modules.`n" -ForegroundColor White
+        Write-Verbose "Using 'Save-PSResource' (Microsoft.PowerShell.PSResourceGet) to download modules.`n"
     } else {
-        Write-Host "Using 'Save-Module' (PowerShellGet) to download modules.`n" -ForegroundColor White
+        Write-Verbose "Using 'Save-Module' (PowerShellGet) to download modules.`n"
     }
 
     # Download the required modules into the DestinationPath.
@@ -114,7 +114,7 @@
         $Prerelease = $Module.Prerelease
 
         try {
-            Write-Host "Downloading module: $Name, Version: $Version, Prerelease: $Prerelease" -ForegroundColor Cyan
+            Write-Host "Downloading module: $($("$Name $Version").Trim()) $(if ($Prerelease) {"(prerelease)"})" -ForegroundColor Cyan
             if ($PSResourceGetInstalled) {
                 #try {
                 if ($Version) {
@@ -142,7 +142,7 @@
     # Summary of downloaded modules.
     if ($InstalledModules.Count -gt 0) {
         Write-Host "`nDownloaded modules to $DestinationPath`n"
-        $InstalledModules | ForEach-Object -Process { Write-Host "`t$_" } -End "`n"
+        $InstalledModules | ForEach-Object -Process { Write-Host "`t$_" } -End { Write-Host "`n" }
     } else {
         Write-Warning 'No modules were downloaded.'
     }
@@ -157,7 +157,7 @@
                 Write-Verbose "Removed existing ZIP file: $ZipPath"
             }
             Compress-Archive -Path (Join-Path -Path $DestinationPath -ChildPath '*') -DestinationPath $ZipPath -Force
-            Write-Host "`nCreated ZIP file: $ZipPath" -ForegroundColor Green
+            Write-Host "Created ZIP file: $ZipPath" -ForegroundColor Green
         } catch {
             Write-Error "Failed to create ZIP file: $ZipPath. Error: $_"
         }
