@@ -12,13 +12,9 @@
     The directory to download and save the required PowerShell modules in.
 
     .EXAMPLE
-    Save-MaesterOffline -DestinationPath ~/Downloads/Maester
+    Save-MaesterOffline -DestinationPath ~/Downloads/Maester -CreateZip
 
-    .NOTES
-    Author: Sam Erde (@SamErde)
-    Company: Sentinel Technologies, Inc
-    Version: 1.0.1
-    Date: 2025-09-10
+    Downloads Maester and all dependencies to the specified directory and creates a ZIP file of the downloaded modules.
 
     #>
     [CmdletBinding()]
