@@ -46,6 +46,9 @@
     Requires: Active Directory PowerShell Module
 
     Uses lastLogonTimeStamp for faster execution (accurate within ~14 days)
+
+.LINK
+    https://learn.microsoft.com/en-us/services-hub/unified/health/remediation-steps-ad/regularly-check-for-and-remove-inactive-user-accounts-in-active-directory#context--best-practices
 #>
 
     [CmdletBinding()]
