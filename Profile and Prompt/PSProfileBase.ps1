@@ -22,7 +22,7 @@
 function Get-EnvironmentInfo {
     # Get environment information for the current session. Returns a hash table.
     [CmdletBinding()]
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable', 'PSProfileBase.ps1', Justification = 'OS variables were only introduced in PowerShell 6, so no conflict is introduced in Windows PowerShell.')]
     param ()
 
     $IsAdmin = if (($PSVersionTable.PSVersion.Major -le 5) -or $IsWindows) {
@@ -34,8 +34,8 @@ function Get-EnvironmentInfo {
     }
 
     if ($PSVersionTable.PSEdition -eq 'Desktop' -or $PSVersionTable.PSVersion -lt '6.0.0') {
-        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidAssignmentToAutomaticVariable', 'PSProfileBase.ps1', Justification = 'This variable was only introduced in PowerShell 6, so no conflict is introduced in Windows PowerShell.')]
         $IsWindows = $true
+        $IsLinux = $IsMacOS = $false
         if ($Host.Name -eq 'Windows PowerShell ISE Host') {
             $IsPowerShellISE = $true
         } else {
