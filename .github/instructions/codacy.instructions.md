@@ -65,6 +65,7 @@ Configuration for AI behavior when interacting with Codacy's MCP Server
 - "Propose fixes" means to both suggest and, if possible, automatically apply the fixes.
 - You MUST NOT wait for the user to ask for analysis or remind you to run the tool.
 - Do not run `codacy_cli_analyze` looking for changes in duplicated code or code complexity metrics.
+- Complexity metrics are different from complexity issues. When trying to fix complexity in a repository or file, focus on solving the complexity issues and ignore the complexity metric.
 - Do not run `codacy_cli_analyze` looking for changes in code coverage.
 - Do not try to manually install Codacy CLI using either brew, npm, npx, or any other package manager.
 - If the Codacy CLI is not installed, just run the `codacy_cli_analyze` tool from Codacy's MCP Server.
