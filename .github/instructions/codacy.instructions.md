@@ -8,9 +8,9 @@ Configuration for AI behavior when interacting with Codacy's MCP Server
 
 ## using any tool that accepts the arguments: `provider`, `organization`, or `repository`
 - ALWAYS use:
- - provider: gl
+ - provider: gh
  - organization: SamErde
- - repository: maester-monitoring
+ - repository: PrivateAutomations
 - Avoid calling `git remote -v` unless really necessary
 
 ## CRITICAL: After ANY successful `edit_file` or `reapply` operation
