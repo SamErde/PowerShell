@@ -22,16 +22,15 @@
 - Always validate input parameters
 - Implement proper authentication and authorization checks
 
-# PowerShell Commit Message Template
+# Commit Message Template
 
-Generate commit messages for PowerShell projects using this format:
+Generate commit messages using this format:
 
 `<emoji><type>[optional scope]: <description>`
 
-Follow the GitMoji specifications at <https://conventional-emoji-commits.site/full-specification/specification> for
-commit messages. Tailor commit messages for PowerShell development, using the provided types and scopes.
+Follow the GitMoji specifications at <https://conventional-emoji-commits.site/full-specification/specification> for commit messages. Tailor commit messages for PowerShell development, using the provided types and scopes.
 
-## PowerShell-Specific Types:
+## Types
 - feat: ✨ New cmdlet, function, or module feature
 - fix: 🐛 Bug fix in PowerShell code
 - docs: 📚 Help documentation, comment-based help
@@ -46,7 +45,7 @@ commit messages. Tailor commit messages for PowerShell development, using the pr
 - packaging: 📦 Packaging changes, module version updates
 - security: 🔒 Security-related changes, input validation, authentication
 
-## PowerShell Scopes:
+## Scopes
 - module: Module-level changes
 - cmdlet: Specific cmdlet modifications
 - function: Function updates
@@ -54,9 +53,9 @@ commit messages. Tailor commit messages for PowerShell development, using the pr
 - manifest: Module manifest updates
 - tests: Test-related changes
 
-## Examples:
-✨feat(cmdlet): add Get-UserProfile with parameter validation  
-🐛fix(function): resolve Invoke-ApiCall error handling  
-📚docs(help): update comment-based help for Set-Configuration  
-🎨style(module): apply OTBS formatting and Pascal case  
-✅test(cmdlet): add Pester tests for Get-SystemInfo  
+## Examples
+✨ feat(cmdlet): add Get-UserProfile with parameter validation
+🐛 fix(function): resolve Invoke-ApiCall error handling
+📚 docs(help): update comment-based help for Set-Configuration
+🎨 style(module): apply OTBS formatting and Pascal case
+✅ test(cmdlet): add Pester tests for Get-SystemInfo
