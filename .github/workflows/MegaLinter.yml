@@ -18,6 +18,9 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   megalinter:
     name: MegaLinter
@@ -33,8 +36,13 @@ jobs:
     steps:
 
       # Git Checkout
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
 
@@ -47,7 +55,7 @@ jobs:
 
         # You can override MegaLinter flavor used to have faster performances
         # More info at https://megalinter.io/flavors/
-        uses: oxsecurity/megalinter/flavors/dotnet@v8
+        uses: oxsecurity/megalinter/flavors/dotnet@e08c2b05e3dbc40af4c23f41172ef1e068a7d651 # v8.8.0
 
         id: ml
 
@@ -87,7 +95,7 @@ jobs:
 
       # Upload MegaLinter artifacts
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: success() || failure()
         with:
           name: MegaLinter reports
