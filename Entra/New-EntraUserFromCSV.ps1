@@ -454,6 +454,34 @@ try {
                         Write-Host "`nScript execution stopped.`n" -ForegroundColor Red
                         exit 1
                     }
+
+                    # Check for invalid domain error
+                    if ($_.Exception.Message -match 'domain.*invalid|verified domain|InvalidValue.*userPrincipalName') {
+                        $errorDetails = if ($_.ErrorDetails.Message) {
+                            ($_.ErrorDetails.Message | ConvertFrom-Json).error.message
+                        }
+                        else {
+                            $_.Exception.Message
+                        }
+                        Write-Host "  FAILED: Invalid domain in UserPrincipalName" -ForegroundColor Red
+                        Write-Verbose "Domain validation error: $errorDetails"
+                        Write-Host "  Error: $errorDetails" -ForegroundColor Yellow
+
+                        # Continue to next user instead of stopping
+                        $failCount++
+                        $results.Add([PSCustomObject]@{
+                            UserPrincipalName = $userPrincipalName
+                            DisplayName       = $displayName
+                            Status            = 'Failed'
+                            Password          = $null
+                            ObjectId          = $null
+                            Error             = $errorDetails
+                        })
+                        Write-Verbose "  Error result stored in collection"
+                        Write-Host ""
+                        continue
+                    }
+
                     # Re-throw other errors to be caught by outer catch block
                     throw
                 }
