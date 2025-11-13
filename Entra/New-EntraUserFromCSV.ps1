@@ -458,14 +458,37 @@ try {
                     # Check for invalid domain error
                     if ($_.Exception.Message -match 'domain.*invalid|verified domain|InvalidValue.*userPrincipalName') {
                         $errorDetails = if ($_.ErrorDetails.Message) {
-                            ($_.ErrorDetails.Message | ConvertFrom-Json).error.message
+                            try {
+                                $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
+                                $mainMessage = $errorJson.error.message
+                                $targetInfo = if ($errorJson.error.details) {
+                                    $errorJson.error.details | ForEach-Object { "Target: $($_.target), Message: $($_.message)" }
+                                }
+                                else { $null }
+
+                                if ($targetInfo) {
+                                    "$mainMessage`n  Details: $($targetInfo -join '; ')"
+                                }
+                                else {
+                                    $mainMessage
+                                }
+                            }
+                            catch {
+                                $_.ErrorDetails.Message
+                            }
                         }
                         else {
                             $_.Exception.Message
                         }
+
                         Write-Host "  FAILED: Invalid domain in UserPrincipalName" -ForegroundColor Red
                         Write-Verbose "Domain validation error: $errorDetails"
                         Write-Host "  Error: $errorDetails" -ForegroundColor Yellow
+
+                        # Extract domain from UPN
+                        $domain = $userPrincipalName -replace '^[^@]+@', ''
+                        Write-Host "  Domain used: $domain (not verified in your tenant)" -ForegroundColor Yellow
+                        Write-Host "  Suggestion: Update the CSV to use a verified domain for your tenant" -ForegroundColor Cyan
 
                         # Continue to next user instead of stopping
                         $failCount++
@@ -475,7 +498,7 @@ try {
                             Status            = 'Failed'
                             Password          = $null
                             ObjectId          = $null
-                            Error             = $errorDetails
+                            Error             = "Invalid domain: $domain - $errorDetails"
                         })
                         Write-Verbose "  Error result stored in collection"
                         Write-Host ""
@@ -492,18 +515,51 @@ try {
             }
         }
         catch {
-            Write-Host "  FAILED: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Verbose "Error details: $($_.Exception | Format-List -Force | Out-String)"
+            # Parse error details from API response
+            $errorMessage = $_.Exception.Message
+            $detailedError = $errorMessage
+
+            if ($_.ErrorDetails.Message) {
+                try {
+                    $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
+                    if ($errorJson.error) {
+                        $detailedError = $errorJson.error.message
+
+                        # Add detailed information if available
+                        if ($errorJson.error.details) {
+                            $additionalDetails = $errorJson.error.details | ForEach-Object {
+                                "[$($_.target)]: $($_.message)"
+                            }
+                            $detailedError += "`n    " + ($additionalDetails -join "`n    ")
+                        }
+
+                        # Add inner error information if available
+                        if ($errorJson.error.innerError) {
+                            Write-Verbose "  Inner Error - Request ID: $($errorJson.error.innerError.'request-id')"
+                            Write-Verbose "  Inner Error - Date: $($errorJson.error.innerError.date)"
+                        }
+                    }
+                }
+                catch {
+                    Write-Verbose "Could not parse error details JSON: $_"
+                }
+            }
+
+            Write-Host "  FAILED: $detailedError" -ForegroundColor Red
+            Write-Verbose "Full error details: $($_.Exception | Format-List -Force | Out-String)"
+            Write-Verbose "Error category: $($_.CategoryInfo.Category)"
+            Write-Verbose "Error reason: $($_.CategoryInfo.Reason)"
+
             $failCount++
 
-            # Store error result
+            # Store error result with detailed information
             $results.Add([PSCustomObject]@{
                 UserPrincipalName = $userPrincipalName
                 DisplayName       = $displayName
                 Status            = 'Failed'
                 Password          = $null
                 ObjectId          = $null
-                Error             = $_.Exception.Message
+                Error             = $detailedError
             })
             Write-Verbose "  Error result stored in collection"
         }
