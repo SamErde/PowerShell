@@ -9,8 +9,8 @@ Configuration for AI behavior when interacting with Codacy's MCP Server
 ## using any tool that accepts the arguments: `provider`, `organization`, or `repository`
 - ALWAYS use:
  - provider: gh
- - organization: SamErde
- - repository: PowerShell
+ - organization: MicrosoftLearning
+ - repository: Guided-project-Build-an-Autosuggest-Engine-with-Copilot
 - Avoid calling `git remote -v` unless really necessary
 
 ## CRITICAL: After ANY successful `edit_file` or `reapply` operation
