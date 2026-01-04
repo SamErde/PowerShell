@@ -39,6 +39,10 @@
     Durations of 1 minute or longer do not show fractional (decimal) values.
     Zero-value components are omitted from multi-component output for cleaner formatting.
 
+    Author: Sam Erde, Sentinel Technologies, Inc
+    Version: 1.0.0
+    Date: 2026-01-04
+
     .LINK
     New-TimeSpan
     https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-timespan
