@@ -7,14 +7,17 @@ function Get-AverageExecutionTime {
         Get the average time that it takes to execute a scriptblock. By default, the script block is run 50 times.
 
     .NOTES
-
+        Author: Sam Erde
+        Version: 1.1
+        Date: 2026-01-05
 
     .EXAMPLE
-        [scriptblock]$Scriptblock = { $TypeAccellerators = [System.Management.Automation.PSObject].Assembly.GetType("System.Management.Automation.TypeAccelerators")::Get | Sort-Object }
-        Get-AvgExecutionTime $Scriptblock
+        [scriptblock]$Scriptblock = { $TypeAccelerators = [System.Management.Automation.PSObject].Assembly.GetType("System.Management.Automation.TypeAccelerators")::Get | Sort-Object }
+        Get-AverageExecutionTime $Scriptblock
 
     #>
     [CmdletBinding()]
+    [OutputType([double])]
     param (
         [Parameter(
             Mandatory = $true,
@@ -36,31 +39,21 @@ function Get-AverageExecutionTime {
     process {
         # Run the command $Count times
         for ($i = 0; $i -lt $Count; $i++) {
-            # Get the current time before execution
-            $StartTime = Get-Date
+            # Measure the execution time
+            $RunTime = Measure-Command -Expression { $Scriptblock.Invoke() }
 
-            # Execute the command
-            $Scriptblock.Invoke()
+            Write-Verbose "The total runtime for run $($i + 1) was $($RunTime.TotalMilliseconds) ms."
 
-            # Get the current time after execution
-            $EndTime = Get-Date
-
-            $RunTime = New-TimeSpan -Start $StartTime -End $EndTime
-            Write-Verbose "The total runtime for run $($i + 1) was $($RunTime.TotalMilliseconds)."
-
-            #Or.....just use this!
-            # $RunTime = Measure-Command -Expression { $Scriptblock.Invoke() }
-
-            # Calculate the execution time and add it to the total time
+            # Add the execution time to the total time
             $TotalTime = $TotalTime.Add($RunTime)
         }
 
-        # Calculate the average execution time
-        $AverageTime = $($TotalTime.Milliseconds) / $Count
+        # Calculate the average execution time in milliseconds
+        $AverageTime = $TotalTime.TotalMilliseconds / $Count
     }
 
     end {
-        Write-Verbose "The average execution time for your scriptblock was $($AverageTime.Milliseconds) ms."
-        Return $AverageTime
+        Write-Verbose "The average execution time for your scriptblock was $AverageTime ms."
+        return $AverageTime
     }
 }
