@@ -80,45 +80,38 @@
     process {
         $TotalMilliseconds = $TimeSpan.TotalMilliseconds
 
-        # Handle zero timespan
         if ($TotalMilliseconds -eq 0) {
-            "0$SecondLabel"
+            # Handle zero timespan
+            $Output = "0$SecondLabel"
+
         } elseif ($TotalMilliseconds -lt 1) {
-            "{0:N2}$MicrosecondLabel" -f ($TotalMilliseconds * 1000)
+            $Output = "{0:N2}$MicrosecondLabel" -f ($TotalMilliseconds * 1000)
+
         } elseif ($TotalMilliseconds -lt 1000) {
-            "{0:N2}$MillisecondLabel" -f $TotalMilliseconds
+            $Output = "{0:N2}$MillisecondLabel" -f $TotalMilliseconds
+
         } elseif ($TimeSpan.TotalSeconds -lt 60) {
-            "{0:N2}$SecondLabel" -f $TimeSpan.TotalSeconds
+            $Output = "{0:N2}$SecondLabel" -f $TimeSpan.TotalSeconds
+
         } elseif ($TimeSpan.TotalMinutes -lt 60) {
             # Build output with non-zero components only
             $Output = "{0:N0}$MinuteLabel" -f $TimeSpan.Minutes
-            if ($TimeSpan.Seconds -gt 0) {
-                $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds
-            }
-            $Output
+            if ($TimeSpan.Seconds -gt 0) { $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds }
+
         } elseif ($TimeSpan.TotalHours -lt 24) {
             # Build output with non-zero components only
             $Output = "{0:N0}$HourLabel" -f $TimeSpan.Hours
-            if ($TimeSpan.Minutes -gt 0) {
-                $Output += " {0:N0}$MinuteLabel" -f $TimeSpan.Minutes
-            }
-            if ($TimeSpan.Seconds -gt 0) {
-                $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds
-            }
-            $Output
+            if ($TimeSpan.Minutes -gt 0) { $Output += " {0:N0}$MinuteLabel" -f $TimeSpan.Minutes }
+            if ($TimeSpan.Seconds -gt 0) { $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds }
+
         } else {
             # Build output with non-zero components only
             $Output = "{0:N0}$DayLabel" -f $TimeSpan.Days
-            if ($TimeSpan.Hours -gt 0) {
-                $Output += " {0:N0}$HourLabel" -f $TimeSpan.Hours
-            }
-            if ($TimeSpan.Minutes -gt 0) {
-                $Output += " {0:N0}$MinuteLabel" -f $TimeSpan.Minutes
-            }
-            if ($TimeSpan.Seconds -gt 0) {
-                $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds
-            }
-            $Output
+            if ($TimeSpan.Hours -gt 0)   { $Output += " {0:N0}$HourLabel" -f $TimeSpan.Hours }
+            if ($TimeSpan.Minutes -gt 0) { $Output += " {0:N0}$MinuteLabel" -f $TimeSpan.Minutes }
+            if ($TimeSpan.Seconds -gt 0) { $Output += " {0:N0}$SecondLabel" -f $TimeSpan.Seconds }
         }
+
+    $Output
     }
 }
