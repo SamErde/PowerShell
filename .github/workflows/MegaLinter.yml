@@ -3,16 +3,17 @@
 ---
 name: MegaLinter
 
-# Trigger mega-linter at every push. Action will also be visible from Pull
-# Requests to main
+# Trigger MegaLinter for pull requests, then re-check the merged result on main.
 on:
-  # Comment this line to trigger action only on pull-requests
-  # (not recommended if you don't pay for GH Actions)
   push:
+    branches:
+      - main
 
   pull_request:
     branches:
       - main
+
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -26,11 +27,8 @@ jobs:
     name: MegaLinter
     runs-on: ubuntu-latest
 
-    # Give the default GITHUB_TOKEN write permission to commit and push, comment
-    # issues & post new PR; remove the ones you do not need
     permissions:
       contents: read
-      issues: read
       pull-requests: read
 
     steps:
@@ -44,11 +42,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
-          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
-
-          # If you use VALIDATE_ALL_CODEBASE = true, you can remove this line to
-          # improve performance
-          fetch-depth: 0
+          # Pull requests need history for diff linting; main pushes validate all code.
+          fetch-depth: ${{ github.event_name == 'pull_request' && '0' || '1' }}
 
       # MegaLinter
       - name: MegaLinter
