@@ -22,8 +22,7 @@ $registryPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\MfaRequiredI
 $registryValueName = 'Verify Multi-factor Authentication in ClipRenew'
 $registryValueData = 0  # DWORD value of 0
 $sid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-4')
-# SID for the Everyone group
-# or SID S-1-5-4 for the interactive group
+# SID S-1-5-4 is the Interactive group.
 
 # Check if the registry key already exists
 if (-not (Test-Path -Path $registryPath)) {
@@ -35,7 +34,7 @@ if (-not (Test-Path -Path $registryPath)) {
     Write-Output 'Registry key already exists. No changes made.'
 }
 
-# Add read permissions for SID (S-1-1-0, Everyone) to the registry key with inheritance
+# Add read permissions for the Interactive SID (S-1-5-4) to the registry key with inheritance
 $acl = Get-Acl -Path $registryPath
 $ruleSID = New-Object System.Security.AccessControl.RegistryAccessRule($sid, 'ReadKey', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
 $acl.AddAccessRule($ruleSID)

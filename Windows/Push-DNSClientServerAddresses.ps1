@@ -42,6 +42,6 @@ foreach ($server in $servers)
         Write-Output "Failed to change the DNS client server address on $serverName"
     }
     finally {
-        if ($s) { Remove-PSSession -Session $s }
+        if ($s) { Remove-PSSession -Session $s -ErrorAction SilentlyContinue }
     }
 } # End foreach server loop.

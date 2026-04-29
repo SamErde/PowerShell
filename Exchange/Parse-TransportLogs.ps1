@@ -56,7 +56,7 @@ foreach ($item in $TestSet) {
     $item.MessageID = $data
     $item.Subject = $subject
     try {
-        $item.Hostname = ([System.Net.DNS]::GetHostbyAddress($item.IPAddress)).Hostname
+        $item.Hostname = ([System.Net.DNS]::GetHostEntry($item.IPAddress)).HostName
     } catch {
         # Hostname not found for this IP; leave blank.
     }
