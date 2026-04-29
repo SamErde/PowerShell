@@ -18,9 +18,9 @@ foreach ($IP in $ListOfIPs) {
 
     Write-Host "Resolving $IP" -ForegroundColor Green
     try {
-        $result = [System.Net.Dns]::gethostentry($IP)
+        $Result = [System.Net.Dns]::GetHostEntry($IP)
     } catch {
-        $result = $null
+        $Result = $null
     }
 
     If ($Result) {
