@@ -15,7 +15,6 @@ function Get-ADObjectFromPipeline {
 
     begin {
         Import-Module ActiveDirectory
-        $GlobalCatalog = Get-ADDomainController -Discover -Service GlobalCatalog
     }
 
     process {
@@ -36,25 +35,15 @@ function Get-ADObjectFromPipeline {
         switch ($IdentityType) {
             'user' {
                 # Not Complete
-                $User = Get-ADUser -Identity $Identity -Properties PrimaryGroup,SidHistory
+                Get-ADUser -Identity $Identity -Properties PrimaryGroup,SidHistory
             }
             'computer' {
                 # Not Complete
-                $Computer = Get-ADComputer -Identity $Identity -Properties PrimaryGroup,SidHistory
+                Get-ADComputer -Identity $Identity -Properties PrimaryGroup,SidHistory
             }
             Default {
                 Write-Error "Identity type not supported."
             }
-        }
-    }
-
-    end {
-        # Do something and/or return the resulting object to the pipeline.
-        if ($User) {
-            $User
-        }
-        if ($Computer) {
-            $Computer
         }
     }
 }

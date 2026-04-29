@@ -25,7 +25,7 @@
 		Specify that you want to retrieve all the indirect users under the account
 
 	.EXAMPLE
-		Get-ADDirectReports -Identity Test_director
+		Get-ADDirectReport -Identity Test_director
 
 Name                SamAccountName      Mail                Manager
 ----                --------------      ----                -------
@@ -33,7 +33,7 @@ test_managerB       test_managerB       test_managerB@la... test_director
 test_managerA       test_managerA       test_managerA@la... test_director
 
 	.EXAMPLE
-		Get-ADDirectReports -Identity Test_director -Recurse
+		Get-ADDirectReport -Identity Test_director -Recurse
 
 Name                SamAccountName      Mail                Manager
 ----                --------------      ----                -------
@@ -56,7 +56,7 @@ test_userA1         test_userA1         test_userA1@lazy... test_managerA
             IF (-not (Get-Module -Name ActiveDirectory)) { Import-Module -Name ActiveDirectory -ErrorAction 'Stop' -Verbose:$false }
         } CATCH {
             Write-Verbose -Message '[BEGIN] Something wrong happened'
-            Write-Verbose -Message $Error[0].Exception.Message
+            Write-Verbose -Message $_.Exception.Message
         }
     }
     PROCESS {
@@ -69,9 +69,9 @@ test_userA1         test_userA1         test_userA1@lazy... test_managerA
                         ForEach-Object -Process {
                             $_.directreports | ForEach-Object -Process {
                                 # Output the current object with the properties Name, SamAccountName, Mail and Manager
-                                Get-ADUser -Identity $PSItem -Properties mail, manager, DistinguishedName | Select-Object -Property Name, SamAccountName, DistinguishedName, Mail, @{ Name = 'Manager'; Expression = { (Get-ADUser -Identity $psitem.manager).samaccountname } } | Where-Object { $_.DistinguishedName -like '*,OU=Employees,OU=People,DC=DOMAINNAME,DC=org' }
+                                Get-ADUser -Identity $PSItem -Properties mail, manager, DistinguishedName | Select-Object -Property Name, SamAccountName, DistinguishedName, Mail, @{ Name = 'Manager'; Expression = { (Get-ADUser -Identity $psitem.manager).samaccountname } }
                                 # Gather DirectReports under the current object and so on...
-                                Get-ADDirectReports -Identity $PSItem -Recurse
+                                Get-ADDirectReport -Identity $PSItem -Recurse
                             }
                         }
                 }#IF($PSBoundParameters['Recurse'])
@@ -84,7 +84,7 @@ test_userA1         test_userA1         test_userA1@lazy... test_managerA
             }#TRY
             CATCH {
                 Write-Verbose -Message '[PROCESS] Something wrong happened'
-                Write-Verbose -Message $Error[0].Exception.Message
+                Write-Verbose -Message $_.Exception.Message
             }
         }
     }
@@ -95,8 +95,8 @@ test_userA1         test_userA1         test_userA1@lazy... test_managerA
 
 <#
 # Find all direct user reporting to Test_director
-Get-ADDirectReports -Identity Test_director
+Get-ADDirectReport -Identity Test_director
 
 # Find all Indirect user reporting to Test_director
-Get-ADDirectReports -Identity Test_director -Recurse
+Get-ADDirectReport -Identity Test_director -Recurse
 #>

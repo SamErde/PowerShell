@@ -18,9 +18,6 @@
 #
 # ============================================================
 
-#Import the Active Directory module so we can work with AD groups.
-Import-Module ActiveDirectory
-
 # TODO: This script requires customization before running. The $Domain, archive paths,
 # TODO: group identity/OU values in the loop, and Move-ADObject target path must all be set
 # TODO: for your environment. See inline TODO comments below.
@@ -35,6 +32,9 @@ param (
     [string]
     $GroupListPath = 'C:\Scripts\ObsoleteGroups\ObsoleteGroups.csv'
 )
+
+#Import the Active Directory module so we can work with AD groups.
+Import-Module ActiveDirectory
 
 #Read in the CSV or text file of group names.
 $File = Get-Content -Path $GroupListPath

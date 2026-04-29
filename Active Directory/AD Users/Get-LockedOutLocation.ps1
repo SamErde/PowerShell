@@ -33,8 +33,7 @@
         try {
             Import-Module ActiveDirectory -ErrorAction Stop
         } catch {
-            Write-Warning $_
-            break
+            throw "Failed to import the ActiveDirectory module. $($_.Exception.Message)"
         }
     }#end begin
     process {

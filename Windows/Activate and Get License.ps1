@@ -3,9 +3,17 @@
 
 # Activate Windows
 $ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
-Invoke-Expression "cscript /b C:\Windows\System32\slmgr.vbs -ipk $ProductKey"
+if ([string]::IsNullOrWhiteSpace($ProductKey)) {
+    throw 'No OEM product key was found in SoftwareLicensingService.OA3xOriginalProductKey.'
+}
+
+if ($ProductKey -notmatch '^[A-Z0-9]{5}(-[A-Z0-9]{5}){4}$') {
+    throw 'The product key returned by SoftwareLicensingService.OA3xOriginalProductKey is not in the expected format.'
+}
+
+& "$env:SystemRoot\System32\cscript.exe" '/b' "$env:SystemRoot\System32\slmgr.vbs" '-ipk' $ProductKey
 Start-Sleep 5
-Invoke-Expression 'cscript /b C:\Windows\System32\slmgr.vbs -ato'
+& "$env:SystemRoot\System32\cscript.exe" '/b' "$env:SystemRoot\System32\slmgr.vbs" '-ato'
 
 
 
@@ -14,8 +22,7 @@ $registryPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\MfaRequiredI
 $registryValueName = 'Verify Multi-factor Authentication in ClipRenew'
 $registryValueData = 0  # DWORD value of 0
 $sid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-4')
-# SID for the Everyone group
-# or SID S-1-5-4 for the interactive group
+# SID S-1-5-4 is the Interactive group.
 
 # Check if the registry key already exists
 if (-not (Test-Path -Path $registryPath)) {
@@ -27,7 +34,7 @@ if (-not (Test-Path -Path $registryPath)) {
     Write-Output 'Registry key already exists. No changes made.'
 }
 
-# Add read permissions for SID (S-1-1-0, Everyone) to the registry key with inheritance
+# Add read permissions for the Interactive SID (S-1-5-4) to the registry key with inheritance
 $acl = Get-Acl -Path $registryPath
 $ruleSID = New-Object System.Security.AccessControl.RegistryAccessRule($sid, 'ReadKey', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
 $acl.AddAccessRule($ruleSID)
