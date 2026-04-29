@@ -14,11 +14,14 @@ $ResultList = @()
 
 
 foreach ($IP in $ListOfIPs) {
-    $ErrorActionPreference = 'silentlycontinue'
     $Result = $null
 
     Write-Host "Resolving $IP" -ForegroundColor Green
-    $result = [System.Net.Dns]::gethostentry($IP)
+    try {
+        $Result = [System.Net.Dns]::GetHostEntry($IP)
+    } catch {
+        $Result = $null
+    }
 
     If ($Result) {
         $ResultList += "$IP," + [string]$Result.HostName

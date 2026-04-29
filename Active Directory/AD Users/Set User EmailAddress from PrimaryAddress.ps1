@@ -32,7 +32,7 @@ Write-Progress -Id 1 -Activity $MainScriptActivity -Status $MainScriptStatus -Pe
 foreach ($user in $users)
 {
     $i++
-    Write-Progress -Id 2 -Activity $UserLoopActivity -Status "$i of $userCount - $user.Name" -PercentComplete ($i / $userCount * 100) -ParentId 1
+    Write-Progress -Id 2 -Activity $UserLoopActivity -Status "$i of $userCount - $($user.Name)" -PercentComplete ($i / $userCount * 100) -ParentId 1
 
     $addresses = $user | Select-Object -ExpandProperty ProxyAddresses
     If ($addresses)
