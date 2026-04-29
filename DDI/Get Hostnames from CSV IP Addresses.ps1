@@ -10,7 +10,7 @@ $IPAddressList | foreach-object {
         $_.Hostname = ([System.Net.Dns]::GetHostEntry($ip)).HostName
     }
     catch {
-        Write-Error $error[0] #.Exception.Message.Split(':')[1]
+        Write-Error $_ #.Exception.Message.Split(':')[1]
     }
 }
 # Write the data back to the CSV with the hostnames added.

@@ -73,7 +73,7 @@
         Write-Verbose 'Active Directory module imported successfully'
     } catch {
         Write-Error "Failed to import Active Directory module: $($_.Exception.Message)"
-        break 1
+        return
     }
 
     # Calculate the cutoff date and its file time representation for the AD filter.
@@ -99,7 +99,7 @@
         Write-Host "Found $($InactiveUsersResult.Count) inactive user account(s)." -ForegroundColor Green
     } catch {
         Write-Error "Failed to get user accounts: $($_.Exception.Message)"
-        break 1
+        return
     }
 
     $InactiveUsers = @()

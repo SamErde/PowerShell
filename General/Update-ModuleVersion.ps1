@@ -87,7 +87,7 @@
         }
 
         if ("$NewVersion$PrereleaseTag" -notmatch $PatternValidation) {
-            Write-Error -Message "The prerelease version '$PrereleaseVersion' is not a valid semantic version." -ErrorAction Continue
+            Write-Error -Message "The prerelease version '$NewVersion$PrereleaseTag' is not a valid semantic version." -ErrorAction Continue
         } else {
             $matches | Write-Debug -Debug
             foreach ($match in $matches.GetEnumerator()) {

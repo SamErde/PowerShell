@@ -48,7 +48,7 @@
             $DCCounter++
             Write-Progress -Activity 'Contacting DCs for lockout info' -Status "Querying $($DC.Hostname)" -PercentComplete (($DCCounter / $DomainControllers.Count) * 100)
             try {
-                $UserInfo = Get-ADUser -Identity $Identity -Server $DC.Hostname -Properties AccountLockoutTime, LastBadPasswordAttempt, BadPwdCount, LockedOut -ErrorAction Stop
+                $UserInfo = Get-ADUser -Identity $Identity -Server $DC.Hostname -Properties AccountLockoutTime, BadPasswordTime, LastBadPasswordAttempt, BadPwdCount, LockedOut -ErrorAction Stop
             } catch {
                 Write-Warning $_
                 continue
