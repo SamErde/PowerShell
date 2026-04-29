@@ -30,7 +30,7 @@ function Export-AllUserGroupMemberships {
     process {
         # Get all users in the domain and their group memberships.
         Write-Verbose -Message 'Getting all enabled users in the domain.'
-        $Users = Get-ADUser -Filter 'Enabled -eq $true' -Properties EmployeeId, memberOf |
+        $Users = Get-ADUser -Filter { Enabled -eq $true } -Properties EmployeeId, memberOf |
             Select-Object Name, DisplayName, samAccountName, userPrincipalName, EmployeeId, memberOf
         Write-Verbose -Message "  - Found $($Users.Count) users in the domain."
 

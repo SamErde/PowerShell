@@ -48,7 +48,7 @@
             $DCCounter++
             Write-Progress -Activity 'Contacting DCs for lockout info' -Status "Querying $($DC.Hostname)" -PercentComplete (($DCCounter / $DomainControllers.Count) * 100)
             try {
-                $UserInfo = Get-ADUser -Identity $Identity -Server $DC.Hostname -Properties AccountLockoutTime, LastBadPasswordAttempt, BadPwdCount, LockedOut -ErrorAction Stop
+                $UserInfo = Get-ADUser -Identity $Identity -Server $DC.Hostname -Properties AccountLockoutTime, BadPasswordTime, LastBadPasswordAttempt, BadPwdCount, LockedOut -ErrorAction Stop
             } catch {
                 Write-Warning $_
                 continue
@@ -74,7 +74,7 @@
             $LockedOutEvents = Get-WinEvent -ComputerName $PDCEmulator.HostName -FilterHashtable @{LogName = 'Security'; Id = 4740 } -ErrorAction Stop | Sort-Object -Property TimeCreated -Descending
         } catch {
             Write-Warning $_
-            continue
+            return
         }#end catch
 
         foreach ($item in $LockedOutEvents) {

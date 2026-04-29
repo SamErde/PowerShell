@@ -57,7 +57,7 @@ function Get-ADUserTransitiveGroupMembership {
         }
 
         $CurrentProgressPreference = Get-Variable -Name ProgressPreference -ValueOnly
-        Set-Variable -Name ProgressPreference 'SilentlyContinue' -Force -Scope Global -ErrorAction SilentlyContinue
+        Set-Variable -Name ProgressPreference -Value 'SilentlyContinue' -Force -Scope Global -ErrorAction SilentlyContinue
         # Check if the global catalog server is available on the specified port.
         if (-not (Test-NetConnection -ComputerName $Server -Port $Port -InformationLevel Quiet -ErrorAction SilentlyContinue)) {
             if (-not (Test-NetConnection -ComputerName $Server -Port $AltPort -InformationLevel Quiet -ErrorAction SilentlyContinue)) {
@@ -80,10 +80,11 @@ function Get-ADUserTransitiveGroupMembership {
         $TransitiveMemberOfGroupDNs = foreach ($result in ($results.properties)) {
             $result['distinguishedname']
         }
+        # Emit deduplicated results per user in process block so pipeline results are not overwritten.
+        $TransitiveMemberOfGroupDNs | Sort-Object -Unique
     }
 
     end {
-        $TransitiveMemberOfGroupDNs | Sort-Object -Unique
         Remove-Variable Filter, TransitiveMemberOfGroupDNs, Results, Searcher, Server, Port, UserDN -ErrorAction SilentlyContinue
     }
 } # end function Get-ADUserTransitiveGroupMembership

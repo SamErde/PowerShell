@@ -21,11 +21,23 @@
 #Import the Active Directory module so we can work with AD groups.
 Import-Module ActiveDirectory
 
-#Set the Active Directory server name that will be used. Using a serverless domain name here may also work.
-$Domain = ''
+# TODO: This script requires customization before running. The $Domain, archive paths,
+# TODO: group identity/OU values in the loop, and Move-ADObject target path must all be set
+# TODO: for your environment. See inline TODO comments below.
+param (
+    # The Active Directory domain controller or domain name to run against.
+    [Parameter(Mandatory)]
+    [string]
+    $Domain,
+
+    # Path to the file listing obsolete group names (one per line).
+    [Parameter()]
+    [string]
+    $GroupListPath = 'C:\Scripts\ObsoleteGroups\ObsoleteGroups.csv'
+)
 
 #Read in the CSV or text file of group names.
-$File = Get-Content -Path C:\Scripts\ObsoleteGroups\ObsoleteGroups.csv
+$File = Get-Content -Path $GroupListPath
 
 #Loop through each line of the text file and run the following commands for each line:
 Foreach ($Group in $File) {
@@ -37,11 +49,13 @@ Foreach ($Group in $File) {
         This section will require special customization until we further develop the script to pull the full group DN.
         In the interest of time today, I have hard coded some of the information.
         * * * * * * * * * *
-    /#>
+    #>
+    # TODO: Replace the -group, -ou, and -domain placeholder values with real values for your environment.
     .\Remove-AllGroupMembers.ps1 -group "CN=$Group" -ou 'OU=' -domain 'DC='
+    # TODO: Replace -Identity and -TargetPath with the correct DN values for your environment.
     Move-ADObject -Server $Domain -Identity 'CN=ps,DC=' -TargetPath ''
 }
 
 #Copy and rename the CSV file with a timestamp to keep as a record of run history.
-$timeStamp = Get-Date -Format 'yyyy-MM-dd hh-m-ss'
-Copy-Item -Path C:\Scripts\ObsoleteGroups\ObsoleteGroups.csv -Destination "C:\Scripts\ObsoleteGroups\Run History\ObsoleteGroups $timeStamp.csv"
+$timeStamp = Get-Date -Format 'yyyy-MM-dd HH-mm-ss'
+Copy-Item -Path $GroupListPath -Destination "C:\Scripts\ObsoleteGroups\Run History\ObsoleteGroups $timeStamp.csv"

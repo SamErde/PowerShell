@@ -13,10 +13,9 @@
   http://blog.chrislehr.com/2015/07/parse-transportlogs-which-ips-on-my.html
 #>
 
-Set-ExecutionPolicy RemoteSigned
 $ExchangeCredential = Get-Credential -Message "Please enter credentials to connect to your Exchange Server. `nThis will be used to pull message subject lines from the tracking logs."
 $ExchangeServer = Read-Host 'Please specify an Exchange Server name.'
-$ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://$ExchangeServer.DOMAINNAME.org/PowerShell/ -Authentication Kerberos -Credential $ExchangeCredential
+$ExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri "http://$ExchangeServer/PowerShell/" -Authentication Kerberos -Credential $ExchangeCredential
 Import-PSSession $ExchangeSession -DisableNameChecking
 
 $SMTPLogPath = Read-Host "`nWhat is the path of the folder containing your SMTP transport logs?"
@@ -47,13 +46,20 @@ foreach ($item in $TestSet) {
     $testProgress++; $testPercent = [math]::Round(($testProgress / $testCount), 2) * 100
     Write-Progress -Activity "Parsing message $testProgress of $testCount." -Status "$testPercent% complete" -PercentComplete $testPercent
 
-    $data = ($item.data.split('<')[1]).Split('>')[0]
+    $splitData = $item.data.Split('<')
+    if ($splitData.Count -lt 2) {
+        Write-Warning "Skipping item with no message-id delimiter: $($item.data)"
+        continue
+    }
+    $data = $splitData[1].Split('>')[0]
     $subject = (Get-MessageTrackingLog -MessageId $data).MessageSubject | Select-Object -Unique
     $item.MessageID = $data
     $item.Subject = $subject
-    $ErrorActionPreference = 'SilentlyContinue' #To avoid ambiguous error output if/when a hostname is not found.
-    $item.Hostname = ([System.Net.DNS]::GetHostbyAddress($item.IPAddress)).Hostname
-    $ErrorActionPreference = 'Continue'
+    try {
+        $item.Hostname = ([System.Net.DNS]::GetHostbyAddress($item.IPAddress)).Hostname
+    } catch {
+        # Hostname not found for this IP; leave blank.
+    }
 }
 
 Remove-PSSession $ExchangeSession.Id

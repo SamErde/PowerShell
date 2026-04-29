@@ -29,12 +29,10 @@ if (-not (Test-Path -Path $registryPath)) {
 
 # Add read permissions for SID (S-1-1-0, Everyone) to the registry key with inheritance
 $acl = Get-Acl -Path $registryPath
-$ruleSID = New-Object System.Security.AccessControl.RegistryAccessRule($sid, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+$ruleSID = New-Object System.Security.AccessControl.RegistryAccessRule($sid, 'ReadKey', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
 $acl.AddAccessRule($ruleSID)
 Set-Acl -Path $registryPath -AclObject $acl
-Write-Output "Added 'Interactive' group and SID ($sid) with read permissions (with inheritance) to the registry key."
+Write-Output "Added 'Interactive' group and SID ($sid) with read (ReadKey) permissions (with inheritance) to the registry key."
 
 #Remove the # below to make sure it will kick off the scheduled task on already enrolled devices
 Start-Process "$env:SystemRoot\system32\ClipRenew.exe"
-
-$ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
