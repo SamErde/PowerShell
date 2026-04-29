@@ -74,7 +74,7 @@
             $LockedOutEvents = Get-WinEvent -ComputerName $PDCEmulator.HostName -FilterHashtable @{LogName = 'Security'; Id = 4740 } -ErrorAction Stop | Sort-Object -Property TimeCreated -Descending
         } catch {
             Write-Warning $_
-            continue
+            return
         }#end catch
 
         foreach ($item in $LockedOutEvents) {

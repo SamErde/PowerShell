@@ -52,7 +52,7 @@ begin {
                         Get-ADUserTransitiveGroupMembership -UserDN $_.DistinguishedName
                     }
                 }
-            Write-Verbose -Message "  - Found $($UserCount) users in the domain."
+            Write-Verbose -Message "  - Found $($Users.Count) users in the domain."
 
             # Export the data to a JSON file.
             $JsonData = $Users | ConvertTo-Json

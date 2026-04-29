@@ -4,6 +4,7 @@
     param (
 
         # Specify the version to update from (or read from a module manifest).
+        [Parameter(Mandatory)]
         [version] $InputVersion,
 
         # Basic version switches.

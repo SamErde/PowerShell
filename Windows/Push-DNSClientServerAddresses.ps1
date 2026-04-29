@@ -1,5 +1,20 @@
+[CmdletBinding()]
+param (
+    # The OU or container in Active Directory to search for servers.
+    [Parameter(Mandatory)]
+    [string] $SearchBase,
+
+    # The Active Directory domain controller to query.
+    [Parameter(Mandatory)]
+    [string] $ADServer,
+
+    # The DNS server addresses to assign to network adapters on the target servers.
+    [Parameter(Mandatory)]
+    [string[]] $DNSServerAddresses
+)
+
 Import-Module ActiveDirectory
-$servers = Get-ADComputer -SearchBase "" -Server "" -SearchScope Subtree -Filter *
+$servers = Get-ADComputer -SearchBase $SearchBase -Server $ADServer -SearchScope Subtree -Filter *
 foreach ($server in $servers)
 {
     # Connect to the server.
@@ -20,7 +35,7 @@ foreach ($server in $servers)
     try {
         Invoke-Command -Session $s -ScriptBlock {
             Get-NetIPInterface | Get-DnsClientServerAddress | Where-Object { $_.ServerAddresses -like '10.10.10.*' } |
-                Set-DnsClientServerAddress -ServerAddresses ('', '', '') -Verbose
+                Set-DnsClientServerAddress -ServerAddresses $using:DNSServerAddresses -Verbose
         }
     }
     catch {

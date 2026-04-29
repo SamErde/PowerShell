@@ -16,7 +16,10 @@ function Get-ADObjectFromPipeline {
     begin {
         Import-Module ActiveDirectory
         $GlobalCatalog = Get-ADDomainController -Discover -Service GlobalCatalog
+    }
 
+    process {
+        # Resolve identity type in process block where pipeline input ($Identity) is available.
         if ($Identity -is [Microsoft.ActiveDirectory.Management.ADUser]) {
             # We have an ADUser object
             # Might want to normalize the type to an ADObject IF we can get sidHistory from an ADObject
@@ -30,9 +33,6 @@ function Get-ADObjectFromPipeline {
             $Identity = Get-ADObject -Filter "Name -eq `"$Identity`""
         }
         $IdentityType = $Identity.ObjectClass
-    }
-
-    process {
         switch ($IdentityType) {
             'user' {
                 # Not Complete

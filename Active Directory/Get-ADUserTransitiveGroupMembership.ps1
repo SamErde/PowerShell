@@ -80,10 +80,11 @@ function Get-ADUserTransitiveGroupMembership {
         $TransitiveMemberOfGroupDNs = foreach ($result in ($results.properties)) {
             $result['distinguishedname']
         }
+        # Emit deduplicated results per user in process block so pipeline results are not overwritten.
+        $TransitiveMemberOfGroupDNs | Sort-Object -Unique
     }
 
     end {
-        $TransitiveMemberOfGroupDNs | Sort-Object -Unique
         Remove-Variable Filter, TransitiveMemberOfGroupDNs, Results, Searcher, Server, Port, UserDN -ErrorAction SilentlyContinue
     }
 } # end function Get-ADUserTransitiveGroupMembership

@@ -96,7 +96,7 @@
 
         if ($CheckAllDCs) {
             # Skip the check across all DCs if there is already a LastLogonDate within the past 14 days and if the most recent logon is more recent than the inactive date threshold.
-            if ( $MostRecentLogon -lt (Get-Date).AddDays(-14) -and (-not $MostRecentLogon -lt $InactiveDate) ) {
+            if ( $MostRecentLogon -lt (Get-Date).AddDays(-14) -and (-not ($MostRecentLogon -lt $InactiveDate)) ) {
                     # Check LastLogon (non-replicated) on every domain controller.
                     foreach ($DC in $DomainControllers) {
                         try {
@@ -143,7 +143,7 @@
 
         # Optional: Export to CSV
         if ($PSBoundParameters.ContainsKey('ExportCSV')) {
-            $ExportPath = ".\InactiveUsers_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+            $ExportPath = if ($ExportCSV) { $ExportCSV } else { ".\InactiveUsers_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv" }
             $Results | Export-Csv -Path $ExportPath -NoTypeInformation
             Write-Host "Results exported to: $ExportPath" -ForegroundColor Green
         }
