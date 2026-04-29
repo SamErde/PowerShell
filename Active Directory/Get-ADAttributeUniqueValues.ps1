@@ -47,7 +47,7 @@ function Get-ADAttributeUniqueValues {
         [ValidateNotNullOrEmpty()]
         [ValidateSet('company', 'country', 'department', 'homeDrive', 'l', 'physicalDeliveryOfficeName', 'postalCode', 'state', 'streetAddress', 'title')]
         [string[]]
-        $AttributesToCheck = @('Company', 'Department', 'Office', 'Title'),
+        $AttributesToCheck = @('company', 'department', 'physicalDeliveryOfficeName', 'title'),
 
         # The directory to save the exported JSON file in. (Optional, defaults to C:\Temp.)
         [Parameter()]

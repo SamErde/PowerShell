@@ -18,7 +18,7 @@ $Modules = @(
     'Az.MySql',
     'Az.Network',
     'Az.Nginx',
-    'Az.RedisCache'
+    'Az.RedisCache',
     'Az.Sql',
     'Az.SqlVirtualMachine',
     'Az.StackHCI',

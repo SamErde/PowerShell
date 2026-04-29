@@ -5,10 +5,10 @@ foreach ($server in $servers)
     # Connect to the server.
     $serverName = $server.Name
     Write-Output "Connecting to $serverName"
+    $s = $null
     try {
-        # Create and connect to the PSSession.
-        $s = New-PSSession -ComputerName $serverName
-        Enter-PSSession $s -ErrorAction SilentlyContinue
+        # Create the PSSession. Enter-PSSession is interactive-only and cannot redirect script commands remotely.
+        $s = New-PSSession -ComputerName $serverName -ErrorAction Stop
     }
     catch {
         # Log the failure and continue the for loop on the next item.
@@ -16,13 +16,17 @@ foreach ($server in $servers)
         Continue
     }
 
-    # Connected to session. Now updated the DNS client server address on any interfaces that currently use a domain controller IP.
+    # Connected to session. Now update the DNS client server address on any interfaces that currently use a domain controller IP.
     try {
-        Get-NetIPInterface | Get-DnsClientServerAddress | Where-Object {$_.ServerAddresses -like '10.10.10.*'} | `
-        Set-DnsClientServerAddress -ServerAddresses ("","","") -Verbose
+        Invoke-Command -Session $s -ScriptBlock {
+            Get-NetIPInterface | Get-DnsClientServerAddress | Where-Object { $_.ServerAddresses -like '10.10.10.*' } |
+                Set-DnsClientServerAddress -ServerAddresses ('', '', '') -Verbose
+        }
     }
     catch {
-        Write-Output "Failed to change the DNS client server address on $servername"
+        Write-Output "Failed to change the DNS client server address on $serverName"
     }
-    Exit-PSSession
+    finally {
+        if ($s) { Remove-PSSession -Session $s }
+    }
 } # End foreach server loop.

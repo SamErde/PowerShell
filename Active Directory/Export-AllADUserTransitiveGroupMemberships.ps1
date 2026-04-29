@@ -148,7 +148,7 @@ begin {
             }
 
             $CurrentProgressPreference = Get-Variable -Name ProgressPreference -ValueOnly
-            Set-Variable -Name ProgressPreference 'SilentlyContinue' -Scope Global -Force -ErrorAction SilentlyContinue
+            Set-Variable -Name ProgressPreference -Value 'SilentlyContinue' -Scope Global -Force -ErrorAction SilentlyContinue
             # Check if the global catalog server is available on the specified port.
             if (-not (Test-NetConnection -ComputerName $Server -Port $Port -InformationLevel Quiet -ErrorAction SilentlyContinue)) {
                 if (-not (Test-NetConnection -ComputerName $Server -Port $AltPort -InformationLevel Quiet -ErrorAction SilentlyContinue)) {

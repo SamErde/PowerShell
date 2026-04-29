@@ -20,7 +20,7 @@ function Update-DnsServerList {
     foreach ($netadapter in $NetworkAdapters) {
         [ipaddress[]]$ClientDnsServerSearchOrder = $netadapter.DnsServerSearchOrder
         if (Compare-Object -ReferenceObject $ClientDnsServerSearchOrder -DifferenceObject $OldDnsServers -IncludeEqual -ExcludeDifferent) {
-            $NetAdapterConfig = Get-CimInstance -Class Win32_NetworkAdapterConfiguration -Filter "Index = $._Index"
+            $NetAdapterConfig = Get-CimInstance -Class Win32_NetworkAdapterConfiguration -Filter "Index = $($netadapter.Index)"
             $NetAdapterConfig.SetDnsServerSearchOrder($($NewDnsServers.IPAddressToString -join ','))
 
             IpConfig /FlushDns
