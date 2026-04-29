@@ -160,7 +160,7 @@ if ($IsPowerShellISE -or (-not (Get-Command -Name 'oh-my-posh' -ErrorAction Sile
     # Use a custom prompt without Oh My Posh
     $FolderGlyph = [System.Char]::ConvertFromUtf32([System.Convert]::ToInt32('1F4C1', 16))
     # Use a red lightning bolt to indicate admin status or a white silhouette for non-admin.
-    if ($IsAdmin) {
+    if ($EnvironmentInfo.IsAdmin) {
         $AdminStatus = "$([System.Char]::ConvertFromUtf32([System.Convert]::ToInt32('26A1', 16)))" # Lightning bolt
         $AdminStatusColor = 'Red'
     } else {
@@ -178,7 +178,23 @@ if ($IsPowerShellISE -or (-not (Get-Command -Name 'oh-my-posh' -ErrorAction Sile
     }
 
 } else {
-    # Initialize Oh My Posh prompt when not in PowerShell ISE. To do: Move to a dot file location in home folder and automatically download from GitHub if missing.
-    oh-my-posh init pwsh --config "$HOME/.ohmyposh/comply.omp.json" | Invoke-Expression
+    Write-Verbose 'Skipping Oh My Posh initialization because it requires executing generated profile code. Using the built-in profile prompt instead.'
+    $FolderGlyph = [System.Char]::ConvertFromUtf32([System.Convert]::ToInt32('1F4C1', 16))
+    if ($EnvironmentInfo.IsAdmin) {
+        $AdminStatus = "$([System.Char]::ConvertFromUtf32([System.Convert]::ToInt32('26A1', 16)))"
+        $AdminStatusColor = 'Red'
+    } else {
+        $AdminStatus = "$([System.Char]::ConvertFromUtf32([System.Convert]::ToInt32('1F464', 16)))"
+        $AdminStatusColor = 'White'
+    }
+
+    function Prompt {
+        $LastCommand = Get-History -Count 1 -ErrorAction SilentlyContinue
+        Write-Host "$AdminStatus " -ForegroundColor "$AdminStatusColor" -NoNewline
+        Write-Host "[$($LastCommand.Id +1)] $([math]::Ceiling($LastCommand.Duration.TotalMilliseconds))ms " -NoNewline -ForegroundColor White
+        Write-Host "$FolderGlyph $($PWD.ToString() -ireplace [regex]::Escape($HOME),'~')" -ForegroundColor Yellow
+        Write-Host '>' -NoNewline -ForegroundColor White
+        return ' '
+    }
 }
 #endregion Version Specific Prompt

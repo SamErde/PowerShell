@@ -75,8 +75,7 @@ function Convert-HybridGroupToCloud {
             }
             Write-Verbose 'Microsoft Graph Groups module imported.'
         } catch {
-            Write-Error "Failed to import the Microsoft Graph Groups module. Install with: Install-Module Microsoft.Graph.Groups -Scope CurrentUser`n$_"
-            break
+            throw "Failed to import the Microsoft Graph Groups module. Install with: Install-Module Microsoft.Graph.Groups -Scope CurrentUser`n$_"
         }
 
         # Connect to Microsoft Graph if not already connected
@@ -88,8 +87,7 @@ function Convert-HybridGroupToCloud {
                 Write-Verbose 'Connected to Microsoft Graph.'
             }
         } catch {
-            Write-Error "Failed to connect to Microsoft Graph. $_"
-            break
+            throw "Failed to connect to Microsoft Graph. $_"
         }
 
         # Initialize collections and counters
@@ -105,8 +103,7 @@ function Convert-HybridGroupToCloud {
             # Get all non-blank lines. To do: validate group IDs or provide alternative processing of group names.
             $Lines = Get-Content -Path $FilePath -ErrorAction Stop | Where-Object { $_ -and $_.Trim() -ne '' }
             if (-not $Lines -or $Lines.Count -eq 0) {
-                Write-Error 'No group IDs found in the input file.'
-                break
+                throw 'No group IDs found in the input file.'
             }
 
             # Trim leading and trailing whitepace from each line and add the group GUID to the list.
@@ -132,7 +129,7 @@ function Convert-HybridGroupToCloud {
                         Select-Object -ExpandProperty Id -ErrorAction Stop
                     # If group IDs are found online, add them to the GroupGUIDs list.
                     if ($ResolvedGroupId) {
-                        foreach ($Id in @($Resolved)) { [void]$GroupGuids.Add([string]$Id) }
+                        foreach ($Id in @($ResolvedGroupId)) { [void]$GroupGuids.Add([string]$Id) }
                     } else {
                         Write-Warning "No group found with display name: $GetGroup"
                     }

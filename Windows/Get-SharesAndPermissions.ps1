@@ -1,4 +1,16 @@
-﻿Function Get-SharePermissions {
+﻿[CmdletBinding()]
+param (
+    [Parameter(Mandatory)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $ComputerName,
+
+    [Parameter()]
+    [System.Management.Automation.PSCredential]
+    $Credential
+)
+
+Function Get-SharePermissions {
     <#
 	    .Synopsis
 		    This function retrieves share permissions from a remote computer.
@@ -34,19 +46,45 @@
 
         [PSCredential]$Credential
     )
-    $ACL = $Null
-    $ShareSec = Get-CimInstance -ClassName Win32_LogicalShareSecuritySetting -ComputerName $ComputerName -Credential $Credential | Where-Object { $_.Name -eq $ShareName }
-    $SecurityDescriptor = $ShareSec.GetSecurityDescriptor().Descriptor
+    $CimParameters = @{
+        ClassName    = 'Win32_LogicalShareSecuritySetting'
+        ComputerName = $ComputerName
+    }
+
+    if ($Credential) {
+        $CimParameters['Credential'] = $Credential
+    }
+
+    $ShareSec = Get-CimInstance @CimParameters | Where-Object { $_.Name -eq $ShareName }
+
+    if ($null -eq $ShareSec) {
+        Write-Warning "Unable to find share '$ShareName' on '$ComputerName'."
+        return
+    }
+
+    $SecurityDescriptor = (Invoke-CimMethod -InputObject $ShareSec -MethodName GetSecurityDescriptor -ErrorAction Stop).Descriptor
 
     Try {
         $SecurityDescriptor.DACL | ForEach-Object {
             $UserName = $_.Trustee.Name
             If ($Null -ne $_.Trustee.Domain) { $UserName = "$($_.Trustee.Domain)\$UserName" }
             If ($Null -eq $_.Trustee.Name) { $UserName = $_.Trustee.SIDString }
-            #[Array]$ACL += New-Object Security.AccessControl.FileSystemAccessRule($UserName, $_.AccessMask, $_.AceType)
+
+            [PSCustomObject]@{
+                UserName          = $UserName
+                AccessMask        = $_.AccessMask
+                SharePermission   = switch ([int]$_.AccessMask) {
+                    1179817 { 'Read' }
+                    1245631 { 'Change' }
+                    2032127 { 'FullControl' }
+                    default { "Custom ($($_.AccessMask))" }
+                }
+                AccessControlType = [System.Security.AccessControl.AccessControlType]$_.AceType
+            }
         }
-    } Catch { Write-Host "Unable to obtain permissions for $share" }
-    Return $ACL
+    } Catch {
+        Write-Warning "Unable to obtain permissions for '$ShareName'. $_"
+    }
 } #End Function Get-SharePermissions
 
 <#
@@ -60,10 +98,16 @@
 2147483651 - IPC (Administrative share)
 #>
 
-$ComputerName = ''
-$Credential = (DOMAINNAME)
+$CimParameters = @{
+    ClassName    = 'Win32_Share'
+    ComputerName = $ComputerName
+}
 
-$Shares = Get-CimInstance -ClassName Win32_Share -ComputerName $ComputerName -Credential $Credential
+if ($Credential) {
+    $CimParameters['Credential'] = $Credential
+}
+
+$Shares = Get-CimInstance @CimParameters
 $AdminShares = $Shares | Where-Object { ($_.Type -ge 2147483648) -AND ($_.Type -le 2147483651) }
 
 $ShareList = @()

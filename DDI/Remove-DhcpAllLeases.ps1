@@ -13,7 +13,7 @@ function Remove-DhcpAllLeases {
     $AreYouSure = Read-Host -Prompt "Enter `'yes'` to proceed or any other key to abort"
     if ($AreYouSure -ne 'yes') {
         # End the script
-        break
+        return
     }
 
     $Scopes = Get-DhcpServerv4Scope -ComputerName $ComputerName

@@ -5,19 +5,67 @@
 #
 
 Function New-gMSA {
+    <#
+    .SYNOPSIS
+        Creates a group managed service account and retrieval group.
+
+    .DESCRIPTION
+        Creates the Active Directory group that can retrieve a gMSA password, adds the target servers, and creates the
+        gMSA with caller-provided domain and distinguished name paths.
+
+    .PARAMETER gMSA
+        The gMSA name. gMSA names must be 15 characters or fewer.
+
+    .PARAMETER Servers
+        Computer account names that can retrieve the managed password.
+
+    .PARAMETER Credential
+        Credential used for Active Directory operations.
+
+    .PARAMETER DomainDnsName
+        DNS domain suffix for the gMSA DNS host name.
+
+    .PARAMETER GroupPath
+        Distinguished name of the OU where the retrieval group should be created.
+
+    .PARAMETER ServiceAccountPath
+        Distinguished name of the container where the gMSA should be created.
+
+    .EXAMPLE
+        New-gMSA -gMSA 'appsvc01' -Servers 'SERVER01','SERVER02' -Credential (Get-Credential) -DomainDnsName 'example.com' -GroupPath 'OU=gMSA Groups,DC=example,DC=com' -ServiceAccountPath 'CN=Managed Service Accounts,DC=example,DC=com'
+
+    .OUTPUTS
+        None
+    #>
     param (
-        [Parameter(Mandatory=$true)][string]$gMSA,
-        [Parameter(Mandatory=$true)][array]$Servers,
-        [Parameter(Mandatory=$true)][System.Management.Automation.PSCredential]$Credential
+        [Parameter(Mandatory=$true)]
+        [ValidateLength(1,15)]
+        [string]$gMSA,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$Servers,
+
+        [Parameter(Mandatory=$true)]
+        [System.Management.Automation.PSCredential]$Credential,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$DomainDnsName,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$GroupPath,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$ServiceAccountPath
     )
-    If ($gMSA.Length -gt 15) {
-        Write-Output "gMSA name too long. 15 character maximum."
-        Exit
-    }
+
     Import-Module ActiveDirectory
     $Group = "MSA " + $gMSA
-    $DNS = $gMSA + ".DOMAIN.org"
-    New-ADGroup -Name $Group -GroupScope Global -DisplayName $Group -Description "Permission group for $gMSA" -Path "OU=gMSA Password Retrieval Groups,OU=Security Groups,DC=DOMAINNAME,DC=org" -Credential $Credential
-    Add-ADGroupMember -Identity $Group -Members ($Servers | ForEach-Object {Get-ADComputer $_}) -Credential $Credential
-    New-ADServiceAccount -Name $gMSA -DNSHostName $DNS -PrincipalsAllowedToRetrieveManagedPassword $Group -Path "CN=Managed Service Accounts,DC=DOMAINNAME,DC=org" -Credential $Credential
+    $DNS = "$gMSA.$DomainDnsName"
+    New-ADGroup -Name $Group -GroupScope Global -DisplayName $Group -Description "Permission group for $gMSA" -Path $GroupPath -Credential $Credential
+    Add-ADGroupMember -Identity $Group -Members ($Servers | ForEach-Object {Get-ADComputer -Identity $_ -Credential $Credential}) -Credential $Credential
+    New-ADServiceAccount -Name $gMSA -DNSHostName $DNS -PrincipalsAllowedToRetrieveManagedPassword $Group -Path $ServiceAccountPath -Credential $Credential
 }

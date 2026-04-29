@@ -3,9 +3,17 @@
 
 # Activate Windows
 $ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
-Invoke-Expression "cscript /b C:\Windows\System32\slmgr.vbs -ipk $ProductKey"
+if ([string]::IsNullOrWhiteSpace($ProductKey)) {
+    throw 'No OEM product key was found in SoftwareLicensingService.OA3xOriginalProductKey.'
+}
+
+if ($ProductKey -notmatch '^[A-Z0-9]{5}(-[A-Z0-9]{5}){4}$') {
+    throw 'The product key returned by SoftwareLicensingService.OA3xOriginalProductKey is not in the expected format.'
+}
+
+& "$env:SystemRoot\System32\cscript.exe" '/b' "$env:SystemRoot\System32\slmgr.vbs" '-ipk' $ProductKey
 Start-Sleep 5
-Invoke-Expression 'cscript /b C:\Windows\System32\slmgr.vbs -ato'
+& "$env:SystemRoot\System32\cscript.exe" '/b' "$env:SystemRoot\System32\slmgr.vbs" '-ato'
 
 
 

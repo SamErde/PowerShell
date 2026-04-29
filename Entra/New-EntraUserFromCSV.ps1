@@ -38,6 +38,10 @@
 .PARAMETER ForcePasswordChange
     If specified, users will be required to change their password on first sign-in.
 
+.PARAMETER ExportInitialPasswords
+    If specified, includes initial passwords in the exported results CSV. This writes plaintext credentials to disk and
+    should only be used when the output path is secured and the file is removed after the passwords are transferred.
+
 .PARAMETER WhatIf
     Shows what would happen if the script runs without actually creating users.
 
@@ -88,7 +92,10 @@ param (
     [int]$PasswordLength = 16,
 
     [Parameter()]
-    [switch]$ForcePasswordChange
+    [switch]$ForcePasswordChange,
+
+    [Parameter()]
+    [switch]$ExportInitialPasswords
 )
 
 #Requires -Modules Microsoft.Entra
@@ -316,6 +323,10 @@ try {
     $successCount = 0
     $failCount = 0
 
+    if ($ExportInitialPasswords) {
+        Write-Warning 'Initial passwords will be exported in plaintext. Store the results file securely and remove it after use.'
+    }
+
     # Process each user
     foreach ($user in $users) {
         $userPrincipalName = Get-UserPropertyValue -User $user -PropertyName 'UserPrincipalName' -Mapping $columnMapping
@@ -430,15 +441,19 @@ try {
                     Write-Verbose "  User ObjectId: $($newUser.Id)"
                     $successCount++
 
-                    # Store result
-                    $results.Add([PSCustomObject]@{
+                    $Result = [ordered]@{
                         UserPrincipalName = $userPrincipalName
                         DisplayName       = $displayName
                         Status            = 'Success'
-                        Password          = $password
                         ObjectId          = $newUser.Id
                         Error             = $null
-                    })
+                    }
+
+                    if ($ExportInitialPasswords) {
+                        $Result['InitialPassword'] = $password
+                    }
+
+                    $results.Add([PSCustomObject]$Result)
                     Write-Verbose "  Result stored in collection"
                 }
                 catch {
@@ -496,7 +511,6 @@ try {
                             UserPrincipalName = $userPrincipalName
                             DisplayName       = $displayName
                             Status            = 'Failed'
-                            Password          = $null
                             ObjectId          = $null
                             Error             = "Invalid domain: $domain - $errorDetails"
                         })
@@ -557,7 +571,6 @@ try {
                 UserPrincipalName = $userPrincipalName
                 DisplayName       = $displayName
                 Status            = 'Failed'
-                Password          = $null
                 ObjectId          = $null
                 Error             = $detailedError
             })
@@ -586,7 +599,11 @@ try {
         $results | Export-Csv -Path $resultPath -NoTypeInformation
 
         Write-Host "Results exported to: $resultPath" -ForegroundColor Green
-        Write-Host "IMPORTANT: Store the passwords securely!" -ForegroundColor Yellow
+        if ($ExportInitialPasswords) {
+            Write-Host "IMPORTANT: The results file contains plaintext initial passwords. Store it securely and remove it after use." -ForegroundColor Yellow
+        } else {
+            Write-Host "Initial passwords were not exported. Use -ExportInitialPasswords only when you have a secured handling process." -ForegroundColor Yellow
+        }
         Write-Verbose "Results file contains $($results.Count) records"
     }
     else {

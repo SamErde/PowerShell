@@ -29,29 +29,31 @@ $Creds = Get-Credential
 #Loop through each server in the list, opening a PowerShell remoting session, then show the name and status of the session. Skips (continue) to the next server if a connection fails.
 foreach ($srv in $servers) {
     $server = $srv.Hostname
-    $session = New-PSSession -ComputerName $server -Name $server -Credential $Creds
+    $session = $null
     Try {
         Write-Host -ForegroundColor Green "Connecting to $server... " -NoNewline
-        Enter-PSSession $session
+        $session = New-PSSession -ComputerName $server -Name $server -Credential $Creds -ErrorAction Stop
+        Write-Output $session.State
+
+        Invoke-Command -Session $session -ScriptBlock {
+            $zones = Get-ChildItem -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\DNS Server\Zones\'
+
+            foreach ($zone in $zones) {
+                Write-Host "`n`nName: $((Get-ItemProperty -PSPath $zone.PSPath).PSChildName)" -NoNewline -ForegroundColor Yellow
+                Write-Host "`nSecondaryServers: $((Get-ItemProperty -PSPath $zone.PSPath).SecondaryServers)" -NoNewline
+                Write-Host "`nSecureSecondaries: $((Get-ItemProperty -PSPath $zone.PSPath).SecureSecondaries) `n" -NoNewline
+
+                #Set-ItemProperty -PSPath $zone.PSPath -Name "SecondaryServers" -Value "" -WhatIf
+                #Set-ItemProperty -PSPath $zone.PSPath -Name "SecureSecondaries" -Value "3" -WhatIf
+            }
+        }
     } Catch {
         Write-Host -ForegroundColor DarkYellow "Failed to enter the PSSession for $server. Skipping."
         Continue
+    } Finally {
+        if ($session) {
+            Remove-PSSession $session
+            Write-Host "$server session removed. `n`n" -ForegroundColor DarkYellow -NoNewline
+        }
     }
-    Write-Output $session.State
-
-    $zones = Get-ChildItem -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\DNS Server\Zones\'
-
-    foreach ($zone in $zones) {
-        Write-Host "`n`n 'Name: ' (Get-ItemProperty -PSPath $zone.PSPath).PSChildName" -NoNewline -ForegroundColor Yellow
-        Write-Host "`n 'SecondaryServers: ' (Get-ItemProperty -PSPath $zone.PSPath).SecondaryServers" -NoNewline
-        Write-Host "`n 'SecureSecondaries: ' (Get-ItemProperty -PSPath $zone.PSPath).SecureSecondaries `n" -NoNewline
-
-        #Set-ItemProperty -PSPath $zone.PSPath -Name "SecondaryServers" -Value "" -WhatIf
-        #Set-ItemProperty -PSPath $zone.PSPath -Name "SecureSecondaries" -Value "3" -WhatIf
-    }
-
-    #Cleanup and then show the current PSSession state.
-    if ($session) { Exit-PSSession }
-    if ($session) { Remove-PSSession $session }
-    Write-Host "$session.ComputerName $session.State `n`n" -ForegroundColor DarkYellow -NoNewline
 }
