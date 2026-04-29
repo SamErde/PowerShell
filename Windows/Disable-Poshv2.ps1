@@ -11,7 +11,7 @@ $exclusions = @('', '', '')
 #Filtering out production servers as well as any SQL, Exchange, SharePoint (SPS), Telephony, rinf* servers, and any servers in the "Non Windows" OU.
 $servers = (Get-ADComputer -Filter 'OperatingSystem -like "Windows Server*" -and Enabled -eq "True" -and Name -notlike "*sps*"' `
         -SearchBase 'DC=DOMAIN,DC=COM' -SearchScope Subtree).Name | Where-Object { $_ -notin $Exclusions } | Sort-Object
-Write-Information "$servers.Count servers found."
+Write-Information "$($servers.Count) servers found."
 
 foreach ($server in $servers) {
     if (Test-WSMan -ComputerName $server -ErrorAction Ignore) {

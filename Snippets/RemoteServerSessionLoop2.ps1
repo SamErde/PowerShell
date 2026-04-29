@@ -19,20 +19,20 @@ foreach ($server in $servers) {
 
     Try {
         Write-Information "Connecting to $server... " -InformationAction Continue
-        Enter-PSSession $session
+        # Enter-PSSession is interactive-only; use Invoke-Command to run code in the remote session.
+        Invoke-Command -Session $session -ScriptBlock {
+            <#
+                Code to be run on each remote server goes here.
+            #>
+            Write-Information 'Inner code.' -InformationAction Continue
+        }
     } Catch {
-        Write-Warning "Failed to enter the PSSession for $server. Skipping." -WarningAction Continue
+        Write-Warning "Failed to connect to $server. Skipping." -WarningAction Continue
         Continue
     }
     Write-Output $session.State
 
-    <#
-        Code to be run on each remote server go here.
-    #>
-    Write-Information 'Inner code.' -InformationAction Continue
-
     #Cleanup and then show the current PSSession state.
-    Exit-PSSession
     Remove-PSSession $session
-    Write-Information "$session.ComputerName $session.State `n`n" -InformationAction Continue
+    Write-Information "$($session.ComputerName) $($session.State) `n`n" -InformationAction Continue
 }
