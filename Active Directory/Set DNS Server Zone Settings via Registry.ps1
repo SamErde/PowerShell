@@ -55,7 +55,7 @@ foreach ($srv in $servers) {
             }
         }
     } Catch {
-        Write-Host "Failed to enter the PSSession for $server. Skipping." -ForegroundColor DarkYellow
+        Write-Host "Failed to create or use the PSSession for $server. Skipping." -ForegroundColor DarkYellow
         Continue
     } Finally {
         if ($session) {

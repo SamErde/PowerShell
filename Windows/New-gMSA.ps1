@@ -37,6 +37,7 @@ Function New-gMSA {
     .OUTPUTS
         None
     #>
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param (
         [Parameter(Mandatory=$true)]
         [ValidateLength(1,15)]
@@ -65,7 +66,10 @@ Function New-gMSA {
     Import-Module ActiveDirectory
     $Group = "MSA " + $gMSA
     $DNS = "$gMSA.$DomainDnsName"
-    New-ADGroup -Name $Group -GroupScope Global -DisplayName $Group -Description "Permission group for $gMSA" -Path $GroupPath -Credential $Credential
-    Add-ADGroupMember -Identity $Group -Members ($Servers | ForEach-Object {Get-ADComputer -Identity $_ -Credential $Credential}) -Credential $Credential
-    New-ADServiceAccount -Name $gMSA -DNSHostName $DNS -PrincipalsAllowedToRetrieveManagedPassword $Group -Path $ServiceAccountPath -Credential $Credential
+
+    if ($PSCmdlet.ShouldProcess($gMSA, 'Create gMSA, retrieval group, and group membership')) {
+        New-ADGroup -Name $Group -GroupScope Global -DisplayName $Group -Description "Permission group for $gMSA" -Path $GroupPath -Credential $Credential
+        Add-ADGroupMember -Identity $Group -Members ($Servers | ForEach-Object {Get-ADComputer -Identity $_ -Credential $Credential}) -Credential $Credential
+        New-ADServiceAccount -Name $gMSA -DNSHostName $DNS -PrincipalsAllowedToRetrieveManagedPassword $Group -Path $ServiceAccountPath -Credential $Credential
+    }
 }

@@ -170,8 +170,10 @@ if ($IsPowerShellISE -or (-not (Get-Command -Name 'oh-my-posh' -ErrorAction Sile
     # Custom prompt function that shows admin status, command ID, command duration, and path.
     function Prompt {
         $LastCommand = Get-History -Count 1 -ErrorAction SilentlyContinue
+        $CommandId = if ($LastCommand) { $LastCommand.Id + 1 } else { 1 }
+        $DurationMilliseconds = if ($LastCommand) { [math]::Ceiling($LastCommand.Duration.TotalMilliseconds) } else { 0 }
         Write-Host "$AdminStatus " -ForegroundColor "$AdminStatusColor" -NoNewline
-        Write-Host "[$($LastCommand.Id +1)] $([math]::Ceiling($LastCommand.Duration.TotalMilliseconds))ms " -NoNewline -ForegroundColor White
+        Write-Host "[$CommandId] ${DurationMilliseconds}ms " -NoNewline -ForegroundColor White
         Write-Host "$FolderGlyph $($PWD.ToString() -ireplace [regex]::Escape($HOME),'~')" -ForegroundColor Yellow
         Write-Host '>' -NoNewline -ForegroundColor White
         return ' '
@@ -190,8 +192,10 @@ if ($IsPowerShellISE -or (-not (Get-Command -Name 'oh-my-posh' -ErrorAction Sile
 
     function Prompt {
         $LastCommand = Get-History -Count 1 -ErrorAction SilentlyContinue
+        $CommandId = if ($LastCommand) { $LastCommand.Id + 1 } else { 1 }
+        $DurationMilliseconds = if ($LastCommand) { [math]::Ceiling($LastCommand.Duration.TotalMilliseconds) } else { 0 }
         Write-Host "$AdminStatus " -ForegroundColor "$AdminStatusColor" -NoNewline
-        Write-Host "[$($LastCommand.Id +1)] $([math]::Ceiling($LastCommand.Duration.TotalMilliseconds))ms " -NoNewline -ForegroundColor White
+        Write-Host "[$CommandId] ${DurationMilliseconds}ms " -NoNewline -ForegroundColor White
         Write-Host "$FolderGlyph $($PWD.ToString() -ireplace [regex]::Escape($HOME),'~')" -ForegroundColor Yellow
         Write-Host '>' -NoNewline -ForegroundColor White
         return ' '
