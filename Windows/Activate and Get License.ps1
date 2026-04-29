@@ -36,5 +36,3 @@ Write-Output "Added 'Interactive' group and SID ($sid) with read (ReadKey) permi
 
 #Remove the # below to make sure it will kick off the scheduled task on already enrolled devices
 Start-Process "$env:SystemRoot\system32\ClipRenew.exe"
-
-$ProductKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
