@@ -9,11 +9,11 @@ on:
 permissions:
   contents: read
 
-# Serialize runs per ref without cancelling: every pushed commit range must still
-# be scanned, so queued runs are allowed to finish instead of being superseded.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+# No concurrency group is defined on purpose. Each run scans only its own
+# github.event.before -> head push range, and GitHub retains a single pending run
+# per concurrency group: a third rapid push would evict the second run's range
+# even with cancel-in-progress: false, leaving those commits unscanned. Runner
+# time is traded for complete secret-scan coverage.
 
 jobs:
   scanning:
