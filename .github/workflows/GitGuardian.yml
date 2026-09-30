@@ -9,11 +9,14 @@ on:
 permissions:
   contents: read
 
-# No concurrency group is defined on purpose. Each run scans only its own
-# github.event.before -> head push range, and GitHub retains a single pending run
-# per concurrency group: a third rapid push would evict the second run's range
-# even with cancel-in-progress: false, leaving those commits unscanned. Runner
-# time is traded for complete secret-scan coverage.
+# No concurrency group is defined on purpose. For push and workflow_dispatch
+# runs alike, ggshield selects GITHUB_PUSH_BASE_SHA..GITHUB_SHA, falling back to
+# GITHUB_DEFAULT_BRANCH..GITHUB_SHA when the push base is empty and then to
+# GITHUB_SHA~1... when that range yields no commits. On the default branch that
+# last fallback covers only the head commit, so a run is not guaranteed to
+# re-cover an earlier run's commits. GitHub retains a single pending run per
+# concurrency group, so a third rapid push would evict the second run even with
+# cancel-in-progress: false. Runner time is traded for complete scan coverage.
 
 jobs:
   scanning:
